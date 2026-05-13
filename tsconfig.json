@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "lib": ["ESNext", "DOM"],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "isolatedModules": true,
+    "removeComments": false,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "types": ["@types/node"],
+    "rootDir": "./",
+    "outDir": "./dist"
+  },
+  "exclude": ["dist", "node_modules", "coverage", "docs"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "bin/**/*.ts"],
+  "ts-node": {
+    "swc": true
+  }
+}

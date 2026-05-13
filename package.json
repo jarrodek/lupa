@@ -1,0 +1,110 @@
+{
+  "name": "@jarrodek/lupa",
+  "version": "0.1.0",
+  "description": "A lightning-fast, Vite-powered browser testing framework for Web Components with an elegant, Japa-inspired API.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jarrodek/lupa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jarrodek/lupa/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "Pawel Uchida-Psztyc",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "test": "tsx bin/test.ts",
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "prepare": "husky",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "lint:eslint": "eslint --color --cache --cache-location .eslintcache .",
+    "lint:prettier": "prettier \"**/*.ts\" --check",
+    "format:eslint": "eslint --color --cache --fix --cache-location .eslintcache .",
+    "format:prettier": "prettier \"**/*.ts\" --write",
+    "format": "npm run format:eslint && npm run format:prettier"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./assert": "./dist/src/assert/index.js",
+    "./assert*.js": "./dist/src/assert/*.js",
+    "./assert*": "./dist/src/assert/*",
+    "./runner": "./dist/src/runner/index.js",
+    "./runner*.js": "./dist/src/runner/*.js",
+    "./runner*": "./dist/src/runner/*",
+    "./refiner": "./dist/src/refiner/main.js",
+    "./testing": "./dist/src/testing/index.js",
+    "./testing*.js": "./dist/src/testing/*.js",
+    "./testing*": "./dist/src/testing/*"
+  },
+  "dependencies": {
+    "@japa/errors-printer": "^4.1.4",
+    "@jarrodek/debug": "^1.0.0",
+    "@poppinss/colors": "^4.1.6",
+    "@poppinss/macroable": "^1.1.2",
+    "@poppinss/string": "^1.7.2",
+    "@poppinss/utils": "^7.0.1",
+    "assertion-error": "^2.0.1",
+    "chai": "^6.2.2",
+    "emittery": "^2.0.0",
+    "error-stack-parser-es": "^1.0.5",
+    "fast-glob": "^3.3.3",
+    "getopts": "^2.3.0",
+    "lit-html": "^3.3.2",
+    "serialize-error": "^13.0.1",
+    "supports-color": "^10.2.2",
+    "timekeeper": "^2.3.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/compat": "^2.0.0",
+    "@eslint/js": "^10.0.1",
+    "@jridgewell/trace-mapping": "^0.3.31",
+    "@types/chai": "^5.2.3",
+    "@types/node": "^25.7.0",
+    "eslint": "^10.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-no-only-tests": "^3.3.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^17.3.0",
+    "husky": "^9.1.7",
+    "playwright": "^1.59.1",
+    "prettier": "^3.7.3",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.48.0",
+    "vite": "^8.0.11"
+  },
+  "keywords": [
+    "testing",
+    "web-components",
+    "browser-runner",
+    "vite",
+    "playwright",
+    "typescript",
+    "japa",
+    "dom",
+    "test-runner"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ],
+    "*.ts": [
+      "eslint --fix"
+    ]
+  }
+}
