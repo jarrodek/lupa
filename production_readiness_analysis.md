@@ -64,9 +64,9 @@ Lupa is a **well-architected prototype** with strong fundamentals. The inverted 
 | No LICENSE file at root | ✅ Addressed | Added standard Apache 2.0 LICENSE file. |
 | No `.npmignore` or `files` field | ✅ Addressed | Added `"files": ["dist"]` to `package.json` to prevent publishing test and source files. |
 | `engines.node >= 24.0.0` | ✅ Addressed | Lowered to `>=22.0.0` in `package.json`. |
-| Export map wildcards | 🟠 Low | `"./runner*.js"` and `"./testing*.js"` wildcards are unconventional and may expose internals. |
-| `dist/` is committed(?) | 🟠 Low | `dist/` directory exists. Should be in `.gitignore` and built on publish. |
-| No `prepublishOnly` script | 🟠 Low | No automated build before `npm publish`. |
+| Export map wildcards | ✅ Addressed | Removed wildcards. Export map now strictly exposes `./assert`, `./runner`, `./refiner`, and `./testing` entry points. |
+| `dist/` is committed(?) | ✅ Addressed | Added `dist/` and `build/` to `.gitignore`. |
+| No `prepublishOnly` script | ✅ Addressed | Added `prepublishOnly` with clean and build scripts to `package.json`. |
 
 ### 5. Dead Code & Technical Debt 🟡 Medium
 

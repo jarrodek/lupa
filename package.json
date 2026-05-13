@@ -34,15 +34,9 @@
   "exports": {
     "./package.json": "./package.json",
     "./assert": "./dist/src/assert/index.js",
-    "./assert*.js": "./dist/src/assert/*.js",
-    "./assert*": "./dist/src/assert/*",
     "./runner": "./dist/src/runner/index.js",
-    "./runner*.js": "./dist/src/runner/*.js",
-    "./runner*": "./dist/src/runner/*",
     "./refiner": "./dist/src/refiner/main.js",
-    "./testing": "./dist/src/testing/index.js",
-    "./testing*.js": "./dist/src/testing/*.js",
-    "./testing*": "./dist/src/testing/*"
+    "./testing": "./dist/src/testing/index.js"
   },
   "dependencies": {
     "@japa/errors-printer": "^4.1.4",
