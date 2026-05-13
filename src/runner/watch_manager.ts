@@ -267,11 +267,34 @@ export class WatchManager {
       return
     }
 
-    console.log('\nSelect a file to focus:')
-    allFiles.forEach((file, index) => {
-      const relPath = file.pathname.replace(this.#config.cwd + '/', '')
-      console.log(`${index + 1}) ${relPath}`)
+    const failedFiles = new Set<string>()
+    this.#eventBuffer.forEach((event) => {
+      if (event.eventName === 'test:end' && event.data?.hasError && event.data?.meta?.fileName) {
+        failedFiles.add(event.data.meta.fileName)
+      }
     })
+
+    const failed = allFiles.filter((f) => failedFiles.has(f.pathname))
+    const passed = allFiles.filter((f) => !failedFiles.has(f.pathname))
+    const displayList: URL[] = []
+
+    if (failed.length > 0) {
+      console.log('\n\x1b[31mFailing tests:\x1b[0m')
+      failed.forEach((file) => {
+        const relPath = file.pathname.replace(this.#config.cwd + '/', '')
+        displayList.push(file)
+        console.log(`\x1b[31m${displayList.length}) ${relPath}\x1b[0m`)
+      })
+    }
+
+    if (passed.length > 0) {
+      console.log(failed.length > 0 ? '\nAll other tests:' : '\nAll tests:')
+      passed.forEach((file) => {
+        const relPath = file.pathname.replace(this.#config.cwd + '/', '')
+        displayList.push(file)
+        console.log(`${displayList.length}) ${relPath}`)
+      })
+    }
 
     const readline = await import('node:readline')
     const rl = readline.createInterface({
@@ -290,8 +313,8 @@ export class WatchManager {
       process.stdin.on('keypress', this.#onKeypress)
 
       const num = parseInt(answer.trim(), 10)
-      if (!isNaN(num) && num > 0 && num <= allFiles.length) {
-        const selected = allFiles[num - 1]
+      if (!isNaN(num) && num > 0 && num <= displayList.length) {
+        const selected = displayList[num - 1]
         this.#focusedFile = selected.pathname.split('/').pop() || null
         console.log(`\nFocusing on: ${this.#focusedFile}`)
         this.#executeTests()
