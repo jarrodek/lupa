@@ -66,11 +66,13 @@ export class NdJSONReporter extends BaseReporter {
   }
 
   protected onGroupEnd(payload: GroupEndNode): void {
-    JSON.stringify({
-      event: 'group:end',
-      title: payload.title,
-      errors: this.#serializeErrors(payload.errors),
-    })
+    console.log(
+      JSON.stringify({
+        event: 'group:end',
+        title: payload.title,
+        errors: this.#serializeErrors(payload.errors),
+      })
+    )
   }
 
   protected onSuiteStart(payload: SuiteStartNode): void {

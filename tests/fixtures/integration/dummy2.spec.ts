@@ -1,5 +1,5 @@
-import { test } from '../src/testing/index.js'
-import { multiply, divide } from './fixtures/math.js'
+import { test } from '../../../src/testing/index.js'
+import { multiply, divide } from '../browser/math.js'
 
 test.group('Math Operations Group', () => {
   test('multiply two positive numbers', ({ assert }) => {

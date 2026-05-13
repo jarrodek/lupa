@@ -19,7 +19,11 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "test": "tsx bin/test.ts",
+    "test": "npm run test:unit",
+    "test:unit": "tsx --test \"tests/unit/**/*.spec.ts\"",
+    "coverage": "npx --yes c8 npm test",
+    "coverage:node": "npx tsx --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"tests/unit/**/*.spec.ts\"",
+    "test:browser": "tsx bin/test.ts",
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run clean && npm run build",
@@ -100,5 +104,12 @@
     "*.ts": [
       "eslint --fix"
     ]
+  },
+  "c8": {
+    "reporter": ["lcov", "text", "html"],
+    "all": true,
+    "include": ["src/**/*.ts"],
+    "exclude": ["test/**", "src/types.ts", "src/**/types.ts"],
+    "report-dir": "./coverage"
   }
 }

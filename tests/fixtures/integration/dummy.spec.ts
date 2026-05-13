@@ -1,5 +1,5 @@
-import { test, fixture, html } from '../src/testing/index.js'
-import { failingFunction } from './fixtures/failing_function.js'
+import { test, fixture, html } from '../../../src/testing/index.js'
+import { failingFunction } from '../browser/failing_function.js'
 
 test.group('Dummy Group', () => {
   test('this is a dummy test', ({ assert }) => {

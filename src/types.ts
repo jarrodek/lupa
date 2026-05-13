@@ -7,6 +7,8 @@ import type { Emitter } from './testing/emitter.js'
 import type { Runner } from './runner/runner.js'
 import type { TestContext } from './testing/test_context.js'
 
+export { Runner }
+
 /**
  * Summary reporters are registered with the SummaryBuilder to
  * add information to the tests summary output

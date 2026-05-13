@@ -58,10 +58,6 @@ export function test(title: string, callback?: (context: TestContext) => void | 
     file: activeFile,
   })
 
-  // Ensure context is properly instantiated so macros (like assert) are available
-  // const context = new TestContext()
-  // const testInstance = new Test<TestContext>(title, context, activeEmitter, activeRefiner, activeGroup)
-
   testInstance.setup((t) => {
     activeTest = t
     return () => {

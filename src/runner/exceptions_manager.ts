@@ -90,7 +90,7 @@ export class ExceptionsManager {
      */
     if (this.#exceptionsBuffer.length) {
       const exceptionsCount = this.#exceptionsBuffer.length
-      let exceptionsIndex = this.#exceptionsBuffer.length
+      let exceptionsIndex = 0
       this.#errorsPrinter.printSectionHeader('Unhandled Errors')
       for (const exception of this.#exceptionsBuffer) {
         await this.#errorsPrinter.printError(exception)
@@ -103,8 +103,8 @@ export class ExceptionsManager {
      * Print rejections
      */
     if (this.#rejectionsBuffer.length) {
-      const rejectionsCount = this.#exceptionsBuffer.length
-      let rejectionsIndex = this.#exceptionsBuffer.length
+      const rejectionsCount = this.#rejectionsBuffer.length
+      let rejectionsIndex = 0
       this.#errorsPrinter.printSectionBorder('Unhandled Rejections')
       for (const rejection of this.#rejectionsBuffer) {
         await this.#errorsPrinter.printError(rejection)

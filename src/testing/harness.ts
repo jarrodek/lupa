@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /// <reference types="vite/client" />
 import { WebRunner } from './web_runner.js'
 import { Suite } from './suite/main.js'
@@ -25,10 +26,11 @@ declare global {
       testPlugins?: (string | [string, any])[]
     }
     __lupa_runner_end__: () => Promise<void>
+    __lupa_testing_mode__?: boolean
   }
 }
 
-async function boot() {
+export async function boot() {
   const emitter = new Emitter()
   const runner = new WebRunner(emitter)
   const refiner = new Refiner(window.__lupa__.config?.filters || {})
@@ -93,11 +95,9 @@ async function boot() {
       if (typeof mod.default === 'function') {
         await mod.default(pluginContext, options)
       } else {
-        // eslint-disable-next-line no-console
         console.warn(`Test plugin "${specifier}" does not have a default export`)
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(`Failed to load test plugin: ${specifier}`, error)
     }
   }
@@ -125,11 +125,11 @@ async function boot() {
     for (const file of suiteDef.files) {
       try {
         setActiveFile(file)
-        await import(/* @vite-ignore */ '/@fs' + file)
+        const prefix = window.__lupa_testing_mode__ ? 'file://' : '/@fs'
+        await import(/* @vite-ignore */ prefix + file)
       } catch (error) {
         const importError = error instanceof Error ? error : new Error(String(error))
         importError.message = `Failed to load test file: ${file}\n${importError.message}`
-        // eslint-disable-next-line no-console
         console.error(importError.message, importError)
         emitter.emit('uncaught:exception', { error: importError, type: 'error' })
       } finally {
@@ -154,5 +154,6 @@ async function boot() {
   }
 }
 
-// eslint-disable-next-line no-console
-boot().catch(console.error)
+if (typeof window !== 'undefined' && !window.__lupa_testing_mode__) {
+  boot().catch(console.error)
+}

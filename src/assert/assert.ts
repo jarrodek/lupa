@@ -54,16 +54,6 @@ export class Assert extends Macroable implements AssertContract {
   AssertionError = AssertionError
 
   /**
-   * Converts a luxon date to JavaScript date
-   */
-  #luxonToJSDate(value?: any) {
-    if (typeof value?.toJSDate === 'function') {
-      return value.toJSDate()
-    }
-    return value
-  }
-
-  /**
    * Increments the assertions count by 1
    */
   incrementAssertionsCount() {
@@ -100,6 +90,7 @@ export class Assert extends Macroable implements AssertContract {
       thisObject?: any
     }
   ) {
+    this.incrementAssertionsCount()
     this.Assertion.prototype.assert.call(
       {
         __flags: {
@@ -324,104 +315,76 @@ export class Assert extends Macroable implements AssertContract {
 
   /**
    * Assert if the actual value is above the expected value. Supports
-   * numbers, dates and luxon datetime object.
+   * numbers and dates.
    *
    * @example
    * assert.isAbove(5, 2) // passes
    * assert.isAbove(new Date('2020 12 20'), new Date('2020 12 18')) // passes
    */
-  isAbove(
-    valueToCheck: Date | { toJSDate(): Date },
-    valueToBeAbove: Date | { toJSDate(): Date },
-    message?: string
-  ): void
+  isAbove(valueToCheck: Date, valueToBeAbove: Date, message?: string): void
   isAbove(valueToCheck: number, valueToBeAbove: number, message?: string): void
   isAbove(
-    valueToCheck: number | Date | { toJSDate(): Date },
-    valueToBeAbove: number | Date | { toJSDate(): Date },
+    valueToCheck: number | Date,
+    valueToBeAbove: number | Date,
     message?: string
   ): ReturnType<ChaiAssert['isAbove']> {
-    valueToCheck = this.#luxonToJSDate(valueToCheck)
-    valueToBeAbove = this.#luxonToJSDate(valueToBeAbove)
     this.incrementAssertionsCount()
-
     return assert.isAbove(valueToCheck as number, valueToBeAbove as number, message)
   }
 
   /**
    * Assert if the actual value is above or same as the expected value.
-   * Supports numbers, dates and luxon datetime object.
+   * Supports numbers and dates.
    *
    * @example
    * assert.isAtLeast(2, 2) // passes
    * assert.isAtLeast(new Date('2020 12 20'), new Date('2020 12 20')) // passes
    */
-  isAtLeast(
-    valueToCheck: Date | { toJSDate(): Date },
-    valueToBeAtLeast: Date | { toJSDate(): Date },
-    message?: string
-  ): void
+  isAtLeast(valueToCheck: Date, valueToBeAtLeast: Date, message?: string): void
   isAtLeast(valueToCheck: number, valueToBeAtLeast: number, message?: string): void
   isAtLeast(
-    valueToCheck: number | Date | { toJSDate(): Date },
-    valueToBeAtLeast: number | Date | { toJSDate(): Date },
+    valueToCheck: number | Date,
+    valueToBeAtLeast: number | Date,
     message?: string
   ): ReturnType<ChaiAssert['isAtLeast']> {
-    valueToCheck = this.#luxonToJSDate(valueToCheck)
-    valueToBeAtLeast = this.#luxonToJSDate(valueToBeAtLeast)
     this.incrementAssertionsCount()
-
     return assert.isAtLeast(valueToCheck as number, valueToBeAtLeast as number, message)
   }
 
   /**
    * Assert if the actual value is below the expected value.
-   * Supports numbers, dates and luxon datetime object.
+   * Supports numbers and dates.
    *
    * @example
    * assert.isBelow(2, 5) // passes
    * assert.isBelow(new Date('2020 12 20'), new Date('2020 12 24')) // passes
    */
-  isBelow(
-    valueToCheck: Date | { toJSDate(): Date },
-    valueToBeBelow: Date | { toJSDate(): Date },
-    message?: string
-  ): void
+  isBelow(valueToCheck: Date, valueToBeBelow: Date, message?: string): void
   isBelow(valueToCheck: number, valueToBeBelow: number, message?: string): void
   isBelow(
-    valueToCheck: number | Date | { toJSDate(): Date },
-    valueToBeBelow: number | Date | { toJSDate(): Date },
+    valueToCheck: number | Date,
+    valueToBeBelow: number | Date,
     message?: string
   ): ReturnType<ChaiAssert['isBelow']> {
-    valueToCheck = this.#luxonToJSDate(valueToCheck)
-    valueToBeBelow = this.#luxonToJSDate(valueToBeBelow)
     this.incrementAssertionsCount()
-
     return assert.isBelow(valueToCheck as number, valueToBeBelow as number, message)
   }
 
   /**
    * Assert if the actual value is below or same as the expected value.
-   * Supports numbers, dates and luxon datetime object.
+   * Supports numbers and dates.
    *
    * @example
    * assert.isAtMost(2, 2) // passes
    * assert.isAtMost(new Date('2020 12 20'), new Date('2020 12 20')) // passes
    */
-  isAtMost(
-    valueToCheck: Date | { toJSDate(): Date },
-    valueToBeAtMost: Date | { toJSDate(): Date },
-    message?: string
-  ): void
+  isAtMost(valueToCheck: Date, valueToBeAtMost: Date, message?: string): void
   isAtMost(valueToCheck: number, valueToBeAtMost: number, message?: string): void
   isAtMost(
-    valueToCheck: number | Date | { toJSDate(): Date },
-    valueToBeAtMost: number | Date | { toJSDate(): Date },
+    valueToCheck: number | Date,
+    valueToBeAtMost: number | Date,
     message?: string
   ): ReturnType<ChaiAssert['isAtMost']> {
-    valueToCheck = this.#luxonToJSDate(valueToCheck)
-    valueToBeAtMost = this.#luxonToJSDate(valueToBeAtMost)
-
     this.incrementAssertionsCount()
     return assert.isAtMost(valueToCheck as number, valueToBeAtMost as number, message)
   }
@@ -2103,10 +2066,4 @@ export class Assert extends Macroable implements AssertContract {
       )
     }
   }
-
-  /**
-   * @deprecated
-   * Use {@link Assert.doesNotReject} without the "s"
-   */
-  doesNotRejects = this.doesNotReject.bind(this)
 }
