@@ -46,7 +46,7 @@ Most of the critical architectural and testing gaps have been resolved. The rema
 |-------|----------|---------|
 | No unit tests for Lupa itself | ✅ Addressed | 270+ unit tests now cover Refiner, ConfigManager, Planner, Tracker, Hooks, Interpolate, CliParser, Validators, and API. |
 | End-to-end integration tests | ✅ Addressed | Added `integration.spec.ts` utilizing `fork()` to assert full lifecycle execution, error reporting, and exit codes without hanging the process. |
-| No CI pipeline | 🔴 High | No `.github/workflows/` or automated PR checks exist. |
+| No CI pipeline | ✅ Addressed | Created `.github/workflows/ci.yml` that runs linting, build, and tests (Node + Browser) on push/PR via GitHub Actions. |
 
 ### 3. Developer Experience ✅ Complete
 
