@@ -1,0 +1,17 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/assert/index.ts",
+    "src/runner/index.ts",
+    "src/refiner/main.ts",
+    "src/testing/index.ts"
+  ],
+  "out": "docs",
+  "name": "Lupa",
+  "includeVersion": true,
+  "readme": "README.md",
+  "disableSources": false,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true
+}
