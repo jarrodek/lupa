@@ -3,6 +3,7 @@ import type { Refiner } from '../refiner/main.js'
 import type { Emitter } from '../testing/emitter.js'
 import { Runner } from './runner.js'
 import type { FilteringOptions, NamedReporterContract } from '../types.js'
+import type { InlineConfig } from 'vite'
 
 /**
  * Global setup hook
@@ -45,6 +46,7 @@ export type CLIArgs = {
   bailLayer?: string
   verbose?: boolean
   browser?: string
+  viteConfig?: string
 } & Record<string, string | string[] | boolean>
 
 /**
@@ -175,6 +177,18 @@ export interface BaseConfig {
    * project, you might want to exclude "node_modules"
    */
   exclude?: string[]
+
+  /**
+   * Path to the Vite configuration file.
+   * Do not use together with 'vite'.
+   */
+  viteConfig?: string
+
+  /**
+   * Inline Vite configuration to merge with Lupa's defaults.
+   * Do not use together with 'viteConfig'.
+   */
+  vite?: InlineConfig
 }
 
 /**
@@ -212,11 +226,13 @@ export interface TestSuite {
 /**
  * BaseConfig after normalized by the config manager
  */
-export type NormalizedBaseConfig = Required<Omit<BaseConfig, 'reporters'>> & {
+export type NormalizedBaseConfig = Required<Omit<BaseConfig, 'reporters' | 'viteConfig' | 'vite'>> & {
   reporters: {
     activated: string[]
     list: NamedReporterContract[]
   }
+  viteConfig?: string
+  vite?: InlineConfig
 }
 
 /**

@@ -131,6 +131,13 @@ export class ConfigManager {
     const cliReporters = this.#getCLIReporters()
     const cliForceExit = this.#getCLIForceExit()
 
+    const cliViteConfig = typeof this.#cliArgs.viteConfig === 'string' ? this.#cliArgs.viteConfig : undefined
+    const finalViteConfig = cliViteConfig ?? this.#config.viteConfig
+
+    if (finalViteConfig && this.#config.vite) {
+      throw new Error('Cannot specify both a vite config file and an inline vite config. Please use only one.')
+    }
+
     debug('filters applied using CLI flags %O', cliFilters)
 
     const baseConfig: NormalizedBaseConfig = {
@@ -152,6 +159,8 @@ export class ConfigManager {
         : DEFAULTS.reporters,
       setup: this.#config.setup || [],
       teardown: this.#config.teardown || [],
+      viteConfig: finalViteConfig,
+      vite: this.#config.vite,
     }
 
     /**

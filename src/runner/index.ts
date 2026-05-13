@@ -1,7 +1,7 @@
 import { resolve, dirname } from 'node:path'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { createServer, createLogger, type ViteDevServer } from 'vite'
+import { createServer, createLogger, type ViteDevServer, mergeConfig, type InlineConfig } from 'vite'
 import { chromium, firefox, webkit, type Browser } from 'playwright'
 
 import type { Config, NormalizedConfig, CLIArgs } from './types.js'
@@ -143,18 +143,13 @@ export async function run() {
   // We capture browser output via Playwright, so Vite's forwarding is redundant.
   const logger = createLogger('silent')
 
-  // Start Vite Server
-  vite = await createServer({
+  const baseViteConfig: InlineConfig = {
     root: cwd,
-    mode: 'production',
+    configFile: runnerConfig?.viteConfig || false,
     customLogger: logger,
-    resolve: {
-      // Don't resolve "development" export conditions — forces libraries like
-      // Lit to use their production builds (smaller, no dev warnings).
-      conditions: ['browser', 'module', 'import', 'default'],
-    },
     server: {
       host: true,
+      port: 0, // Force dynamic port to avoid conflicts
     },
     plugins: [
       {
@@ -194,7 +189,16 @@ export async function run() {
         },
       },
     ],
-  })
+  }
+
+  const finalViteConfig = runnerConfig?.vite ? mergeConfig(baseViteConfig, runnerConfig.vite) : baseViteConfig
+
+  if (finalViteConfig.server?.middlewareMode) {
+    throw new Error('Lupa cannot run with server.middlewareMode enabled in your Vite configuration.')
+  }
+
+  // Start Vite Server
+  vite = await createServer(finalViteConfig)
 
   await vite.listen()
   const serverUrl = vite.resolvedUrls?.local[0] || `http://localhost:${vite.config.server.port}`

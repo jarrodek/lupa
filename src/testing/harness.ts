@@ -28,9 +28,16 @@ declare global {
     __lupa_runner_end__: () => Promise<void>
     __lupa_testing_mode__?: boolean
   }
+
+  // Lit stores its issued warnings here
+  var litIssuedWarnings: Set<string> | undefined
 }
 
 export async function boot() {
+  // Suppress Lit dev-mode warnings in testing environment
+  globalThis.litIssuedWarnings ??= new Set()
+  globalThis.litIssuedWarnings.add('dev-mode')
+
   const emitter = new Emitter()
   const runner = new WebRunner(emitter)
   const refiner = new Refiner(window.__lupa__.config?.filters || {})

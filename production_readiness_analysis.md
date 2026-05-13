@@ -117,8 +117,8 @@ Most of the critical architectural and testing gaps have been resolved. The rema
 1. ~~Write unit tests for core modules (Refiner, ConfigManager, Planner, Tracker, CliParser, Hooks, Interpolate, API)~~ (Done)
 2. ~~Comprehensive end-to-end test suite using `fork()`~~ (Done)
 3. ~~Enable watch mode (uncomment + stabilize)~~ (Done)
-4. Set up GitHub Actions CI (Pending)
-5. Allow user Vite config passthrough (Pending)
+4. ~~Set up GitHub Actions CI~~ (Done)
+5. ~~Allow user Vite config passthrough~~ (Done)
 
 ### Phase 3: Feature Complete (v1.0) — ~1 week
 1. Coverage support (v8 + Istanbul)

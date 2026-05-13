@@ -18,13 +18,25 @@ import pkg from '../../package.json' with { type: 'json' }
  * will be parsed aswell, but without any normalization
  */
 const OPTIONS = {
-  string: ['tests', 'groups', 'tags', 'files', 'timeout', 'retries', 'reporters', 'bailLayer', 'browser'],
+  string: [
+    'tests',
+    'groups',
+    'tags',
+    'files',
+    'timeout',
+    'retries',
+    'reporters',
+    'bailLayer',
+    'browser',
+    'vite-config',
+  ],
   boolean: ['help', 'matchAll', 'failed', 'bail', 'listPinned', 'watch', 'verbose'],
   alias: {
     forceExit: 'force-exit',
     matchAll: 'match-all',
     listPinned: 'list-pinned',
     bailLayer: 'bail-layer',
+    viteConfig: 'vite-config',
     help: 'h',
   },
 }
@@ -51,6 +63,7 @@ ${colors.green('--bail-layer')}                ${colors.dim('Specify at which la
 ${colors.green('--watch')}                     ${colors.dim('Watch for file changes and re-run tests')}
 ${colors.green('--verbose')}                   ${colors.dim('Enable verbose logging, including browser telemetry')}
 ${colors.green('--browser')}                   ${colors.dim('Specify the browser to run tests in (chromium, firefox, webkit)')}
+${colors.green('--vite-config')}               ${colors.dim('Path to a custom Vite configuration file')}
 ${colors.green('-h, --help')}                  ${colors.dim('View help')}
 
 ${colors.yellow('Examples:')}
@@ -59,6 +72,7 @@ ${colors.dim('node bin/test.js --tags="~@github"')}
 ${colors.dim('node bin/test.js --tags="@github,@slow,@integration" --match-all')}
 ${colors.dim('node bin/test.js --force-exit')}
 ${colors.dim('node bin/test.js --browser="firefox"')}
+${colors.dim('node bin/test.js --vite-config="vite.config.ts"')}
 ${colors.dim('node bin/test.js --files="user"')}
 ${colors.dim('node bin/test.js --files="functional/user"')}
 ${colors.dim('node bin/test.js --files="unit/user"')}

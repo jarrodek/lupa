@@ -97,4 +97,23 @@ test('ConfigManager', async (t) => {
 
     assert.deepStrictEqual(hydrated.reporters.activated, ['dot', 'github'])
   })
+
+  await t.test('extracts viteConfig from CLI args', () => {
+    const config: Config = { files: [] }
+    const cliArgs: CLIArgs = { _: [], viteConfig: 'custom-vite.ts' }
+
+    const manager = new ConfigManager(config, cliArgs)
+    const hydrated = manager.hydrate()
+
+    assert.strictEqual(hydrated.viteConfig, 'custom-vite.ts')
+  })
+
+  await t.test('throws when both viteConfig and inline vite config are specified', () => {
+    const config: Config = { files: [], vite: { plugins: [] } }
+    const cliArgs: CLIArgs = { _: [], viteConfig: 'custom-vite.ts' }
+
+    const manager = new ConfigManager(config, cliArgs)
+
+    assert.throws(() => manager.hydrate(), /Cannot specify both a vite config file and an inline vite config/)
+  })
 })
