@@ -16,6 +16,7 @@ import { ensureIsConfigured } from './validator.js'
 
 import { Planner } from './planner.js'
 import { transformBrowserStack } from './stack_transformer.js'
+import { formatPinnedTest, printPinnedTests } from './helpers.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const harnessTs = resolve(__dirname, '../testing/harness.ts')
@@ -227,41 +228,56 @@ export async function run() {
 
   const watchManager = new WatchManager(vite, runnerConfig, executeTests, shutdown, browserType)
 
+  // A queue to ensure telemetry events from the browser are processed sequentially
+  let telemetryQueue = Promise.resolve()
+
   // Setup WebSocket Telemetry ONCE
-  vite.ws.on('lupa:telemetry', async (payload) => {
-    if (!activeNodeEmitter) return
+  vite.ws.on('lupa:telemetry', (payload) => {
+    telemetryQueue = telemetryQueue.then(async () => {
+      if (!activeNodeEmitter) return
 
-    // Emittery seems to wrap event data in { name, data } sometimes
-    const actualData =
-      payload.data && payload.data.name === payload.event && payload.data.data ? payload.data.data : payload.data
+      // Emittery seems to wrap event data in { name, data } sometimes
+      const actualData =
+        payload.data && payload.data.name === payload.event && payload.data.data ? payload.data.data : payload.data
 
-    // Reconstruct Error objects with source-mapped stacks
-    if (actualData && Array.isArray(actualData.errors)) {
-      for (const e of actualData.errors) {
-        if (e.error && typeof e.error === 'object' && e.error.message && !(e.error instanceof Error)) {
-          const err = new Error(e.error.message)
-          err.name = e.error.name
-          err.stack = e.error.stack
-            ? await transformBrowserStack(vite as ViteDevServer, cwd, e.error.stack)
-            : e.error.stack
-          e.error = err
+      // Reconstruct Error objects with source-mapped stacks
+      if (actualData && Array.isArray(actualData.errors)) {
+        for (const e of actualData.errors) {
+          if (e.error && typeof e.error === 'object' && e.error.message && !(e.error instanceof Error)) {
+            const err = new Error(e.error.message)
+            err.name = e.error.name
+            err.stack = e.error.stack
+              ? await transformBrowserStack(vite as ViteDevServer, cwd, e.error.stack)
+              : e.error.stack
+            e.error = err
+          }
         }
-      }
-    } else if (payload.event === 'uncaught:exception' && actualData && actualData.error) {
-      const errPayload = actualData.error
-      if (typeof errPayload === 'object' && errPayload.message && !(errPayload instanceof Error)) {
-        const err = new Error(errPayload.message)
-        err.name = errPayload.name || 'Error'
-        err.stack = errPayload.stack
-          ? await transformBrowserStack(vite as ViteDevServer, cwd, errPayload.stack)
-          : errPayload.stack
-        exceptionsManager.handleBrowserException(err, actualData.type || 'error')
+      } else if (payload.event === 'uncaught:exception' && actualData && actualData.error) {
+        const errPayload = actualData.error
+        if (typeof errPayload === 'object' && errPayload.message && !(errPayload instanceof Error)) {
+          const err = new Error(errPayload.message)
+          err.name = errPayload.name || 'Error'
+          err.stack = errPayload.stack
+            ? await transformBrowserStack(vite as ViteDevServer, cwd, errPayload.stack)
+            : errPayload.stack
+          exceptionsManager.handleBrowserException(err, actualData.type || 'error')
+          return
+        }
+      } else if (payload.event === 'runner:pinned_tests' && actualData && actualData.tests) {
+        const tests = actualData.tests as { title: string; stack: string }[]
+        const formatted = await Promise.all(
+          tests.map(async (t) => {
+            const transformed = await transformBrowserStack(vite as ViteDevServer, cwd, t.stack)
+            return formatPinnedTest(t.title, transformed)
+          })
+        )
+        printPinnedTests(formatted)
         return
       }
-    }
 
-    // Re-emit browser events in the Node.js process
-    activeNodeEmitter.emit(payload.event, actualData)
+      // Re-emit browser events in the Node.js process
+      await activeNodeEmitter.emit(payload.event, actualData)
+    })
   })
 
   // Expose function to close the runner when tests are done

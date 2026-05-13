@@ -238,6 +238,7 @@ export interface RunnerEvents {
   'runner:start': RunnerStartNode
   'runner:end': RunnerEndNode
   'uncaught:exception': { error: Error; type: 'error' | 'rejection' }
+  'runner:pinned_tests': { tests: { title: string; stack: string }[] }
 }
 
 /**

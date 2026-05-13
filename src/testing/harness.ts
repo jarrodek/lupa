@@ -46,6 +46,7 @@ export async function boot() {
     'test:start',
     'test:end',
     'uncaught:exception',
+    'runner:pinned_tests',
   ] as const
 
   const isDebug = new URLSearchParams(window.location.search).get('debug') === '1'

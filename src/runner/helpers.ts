@@ -17,7 +17,6 @@ import { fileURLToPath } from 'node:url'
 
 // import { Group } from '../testing/group/main.js'
 // import type { Runner } from '../runner/runner.js'
-import { Test } from '../testing/test/main.js'
 
 export const colors: Colors = supportsColor.stdout ? useColors.ansi() : useColors.silent()
 
@@ -51,69 +50,45 @@ export const icons =
 
 /**
  * Returns a formatted string to print the information about
- * a pinned test
+ * a pinned test using a transformed stack trace
  */
-export function formatPinnedTest(test: Test<any>) {
+export function formatPinnedTest(title: string, transformedStack: string) {
   let fileName = ''
   let line = 0
   let column = 0
 
-  /**
-   * Throwing an error using the "meta.abort" method which will help
-   * us find the test location by parsing error stack frame
-   */
-  try {
-    test.options.meta.abort('Finding pinned test location')
-  } catch (error) {
-    const frame = parse(error as Error).find(
-      (f) =>
-        f.fileName &&
-        f.lineNumber !== undefined &&
-        f.columnNumber !== undefined &&
-        !f.fileName.includes('node:') &&
-        !f.fileName.includes('ext:') &&
-        !f.fileName.includes('node_modules/')
-    )
+  const frame = parse({ stack: transformedStack } as Error).find(
+    (f) =>
+      f.fileName &&
+      f.lineNumber !== undefined &&
+      f.columnNumber !== undefined &&
+      !f.fileName.includes('node:') &&
+      !f.fileName.includes('ext:') &&
+      !f.fileName.includes('node_modules/')
+  )
 
-    if (frame && frame.fileName) {
-      fileName = frame.fileName.startsWith('file:')
-        ? string.toUnixSlash(fileURLToPath(frame.fileName))
-        : string.toUnixSlash(frame.fileName)
+  if (frame && frame.fileName) {
+    fileName = frame.fileName.startsWith('file:')
+      ? string.toUnixSlash(fileURLToPath(frame.fileName))
+      : string.toUnixSlash(frame.fileName)
 
-      line = frame.lineNumber ?? 0
-      column = frame.columnNumber ?? 0
-    }
+    line = frame.lineNumber ?? 0
+    column = frame.columnNumber ?? 0
   }
 
-  return `${colors.yellow(` ⁃ ${test.title}`)}\n${colors.dim(`   ${fileName}:${line}:${column}`)}`
+  return `${colors.yellow(` ⁃ ${title}`)}\n${colors.dim(`   ${fileName}:${line}:${column}`)}`
 }
 
-// /**
-//  * Prints a summary of all the pinned tests
-//  */
-// export function printPinnedTests(runner: Runner<TestContext>) {
-//   let pinnedTests: string[] = []
-//   runner.suites.forEach((suite) => {
-//     suite.stack.forEach((testOrGroup: Test<TestContext> | Group<TestContext>) => {
-//       if (testOrGroup instanceof Group) {
-//         testOrGroup.tests.forEach(($test) => {
-//           if ($test.isPinned) {
-//             pinnedTests.push(formatPinnedTest($test))
-//           }
-//         })
-//       } else if (testOrGroup.isPinned) {
-//         pinnedTests.push(formatPinnedTest(testOrGroup))
-//       }
-//     })
-//   })
-
-//   if (pinnedTests.length) {
-//     console.log(colors.bgYellow().black(` ${pinnedTests.length} pinned test(s) found `))
-//     pinnedTests.forEach((row) => console.log(row))
-//   } else {
-//     console.log(colors.bgYellow().black(` No pinned tests found `))
-//   }
-// }
+/**
+ * Prints a summary of all the pinned tests
+ */
+export function printPinnedTests(pinnedTests: string[]) {
+  if (pinnedTests.length) {
+    console.log(colors.bgYellow().black(` ${pinnedTests.length} pinned test(s) found `))
+    pinnedTests.forEach((row) => console.log(row))
+    console.log('')
+  }
+}
 
 export const dateTimeDoubles = {
   reset() {

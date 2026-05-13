@@ -104,6 +104,35 @@ export class WebRunner extends Macroable {
    * Execute runner suites
    */
   async exec() {
+    const pinnedTests: { title: string; stack: string }[] = []
+
+    for (const suite of this.suites) {
+      // Collect pinned tests
+      suite.stack.forEach((groupOrTest) => {
+        if (groupOrTest instanceof Group) {
+          groupOrTest.tests.forEach(($test) => {
+            if ($test.isPinned) {
+              try {
+                $test.options.meta.abort('Finding pinned test location')
+              } catch (e: any) {
+                pinnedTests.push({ title: $test.title, stack: e.stack })
+              }
+            }
+          })
+        } else if (groupOrTest.isPinned) {
+          try {
+            groupOrTest.options.meta.abort('Finding pinned test location')
+          } catch (e: any) {
+            pinnedTests.push({ title: groupOrTest.title, stack: e.stack })
+          }
+        }
+      })
+    }
+
+    if (pinnedTests.length > 0) {
+      this.#emitter.emit('runner:pinned_tests', { tests: pinnedTests })
+    }
+
     for (const suite of this.suites) {
       /**
        * Skip tests in bail mode when there is an error
