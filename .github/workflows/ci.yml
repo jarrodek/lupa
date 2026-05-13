@@ -18,10 +18,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -39,7 +39,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run Node.js Orchestrator & Integration Tests
-        run: npm run test:unit
+        run: NODE_OPTIONS="--test-reporter=dot" npm run test:unit
 
   release:
     name: Release
@@ -53,13 +53,13 @@ jobs:
       id-token: write # to enable use of OIDC for trusted publishing and npm provenance
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.x
           cache: 'npm'

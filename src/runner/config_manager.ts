@@ -19,9 +19,10 @@ const DEFAULTS = {
   testPlugins: [],
   runnerPlugins: [],
   reporters: {
-    activated: isRunningInAIAgent()
-      ? ['dot']
-      : ['spec'].concat(process.env.GITHUB_ACTIONS === 'true' ? ['github'] : []),
+    activated:
+      isRunningInAIAgent() || process.env.CI === 'true'
+        ? ['dot'].concat(process.env.GITHUB_ACTIONS === 'true' ? ['github'] : [])
+        : ['spec'],
     list: [spec(), ndjson(), dot(), github()],
   },
   importer: (filePath) => import(filePath.href),
