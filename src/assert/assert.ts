@@ -12,6 +12,9 @@ import Macroable from '@poppinss/macroable'
 import { AssertionError } from 'assertion-error'
 
 import type { AnyErrorConstructor, AssertContract, ChaiAssert } from './types.js'
+import { AssertDom } from './dom.js'
+import { assertIsAccessible } from './accessibility.js'
+import type axe from 'axe-core'
 
 /**
  * The Assert class is derived from chai.assert to allow support
@@ -25,6 +28,18 @@ import type { AnyErrorConstructor, AssertContract, ChaiAssert } from './types.js
  * assert.deepEqual({ id: 1 }, { id: 1 })
  */
 export class Assert extends Macroable implements AssertContract {
+  #dom?: AssertDom
+
+  /**
+   * DOM-specific assertions
+   */
+  get dom(): AssertDom {
+    if (!this.#dom) {
+      this.#dom = new AssertDom(this)
+    }
+    return this.#dom
+  }
+
   /**
    * Tracking assertions
    */
@@ -2065,5 +2080,16 @@ export class Assert extends Macroable implements AssertContract {
         }
       )
     }
+  }
+
+  /**
+   * Asserts that a given DOM element or NodeList has no accessibility violations
+   * according to axe-core.
+   *
+   * @example
+   * await assert.isAccessible(document.body)
+   */
+  async isAccessible(element: Element | NodeList | string, options?: axe.RunOptions): Promise<void> {
+    return assertIsAccessible(this, element, options)
   }
 }

@@ -4,7 +4,7 @@ import { SpecReporter } from '../src/reporters/spec.js'
 processCLIArgs(process.argv.slice(2))
 
 configure({
-  files: ['tests/browser/**/*.spec.ts'],
+  files: ['tests/fixtures/integration/**/*.spec.ts'],
   testPlugins: ['/src/assert/index.ts'],
   reporters: {
     activated: ['spec'],

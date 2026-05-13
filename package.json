@@ -50,6 +50,7 @@
     "@poppinss/string": "^1.7.2",
     "@poppinss/utils": "^7.0.1",
     "assertion-error": "^2.0.1",
+    "axe-core": "^4.11.4",
     "chai": "^6.2.2",
     "emittery": "^2.0.0",
     "error-stack-parser-es": "^1.0.5",
@@ -106,10 +107,20 @@
     ]
   },
   "c8": {
-    "reporter": ["lcov", "text", "html"],
+    "reporter": [
+      "lcov",
+      "text",
+      "html"
+    ],
     "all": true,
-    "include": ["src/**/*.ts"],
-    "exclude": ["test/**", "src/types.ts", "src/**/types.ts"],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "test/**",
+      "src/types.ts",
+      "src/**/types.ts"
+    ],
     "report-dir": "./coverage"
   }
 }

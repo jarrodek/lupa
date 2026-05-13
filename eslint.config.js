@@ -121,7 +121,7 @@ export default [
     },
   },
   {
-    files: ['test/**/*.ts'],
+    files: ['tests/**/*.ts'],
     plugins: {
       "no-only-tests": noOnlyTests,
     },
@@ -130,6 +130,7 @@ export default [
       '@typescript-eslint/no-empty-function': 'off',
       'no-only-tests/no-only-tests': 'error',
       '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off'
     },
   },
   {
