@@ -96,7 +96,7 @@ Most of the critical architectural and testing gaps have been resolved. The rema
 | Watch mode | ✅ Done | Implemented via dependency graph traversal |
 | Debug browser | ✅ Done | Active inside focus mode (`d` key) |
 | Focus mode (single file) | ✅ Done | Active in watch CLI (`f` key), isolates logging |
-| Custom Vite config | ❌ Missing | Users can't customize Vite plugins, aliases, etc. |
+| Custom Vite config | ✅ Done | CLI and programmatic `vite` config fully supported |
 | Multi-browser parallel runs | ❌ Missing | Currently runs one browser instance serially |
 | Coverage support | ❌ Missing | No integration with v8/istanbul coverage for browser testing |
 
