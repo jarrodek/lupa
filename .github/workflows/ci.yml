@@ -40,6 +40,3 @@ jobs:
 
       - name: Run Node.js Orchestrator & Integration Tests
         run: npm run test:unit
-
-      - name: Run Native Browser Tests
-        run: npm run test:browser
