@@ -123,4 +123,4 @@ Most of the critical architectural and testing gaps have been resolved. The rema
 ### Phase 3: Feature Complete (v1.0) — ~1 week
 1. Coverage support (v8 + Istanbul)
 2. API documentation (generated from JSDoc)
-3. `CHANGELOG.md` + semantic release setup
+3. ~~`CHANGELOG.md` + semantic release setup~~ (Done)
