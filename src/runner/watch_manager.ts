@@ -9,6 +9,7 @@ export class WatchManager {
   #vite: ViteDevServer
   #config: NormalizedConfig
   #executeTests: () => Promise<void>
+  #replayTests: (events: { eventName: string; data: any }[]) => Promise<void>
   #shutdown: (exitCode: number) => Promise<void>
   #browserType: string
 
@@ -21,12 +22,14 @@ export class WatchManager {
     vite: ViteDevServer,
     config: NormalizedConfig,
     executeTests: () => Promise<void>,
+    replayTests: (events: { eventName: string; data: any }[]) => Promise<void>,
     shutdown: (exitCode: number) => Promise<void>,
     browserType: string
   ) {
     this.#vite = vite
     this.#config = config
     this.#executeTests = executeTests
+    this.#replayTests = replayTests
     this.#shutdown = shutdown
     this.#browserType = browserType
   }
@@ -93,23 +96,8 @@ export class WatchManager {
    */
   async #replayBufferedEvents() {
     console.log('\n--- Replaying full logs from background execution ---')
-
-    // @fixme: investigate this comment closer.
-    // We create a temporary emitter and trick the reporters into listening to it,
-    // but the cleanest way is just to re-run the executeTests without a focused file?
-    // Wait, re-running executeTests takes time.
-    // We don't have direct access to the reporters list here to re-run their events.
-    // Actually, we could just clear focusFile and re-run. The user said:
-    // "they should see all the logs from the previous execution without rerrunning tests.
-    // Just in case we don't have that, exiting the focus mode gets us back to the main CLI mode."
-    // Replaying events requires the reporters to be active. But the reporters were already
-    // fed 'runner:end', so their internal state is finalized.
-    // The safest fallback is simply re-triggering execution with a message.
-
-    // Let's implement the fallback for now to guarantee correctness:
-    console.log('\nExiting focus mode. Re-running full suite to print all logs...')
     this.#focusedFile = null
-    await this.#executeTests()
+    await this.#replayTests(this.#eventBuffer)
   }
 
   async #getAllTestFiles(): Promise<URL[]> {
@@ -204,7 +192,12 @@ export class WatchManager {
         if (this.#browserType === 'firefox') launchClass = firefox
         if (this.#browserType === 'webkit') launchClass = webkit
 
-        this.debugBrowser = await launchClass.launch({ headless: false })
+        const launchOptions: any = { headless: false }
+        if (launchClass === chromium) {
+          launchOptions.devtools = true
+        }
+
+        this.debugBrowser = await launchClass.launch(launchOptions)
         const debugPage = await this.debugBrowser.newPage()
         debugPage.on('close', () => {
           this.debugBrowser = undefined
