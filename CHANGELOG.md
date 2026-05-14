@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/jarrodek/lupa/compare/v1.1.0...v1.2.0) (2026-05-14)
+
+
+### Features
+
+* add dom.hasStyle assertion and async testing helpers, and update integration tests accordingly ([b69ef77](https://github.com/jarrodek/lupa/commit/b69ef7752f41a287bdbfe641aa4f45e2211fc863))
+* implement native code coverage reporting using istanbul and nyc ([23426eb](https://github.com/jarrodek/lupa/commit/23426ebd91eff570eb1f93996269c045b3f2c05e))
+
 # [1.1.0](https://github.com/jarrodek/lupa/compare/v1.0.0...v1.1.0) (2026-05-14)
 
 
