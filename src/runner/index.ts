@@ -271,7 +271,7 @@ export async function run() {
 
   const baseViteConfig: InlineConfig = {
     root: cwd,
-    configFile: runnerConfig?.viteConfig || false,
+    configFile: runnerConfig?.viteConfig,
     customLogger: logger,
     server: {
       host: true,

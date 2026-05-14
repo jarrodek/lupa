@@ -51,6 +51,9 @@ API surface: 9 functions, 11 classes, 56 types, 6 constants
 
 ## Documentation
 
+- **assertions** — # Assertions
+
+Lupa doesn't force a specific assertion library onto you.
 - **datasets** — # Datasets
 
 Datasets allow you to run a specific test multiple times with different data every time.
@@ -84,8 +87,11 @@ Test reporters are used to collect test progress and display a summary after the
 - **test-suites** — # Test Suites
 
 Test suites allow you to organize your tests logically by their type or domain.
+- **vite-configuration** — # Configuring Vite
 
-See `references/docs/` for full guides (11 total).
+Lupa runs your tests inside a headless browser using [Vite](https://vitejs.
+
+See `references/docs/` for full guides (13 total).
 
 ## References
 
