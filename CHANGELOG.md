@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/jarrodek/lupa/compare/v1.0.0...v1.1.0) (2026-05-14)
+
+
+### Features
+
+* implement semantic DOM assertions with configurable element matching ([3324967](https://github.com/jarrodek/lupa/commit/3324967e4f4027ad5ddb25114552057bc4625400))
+
 # 1.0.0 (2026-05-14)
 
 
