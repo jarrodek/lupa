@@ -1,3 +1,4 @@
+import path from 'path'
 import { configure, processCLIArgs, run } from '../src/runner/index.js'
 import { SpecReporter } from '../src/reporters/spec.js'
 
@@ -5,7 +6,7 @@ processCLIArgs(process.argv.slice(2))
 
 configure({
   files: ['tests/fixtures/integration/**/*.spec.ts'],
-  testPlugins: ['/src/assert/index.ts'],
+  testPlugins: [path.join(process.cwd(), 'src/assert/index.ts')],
   reporters: {
     activated: ['spec'],
     list: [
