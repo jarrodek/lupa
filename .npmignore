@@ -5,11 +5,15 @@
 .vscode
 .wireit
 build/test
+dist/bin
+dist/tests
 coverage
 demo
 node_modules
 scripts
 test
+tests
+bin
 .aiexclude
 .editorconfig
 .eslintcache
