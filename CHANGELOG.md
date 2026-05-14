@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/jarrodek/lupa/compare/v1.2.0...v1.3.0) (2026-05-14)
+
+
+### Bug Fixes
+
+* resolve absolute path for testPlugins in integration fixtures using node:path ([87d8389](https://github.com/jarrodek/lupa/commit/87d83896af5d20a0fcfe91f266f3b62310c22d02))
+
+
+### Features
+
+* resolve test plugins for browser access and add global filesystem permissions ([d0cdb6e](https://github.com/jarrodek/lupa/commit/d0cdb6eac155839d9595d4b11a87e342bb254ebe))
+
 # [1.2.0](https://github.com/jarrodek/lupa/compare/v1.1.0...v1.2.0) (2026-05-14)
 
 
