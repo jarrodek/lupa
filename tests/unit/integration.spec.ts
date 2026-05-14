@@ -46,10 +46,10 @@ test('Integration: Lupa Framework End-to-End', async (t) => {
       // Verify exit code
       assert.strictEqual(exitCode, 1, `Expected runner to exit with code 1. Output:\n${output}`)
 
-      // Assert that exactly 28 tests passed and 1 failed
+      // Assert that exactly 34 tests passed and 1 failed
       assert.ok(
-        output.includes('Tests  28 passed, 1 failed, 1 skipped (30)'),
-        `Summary should report 28 passed and 1 failed. Actual output: ${output}`
+        output.includes('Tests  34 passed, 1 failed, 1 skipped (36)'),
+        `Summary should report 34 passed and 1 failed. Actual output: ${output}`
       )
 
       // Assert that the failing function stack trace is present

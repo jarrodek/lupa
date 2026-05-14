@@ -131,6 +131,28 @@ export class AssertDom {
   }
 
   /**
+   * Asserts that an element has the specified computed style property and value.
+   *
+   * @param element The DOM element to check
+   * @param property The CSS property name (e.g. 'color', 'background-color')
+   * @param value The expected computed style value
+   */
+  hasStyle(element: Element, property: string, value: string, message?: string) {
+    const computedStyle = window.getComputedStyle(element)
+    const actualValue = computedStyle.getPropertyValue(property)
+    this.#assert.evaluate(
+      actualValue === value,
+      message || `expected element to have style '${property}' with value '${value}'`,
+      {
+        actual: actualValue,
+        expected: value,
+        operator: 'strictEqual',
+        showDiff: false,
+      }
+    )
+  }
+
+  /**
    * Asserts that an element's outer DOM matches the expected HTML string semantically.
    */
   equal(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {

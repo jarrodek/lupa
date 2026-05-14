@@ -6,9 +6,9 @@ This document outlines the planned features, enhancements, and long-term vision 
 
 ### 1. Expanded DOM Assertions
 While we have a solid base with Chai, we need a robust, web-component specific assertion library.
-- **Semantic Equality:** `assert.dom.equal(el, '<my-element>...</my-element>')` (ignoring whitespace/attribute order).
-- **Light/Shadow DOM targeting:** `assert.shadowDom.equal(el, '...')`.
-- **Style assertions:** `assert.dom.hasStyle(el, 'color', 'red')`.
+- ~~**Semantic Equality:** `assert.dom.equal(el, '<my-element>...</my-element>')` (ignoring whitespace/attribute order).~~
+- ~~**Light/Shadow DOM targeting:** `assert.shadowDom.equal(el, '...')`.~~
+- ~~**Style assertions:** `assert.dom.hasStyle(el, 'color', 'red')`.~~
 
 ### 2. Coverage Reporting
 Native support for test coverage.
@@ -21,10 +21,10 @@ Scale test execution speed and browser matrix.
 - **Parallel Workers:** Run suites concurrently across multiple Playwright browser contexts.
 - **Multi-Browser Runs:** Configure Lupa to run the same suite against Chromium, Firefox, and WebKit simultaneously.
 
-### 4. AI Coding Agent Skills (`SKILL.md`)
-Create standard instructions for AI coding assistants.
-- Document exactly how an AI agent should write tests using the Lupa framework.
-- Create a `.agents/skills/lupa-testing/SKILL.md` file that teaches agents how to mount `fixture()`s, use DOM assertions, and follow best practices.
+~~### 4. AI Coding Agent Skills (`SKILL.md`)~~
+~~Create standard instructions for AI coding assistants.~~
+~~- Document exactly how an AI agent should write tests using the Lupa framework.~~
+~~- Create a `.agents/skills/lupa-testing/SKILL.md` file that teaches agents how to mount `fixture()`s, use DOM assertions, and follow best practices.~~
 
 ---
 

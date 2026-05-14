@@ -46,6 +46,13 @@ test.group('Assert.dom', () => {
     assert.throws(() => assert.dom.hasTagName(el, 'div'))
   })
 
+  test('hasStyle', async ({ assert }) => {
+    const el = await fixture(html`<div style="color: red; background-color: rgb(0, 0, 255);"></div>`)
+    assert.dom.hasStyle(el, 'color', 'rgb(255, 0, 0)') // computed style returns rgb
+    assert.dom.hasStyle(el, 'background-color', 'rgb(0, 0, 255)')
+    assert.throws(() => assert.dom.hasStyle(el, 'color', 'blue'))
+  })
+
   test('equal', async ({ assert }) => {
     const el = await fixture(html`<div class="foo" id="bar">Hello World</div>`)
     assert.dom.equal(el, '<div class="foo" id="bar">Hello World</div>')
