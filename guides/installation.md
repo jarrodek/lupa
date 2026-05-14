@@ -18,6 +18,8 @@ Create a `bin/test.ts` file in the root of your project:
 
 ```ts
 import { configure, processCLIArgs, run } from '@jarrodek/lupa/runner'
+import type { Assert } from '@jarrodek/lupa/assert'
+import '@jarrodek/lupa/testing'
 
 // 1. Process command line arguments
 processCLIArgs(process.argv.slice(2))
@@ -33,6 +35,13 @@ run().catch((error) => {
   console.error(error)
   process.exit(1)
 })
+
+// 4. Augment TestContext for strong typing
+declare module '@jarrodek/lupa/testing' {
+  interface TestContext {
+    assert: Assert
+  }
+}
 ```
 
 ### `processCLIArgs`
@@ -106,7 +115,7 @@ npx tsx bin/test.ts --help
 
 Lupa comes bundled with a powerful assertion plugin built on top of Chai. 
 
-Since you registered the `@jarrodek/lupa/assert` plugin in your `bin/test.ts` file, the `assert` object is automatically available in every test context.
+Since you registered the `@jarrodek/lupa/assert` plugin in your `bin/test.ts` file and augmented the `TestContext` interface, the `assert` object is automatically typed and available in every test context.
 
 ```ts
 test('testing values', ({ assert }) => {

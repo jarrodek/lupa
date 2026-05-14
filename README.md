@@ -41,11 +41,14 @@ Create a `bin/test.ts` file to configure and run your suite:
 ```typescript
 import { configure, processCLIArgs, run } from '@jarrodek/lupa/runner'
 import { spec } from '@jarrodek/lupa/reporters'
+import type { Assert } from '@jarrodek/lupa/assert'
+import '@jarrodek/lupa/testing'
 
 processCLIArgs(process.argv.slice(2))
 
 configure({
   files: ['tests/**/*.spec.ts'],
+  testPlugins: ['@jarrodek/lupa/assert'],
   reporters: {
     activated: ['spec'],
     list: [spec()],
@@ -53,6 +56,12 @@ configure({
 })
 
 run().catch(console.error)
+
+declare module '@jarrodek/lupa/testing' {
+  interface TestContext {
+    assert: Assert
+  }
+}
 ```
 
 ### 2. Writing a Test
