@@ -25,7 +25,7 @@ Lupa doesn't try to reinvent the build pipeline. It hooks directly into your exi
 Lupa ticks almost every checkbox to provide a world-class frontend testing experience:
 
 - **Elegant API:** An intuitive, chainable test definition API (`test`, `test.group`, `test.macro`).
-- **Lit Support:** First-class support for rendering `lit-html` templates via the `fixture()` helper.
+- **Template Support:** First-class support for rendering `lit-html` templates and standard HTML strings via the `fixture()` helper.
 - **Automatic Cleanup:** DOM fixtures are automatically unmounted and cleaned up between test runs.
 - **Datasets:** Write data-driven tests seamlessly with `test.with()`.
 - **Advanced Hook System:** Global and group-level `setup`, `teardown`, and inline `cleanup` hooks.

@@ -43,6 +43,7 @@
     "./runner": "./dist/src/runner/index.js",
     "./refiner": "./dist/src/refiner/main.js",
     "./testing": "./dist/src/testing/index.js",
+    "./testing/api": "./dist/src/testing/plugins.js",
     "./reporters": "./dist/src/reporters/index.js",
     "./reporters/base": "./dist/src/reporters/base.js"
   },

@@ -66,7 +66,7 @@ declare module '@jarrodek/lupa/testing' {
 
 ### 2. Writing a Test
 
-Write your tests using the beautiful, explicit Japa-style API alongside Lupa's built-in Lit fixtures:
+Write your tests using the beautiful, explicit Japa-style API alongside Lupa's built-in fixtures (which support both Lit templates and raw HTML strings):
 
 ```typescript
 // tests/button.spec.ts
