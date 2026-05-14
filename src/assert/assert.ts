@@ -213,7 +213,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not truthy
    */
-  isOk(value: unknown, message?: string): asserts value {
+  isOk(value: unknown, message?: string): ReturnType<ChaiAssert['isOk']> {
     this.incrementAssertionsCount()
     return assert.isOk(value, message)
   }
@@ -231,7 +231,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not truthy
    */
-  ok(value: unknown, message?: string): asserts value {
+  ok(value: unknown, message?: string): ReturnType<ChaiAssert['ok']> {
     this.incrementAssertionsCount()
     return assert.ok(value, message)
   }
@@ -587,7 +587,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not true
    */
-  isTrue(value: unknown, message?: string): asserts value is true {
+  isTrue(value: unknown, message?: string): ReturnType<ChaiAssert['isTrue']> {
     this.incrementAssertionsCount()
     return assert.isTrue(value, message)
   }
@@ -604,7 +604,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not true
    */
-  isNotTrue<T>(value: T, message?: string): asserts value is Exclude<T, true> {
+  isNotTrue<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotTrue']> {
     this.incrementAssertionsCount()
     return assert.isNotTrue(value, message)
   }
@@ -621,7 +621,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not false
    */
-  isFalse(value: unknown, message?: string): asserts value is false {
+  isFalse(value: unknown, message?: string): ReturnType<ChaiAssert['isFalse']> {
     this.incrementAssertionsCount()
     return assert.isFalse(value, message)
   }
@@ -638,7 +638,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not false
    */
-  isNotFalse<T>(value: T, message?: string): asserts value is Exclude<T, false> {
+  isNotFalse<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotFalse']> {
     this.incrementAssertionsCount()
     return assert.isNotFalse(value, message)
   }
@@ -655,7 +655,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not null
    */
-  isNull(value: unknown, message?: string): asserts value is null {
+  isNull(value: unknown, message?: string): ReturnType<ChaiAssert['isNull']> {
     this.incrementAssertionsCount()
     return assert.isNull(value, message)
   }
@@ -672,7 +672,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not null
    */
-  isNotNull<T>(value: T, message?: string): asserts value is Exclude<T, null> {
+  isNotNull<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotNull']> {
     this.incrementAssertionsCount()
     return assert.isNotNull(value, message)
   }
@@ -726,7 +726,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not defined
    */
-  exists<T>(value: T, message?: string): asserts value is NonNullable<T> {
+  exists<T>(value: T, message?: string): ReturnType<ChaiAssert['exists']> {
     this.incrementAssertionsCount()
     return assert.exists(value, message)
   }
@@ -744,7 +744,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is defined
    */
-  notExists(value: unknown, message?: string): asserts value is null | undefined {
+  notExists(value: unknown, message?: string): ReturnType<ChaiAssert['notExists']> {
     this.incrementAssertionsCount()
     return assert.notExists(value, message)
   }
@@ -762,7 +762,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not undefined
    */
-  isUndefined(value: unknown, message?: string): asserts value is undefined {
+  isUndefined(value: unknown, message?: string): ReturnType<ChaiAssert['isUndefined']> {
     this.incrementAssertionsCount()
     return assert.isUndefined(value, message)
   }
@@ -780,7 +780,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param value - The value to assert
    * @param message - The error message to use if the value is not defined
    */
-  isDefined<T>(value: T, message?: string): asserts value is Exclude<T, undefined> {
+  isDefined<T>(value: T, message?: string): ReturnType<ChaiAssert['isDefined']> {
     this.incrementAssertionsCount()
     return assert.isDefined(value, message)
   }
@@ -1040,7 +1040,7 @@ export class Assert extends Macroable implements AssertContract {
    * @param message - The error message to use if the value is not an instance of the expected constructor
    * @template T - Expected type of value.
    */
-  instanceOf<T>(value: T, constructor: Constructor<T>, message?: string): asserts value is T {
+  instanceOf<T>(value: T, constructor: Constructor<T>, message?: string): void {
     this.incrementAssertionsCount()
     return assert.instanceOf(value, constructor, message)
   }
@@ -1059,7 +1059,7 @@ export class Assert extends Macroable implements AssertContract {
    * @template T - Type of value.
    * @template U - Type that value shouldn't be an instance of.
    */
-  notInstanceOf<T, U>(value: T, type: Constructor<U>, message?: string): asserts value is Exclude<T, U> {
+  notInstanceOf<T, U>(value: T, type: Constructor<U>, message?: string): void {
     this.incrementAssertionsCount()
     return assert.notInstanceOf(value, type, message)
   }

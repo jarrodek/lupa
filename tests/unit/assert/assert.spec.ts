@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { test } from 'node:test'
 import assertNode from 'node:assert'
 import { Assert } from '../../../src/assert/assert.js'
