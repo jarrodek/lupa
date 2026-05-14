@@ -67,4 +67,17 @@ test.group('Edge Cases', () => {
     .run(async ({ assert }) => {
       assert.exists(document.getElementById('test-setup-fixture'))
     })
+
+  test('can render string templates natively', async ({ assert }) => {
+    const el = await fixture<HTMLDivElement>('<div class="string-template" data-content="hello">String Content</div>')
+
+    assert.equal(el.tagName, 'DIV')
+    assert.equal(el.className, 'string-template')
+    assert.equal(el.textContent, 'String Content')
+    assert.equal(el.getAttribute('data-content'), 'hello')
+
+    const queried = document.getElementsByClassName('string-template')
+    assert.lengthOf(queried, 1)
+    assert.equal(queried[0], el)
+  })
 })

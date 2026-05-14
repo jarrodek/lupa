@@ -1,4 +1,4 @@
-import { html as litHtml, render } from 'lit-html'
+import { html as litHtml } from 'lit-html'
 import { Test } from './test/main.js'
 import { Group } from './group/main.js'
 import { Suite } from './suite/main.js'
@@ -7,6 +7,8 @@ import { Emitter } from './emitter.js'
 import { Refiner } from '../refiner/main.js'
 import { TestContext } from './test_context.js'
 import { createTest, createTestGroup } from './create_test.js'
+
+export { fixture } from './fixture.js'
 
 // We will initialize these from harness.ts when booting
 export let activeRunner: WebRunner | undefined
@@ -195,63 +197,17 @@ test.macro = function <T extends (test: Test<any>, ...args: any[]) => any>(
 export const html = litHtml
 
 /**
- * Renders a Lit template into a dedicated fixture container and mounts it to the DOM.
- *
- * The fixture is automatically cleaned up and removed from the DOM
- * when the current test finishes.
- *
- * @param template - The `lit-html` template created using the `html` tag.
- * @returns A promise that resolves to the rendered DOM Element.
- *
- * @category DOM
- * @useWhen Rendering Lit templates and Custom Elements into the DOM for interaction
- * @avoidWhen Testing pure logic or functions that do not require a DOM
- *
- * @example
- * ```ts
- * test('renders button', async ({ assert }) => {
- *   const el = await fixture(html`<button>Click me</button>`)
- *   assert.equal(el.textContent, 'Click me')
- * })
- * ```
- */
-export async function fixture<T extends Element = Element>(template: ReturnType<typeof litHtml>): Promise<T> {
-  const isInsideTest = !!activeTest
-  const isInsideGroup = !!activeExecutingGroup
-
-  if (!isInsideTest && !isInsideGroup) {
-    throw new Error('Cannot render fixture outside of a test or group hook')
-  }
-
-  const container = document.createElement('div')
-  container.className = 'lupa-fixture'
-  document.body.appendChild(container)
-
-  if (isInsideTest) {
-    // Automatically clean up the fixture when the test finishes
-    activeTest?.cleanup(() => {
-      container.remove()
-    })
-  } else if (isInsideGroup) {
-    // Automatically clean up the fixture when the group finishes
-    activeExecutingGroup?.teardown(() => {
-      container.remove()
-    })
-  }
-
-  render(template, container)
-
-  // Wait for next frame to ensure elements are upgraded and connected
-  await new Promise((resolve) => requestAnimationFrame(resolve))
-
-  return container.firstElementChild as T
-}
-
-/**
  * Returns the currently executing Test instance, or `undefined` if called outside of a test execution context.
  */
 export function getActiveTest() {
   return activeTest
+}
+
+/**
+ * Returns the currently executing Group instance, or `undefined` if called outside of a group setup execution context.
+ */
+export function getActiveExecutingGroup() {
+  return activeExecutingGroup
 }
 
 /**
