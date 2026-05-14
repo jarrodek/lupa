@@ -18,5 +18,11 @@
   "projectDocuments": ["guides/**/*.md"],
   "customCss": "assets/docs.css",
   "lightHighlightTheme": "dark-plus",
-  "plugin": ["@to-skills/typedoc"]
+  "plugin": ["@to-skills/typedoc"],
+  "externalSymbolLinkMappings": {
+    "typescript": {
+      "AbortSignal": "https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal",
+      "Disposable": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/dispose"
+    }
+  }
 }

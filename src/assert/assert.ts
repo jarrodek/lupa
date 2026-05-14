@@ -16,7 +16,10 @@ import { AssertDom } from './dom.js'
 import { assertIsAccessible } from './accessibility.js'
 import type axe from 'axe-core'
 
-type Constructor<T> = new (...args: any[]) => T
+/**
+ * A generic class constructor
+ */
+export type Constructor<T> = new (...args: any[]) => T
 
 /**
  * The Assert class is derived from chai.assert to allow support

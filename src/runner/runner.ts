@@ -93,6 +93,9 @@ export class Runner extends Macroable {
 
   /**
    * Register a tests reporter
+   *
+   * @param reporter - Reporter to register
+   * @returns This runner instance
    */
   registerReporter(reporter: ReporterContract): this {
     this.reporters.add(reporter)
@@ -101,6 +104,8 @@ export class Runner extends Macroable {
 
   /**
    * Get tests summary
+   *
+   * @returns Tests summary or throws error when runner is not booted
    */
   getSummary(): RunnerSummary {
     return this.#getTrackerOrThrow().getSummary()
@@ -114,8 +119,10 @@ export class Runner extends Macroable {
 
   /**
    * Start the test runner process
+   *
+   * @returns Promise that resolves when the runner starts
    */
-  async start() {
+  async start(): Promise<void> {
     this.#boot()
     debug('starting node reporters')
 
@@ -132,8 +139,10 @@ export class Runner extends Macroable {
 
   /**
    * End the runner process
+   *
+   * @returns Promise that resolves when the runner finishes
    */
-  async end() {
+  async end(): Promise<void> {
     debug('node runner ended')
   }
 }

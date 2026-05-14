@@ -14,10 +14,14 @@ import { type RunnerEvents } from '../types.js'
  * Runner emitter
  */
 export class Emitter extends Emittery<RunnerEvents> {
+  /**
+   * The handler to call when an error is emitted.
+   */
   #errorHandler?: (error: any) => void | Promise<void>
 
   /**
    * Define onError handler invoked when `emit` fails
+   * @param errorHandler - The error handler to call when an error is emitted
    */
   onError(errorHandler: (error: any) => void | Promise<void>) {
     this.#errorHandler = errorHandler

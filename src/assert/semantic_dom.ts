@@ -2,6 +2,10 @@ import type { AttributeMatcher, SemanticDomOptions } from './types.js'
 
 /**
  * Checks if an attribute should be ignored based on the configuration rules
+ * @param el - The element to check
+ * @param name - The name of the attribute to check
+ * @param rules - The rules to use for checking
+ * @returns True if the attribute should be ignored, false otherwise
  */
 function matchesAttributeRule(el: Element, name: string, rules?: (string | AttributeMatcher)[] | '*'): boolean {
   if (!rules) return false
@@ -21,6 +25,8 @@ function matchesAttributeRule(el: Element, name: string, rules?: (string | Attri
 /**
  * Normalizes a DOM element or HTML string into a deterministic HTML string
  * for semantic comparison, applying all ignore rules.
+ * @param html - The HTML string or DOM element to normalize
+ * @param options - Optional options to control the normalization process
  */
 export function normalizeDom(html: string | Element | DocumentFragment, options: SemanticDomOptions = {}): string {
   const container = document.createElement('div')

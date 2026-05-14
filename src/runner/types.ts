@@ -6,22 +6,34 @@ import type { FilteringOptions, NamedReporterContract } from '../types.js'
 import type { InlineConfig } from 'vite'
 
 /**
- * Global setup hook
+ * Global setup hook state
  */
 export type SetupHookState = [[runner: Runner], [error: Error | null, runner: Runner]]
+/**
+ * Global setup hook handler
+ */
 export type SetupHookHandler = HookHandler<SetupHookState[0], SetupHookState[1]>
 
 /**
- * Global teardown hook
+ * Global teardown hook state
  */
 export type TeardownHookState = [[runner: Runner], [error: Error | null, runner: Runner]]
+/**
+ * Global teardown hook handler
+ */
 export type TeardownHookHandler = HookHandler<TeardownHookState[0], TeardownHookState[1]>
 
 /**
  * Global set of available hooks
  */
 export interface HooksEvents {
+  /**
+   * Global setup hook
+   */
   setup: SetupHookState
+  /**
+   * Global teardown hook
+   */
   teardown: TeardownHookState
 }
 
@@ -29,24 +41,81 @@ export interface HooksEvents {
  * Parsed command-line arguments
  */
 export type CLIArgs = {
+  /**
+   * Unparsed arguments
+   */
   _?: string[]
+  /**
+   * Test tags to filter by
+   */
   tags?: string | string[]
+  /**
+   * Test files to filter by
+   */
   files?: string | string[]
+  /**
+   * Test names to filter by
+   */
   tests?: string | string[]
+  /**
+   * Test groups to filter by
+   */
   groups?: string | string[]
+  /**
+   * Test timeout
+   */
   timeout?: string
+  /**
+   * Number of retries
+   */
   retries?: string
+  /**
+   * Reporters to use
+   */
   reporters?: string | string[]
+  /**
+   * Whether to force exit
+   */
   forceExit?: boolean
+  /**
+   * Whether to run only failed tests
+   */
   failed?: boolean
+  /**
+   * Whether to show help
+   */
   help?: boolean
+  /**
+   * Whether to match all tests
+   */
   matchAll?: boolean
+  /**
+   * Whether to list pinned tests
+   */
   listPinned?: boolean
+  /**
+   * Whether to bail
+   */
   bail?: boolean
+  /**
+   * Bail layer
+   */
   bailLayer?: string
+  /**
+   * Whether to enable verbose mode
+   */
   verbose?: boolean
+  /**
+   * Browser to run tests in
+   */
   browser?: string
+  /**
+   * Path to Vite configuration file
+   */
   viteConfig?: string
+  /**
+   * Whether to enable code coverage
+   */
   coverage?: boolean
 } & Record<string, string | string[] | boolean>
 
@@ -54,7 +123,13 @@ export type CLIArgs = {
  * Set of filters you can apply to run only specific tests
  */
 export type Filters = FilteringOptions & {
+  /**
+   * Test files to filter by
+   */
   files?: string[]
+  /**
+   * Test suites to filter by
+   */
   suites?: string[]
 }
 
@@ -82,9 +157,21 @@ export type TestPluginEntry = string | [specifier: string, options: JsonSerializ
  * Executed in the Node.js orchestrator process.
  */
 export type RunnerPluginFn = (context: {
+  /**
+   * Normalized runner configuration
+   */
   config: NormalizedConfig
+  /**
+   * Parsed command-line arguments
+   */
   cliArgs: CLIArgs
+  /**
+   * Runner instance
+   */
   runner: Runner
+  /**
+   * Event emitter
+   */
   emitter: Emitter
 }) => void | Promise<void>
 
@@ -252,12 +339,30 @@ export interface TestSuite {
  * BaseConfig after normalized by the config manager
  */
 export type NormalizedBaseConfig = Required<Omit<BaseConfig, 'reporters' | 'viteConfig' | 'vite'>> & {
+  /**
+   * Activated reporters
+   */
   reporters: {
+    /**
+     * Activated reporter names
+     */
     activated: string[]
+    /**
+     * List of registered reporters
+     */
     list: NamedReporterContract[]
   }
+  /**
+   * Path to Vite configuration file
+   */
   viteConfig?: string
+  /**
+   * Inline Vite configuration
+   */
   vite?: InlineConfig
+  /**
+   * Code coverage options
+   */
   coverage?: boolean | CoverageOptions
 }
 
@@ -267,9 +372,15 @@ export type NormalizedBaseConfig = Required<Omit<BaseConfig, 'reporters' | 'vite
 export type Config = BaseConfig &
   (
     | {
+        /**
+         * Collection of test files
+         */
         files: TestFiles
       }
     | {
+        /**
+         * Collection of test suites
+         */
         suites: TestSuite[]
       }
   )
@@ -280,9 +391,15 @@ export type Config = BaseConfig &
 export type NormalizedConfig = NormalizedBaseConfig &
   (
     | {
+        /**
+         * Collection of test files
+         */
         files: TestFiles
       }
     | {
+        /**
+         * Collection of test suites
+         */
         suites: Required<TestSuite>[]
       }
   )

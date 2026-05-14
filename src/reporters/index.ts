@@ -1,8 +1,17 @@
+/**
+ * Built-in test reporters for Lupa (spec, dot, ndjson, github) and a way to register custom reporters.
+ *
+ * @packageDocumentation
+ * @module @jarrodek/lupa/reporters
+ */
+
 import { DotReporter } from './dot.js'
 import { SpecReporter } from './spec.js'
 import { NdJSONReporter } from './ndjson.js'
 import { GithubReporter } from './github.js'
 import type { BaseReporterOptions, NamedReporterContract } from '../types.js'
+
+export { BaseReporterOptions, NamedReporterContract }
 
 /**
  * @packageDocumentation

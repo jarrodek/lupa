@@ -1,3 +1,10 @@
+/**
+ * The built-in assertion library for Lupa. It uses the Japa Assert library under the hood.
+ *
+ * @packageDocumentation
+ * @module @jarrodek/lupa/assert
+ */
+
 /*
  * @japa/assert
  *
@@ -45,3 +52,5 @@ const setup: WebPluginFn = () => {
 
 export default setup
 export { Assert }
+export { AssertDom } from './dom.js'
+export type * from './types.js'

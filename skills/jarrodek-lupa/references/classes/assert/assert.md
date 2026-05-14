@@ -207,5 +207,9 @@ The method returns a promise
 does not match the expectations.
 
 The method returns a promise
-
-<!-- truncated -->
+- `isAccessible(element: string | Element | NodeList, options?: RunOptions): Promise<void>` — Asserts that a given DOM element or NodeList has no accessibility violations
+according to axe-core.
+```ts
+const assert = new Assert()
+assert.deepEqual({ id: 1 }, { id: 1 })
+```

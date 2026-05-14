@@ -1,3 +1,10 @@
+/**
+ * Refines tests based on applied filters. It is used by the runner to filter out tests that should not be executed.
+ *
+ * @packageDocumentation
+ * @module @jarrodek/lupa/refiner
+ */
+
 /*
  * @japa/core
  *
@@ -10,6 +17,8 @@
 import { type Test } from '../testing/test/main.js'
 import { Group } from '../testing/group/main.js'
 import type { FilteringOptions } from '../types.js'
+
+export { FilteringOptions }
 
 /**
  * Exposes the API to refine unwanted tests based upon applied

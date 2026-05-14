@@ -71,8 +71,7 @@ provided by configure and the CLI arguments parsed by processCLIArgs.
 ```ts
 run(): Promise<void>
 ```
-**Returns:** `Promise<void>` — A Promise that resolves when the test run is complete. The promise resolves with a
-         RunnerResult object containing information about the test execution,
+**Returns:** `Promise<void>` — A Promise that resolves when the test run is complete,
          or rejects if the test run encounters an error (e.g., uncaught exceptions).
 **Throws:** Throws if configuration is missing or invalid.
 ```ts

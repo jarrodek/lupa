@@ -1,12 +1,3 @@
-/*
- * @japa/core
- *
- * (c) Japa
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 import Macroable from '@poppinss/macroable'
 
 import debug from './debug.js'
@@ -33,6 +24,11 @@ export class WebRunner extends Macroable {
    */
   suites: Suite[] = []
 
+  /**
+   * Constructor
+   *
+   * @param emitter - Emitter to use
+   */
   constructor(emitter: Emitter) {
     super()
     this.#emitter = emitter
@@ -63,6 +59,9 @@ export class WebRunner extends Macroable {
 
   /**
    * Add a suite to the runner
+   *
+   * @param suite - Suite to add
+   * @returns This runner instance
    */
   add(suite: Suite): this {
     this.#configureSuiteCallbacks.forEach((callback) => callback(suite))
@@ -73,6 +72,9 @@ export class WebRunner extends Macroable {
 
   /**
    * Tap into each suite and configure it
+   *
+   * @param callback - Callback to configure each suite
+   * @returns This runner instance
    */
   onSuite(callback: (suite: Suite) => void): this {
     this.suites.forEach((suite) => callback(suite))
@@ -84,8 +86,11 @@ export class WebRunner extends Macroable {
    * Enable/disable the bail mode. In bail mode, all
    * upcoming suites/groups/tests will be skipped
    * when the current test fails
+   *
+   * @param toggle - Whether to enable or disable bail mode
+   * @returns This runner instance
    */
-  bail(toggle = true) {
+  bail(toggle = true): this {
     this.#bail = toggle
     this.onSuite((suite) => suite.bail(toggle))
     return this
@@ -94,16 +99,20 @@ export class WebRunner extends Macroable {
   /**
    * Start the test runner process. The method emits
    * "runner:start" event
+   *
+   * @returns Promise that resolves when the runner starts
    */
-  async start() {
+  async start(): Promise<void> {
     debug('starting to run tests')
     await this.#notifyStart()
   }
 
   /**
    * Execute runner suites
+   *
+   * @returns Promise that resolves when the runner finishes
    */
-  async exec() {
+  async exec(): Promise<void> {
     const pinnedTests: { title: string; stack: string }[] = []
 
     for (const suite of this.suites) {

@@ -28,7 +28,7 @@ A lightning-fast, Vite-powered browser testing framework for Web Components with
 - You are already inside a running test or suite. (`configure`)
 - Testing pure logic or functions that do not require a DOM (`fixture`)
 
-API surface: 9 functions, 5 classes, 6 types, 6 constants
+API surface: 9 functions, 11 classes, 56 types, 6 constants
 
 ## NEVER
 
@@ -39,24 +39,15 @@ API surface: 9 functions, 5 classes, 6 types, 6 constants
 - **Watch Mode Collisions:** You cannot run `npx tsx bin/test.ts` with both `--watch` and a parallel suite runner like `concurrently`. Multiple browser instances and Vite dev servers will conflict. Use parallelization strictly in headless CI environments.
 - **Hanging Tests:** If a test is failing to exit or hanging indefinitely, ensure that any external asynchronous resources (like custom servers) instantiated in `setup()` hooks return a proper cleanup function (e.g., `return () => server.close()`). Lupa guarantees execution of teardown cleanups even when assertions fail.
 
+## Configuration
+
+10 configuration interfaces — see references/config.md for details.
+
 ## Quick Reference
 
-**Configuration:** `configure` (Configure the Lupa test runner)
-**runner:** `processCLIArgs` (Process command line arguments)
-**Execution:** `run` (Run the test suite)
-**testing:** `test` (Define a new test), `aTimeout` (Returns a promise that resolves after the specified number of milliseconds), `nextFrame` (Returns a promise that resolves after the next browser animation frame), `oneEvent` (Returns a promise that resolves when the specified event is dispatched on the element), `waitUntil` (Polls the condition function until it returns true or the timeout is reached), `WebPluginFn` (The default export contract for a browser test plugin module), `WebPluginContext` (Context provided to browser-side test plugins), `OmitFirstArg` (Utility type that removes the first argument from a function's parameter list), `html` (`html` template tag from `lit-html`)
-**DOM:** `fixture` (Renders a Lit template into a dedicated fixture container and mounts it to the DOM)
-**assert:** `Assert` (The Assert class is derived from chai), `default` (Browser test plugin for assertion support)
-**refiner:** `Refiner` (Exposes the API to refine unwanted tests based upon applied
-filters)
-**testing/test:** `Test` (Test class exposes a self contained API to configure and run
-tests along with its hooks)
-**testing/suite:** `Suite` (The Suite class exposes the API to run a group of tests
-or independent tests together as part of a suite)
-**testing/group:** `Group` (Group class exposes an API to group multiple tests together
-and bulk configure them)
-**types:** `TestExecutor` (The function to execute the test), `TestHooksHandler` (The function that can be registered as a test hook), `TestHooksCleanupHandler` (The function that can be registered as a cleanup handler)
-**reporters:** `spec` (Create an instance of the spec reporter), `dot` (Create an instance of the dot reporter), `ndjson` (Create an instance of the ndjson reporter), `github` (Create an instance of the github reporter)
+**Key functions:** `configure` (Configure the Lupa test runner), `run` (Run the test suite), `fixture` (Renders a Lit template into a dedicated fixture container and mounts it to the DOM), `waitUntil` (Polls the condition function until it returns true or the timeout is reached)
+
+*82 exports total — see references/ for full API.*
 
 ## Documentation
 
@@ -104,6 +95,7 @@ Load these on demand — do NOT read all at once:
 - When using a class → browse `references/classes/` for grouped indexes, properties, methods, and inheritance
 - When defining typed variables or function parameters → read `references/types.md`
 - When using exported constants → read `references/variables.md`
+- When configuring options → read `references/config.md` for all settings and defaults
 - When learning concepts or workflows → browse `references/docs/` by category
 
 ## Links

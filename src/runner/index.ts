@@ -11,6 +11,7 @@ import { createServer, createLogger, type ViteDevServer, mergeConfig, type Inlin
 import { chromium, firefox, webkit, type Browser, type Page } from 'playwright'
 
 import type { Config, NormalizedConfig, CLIArgs } from './types.js'
+export type * from './types.js'
 import { Emitter } from '../testing/emitter.js'
 import { Runner } from './runner.js'
 import { CliParser } from './cli_parser.js'
@@ -25,6 +26,8 @@ import { Planner } from './planner.js'
 import { transformBrowserStack } from './stack_transformer.js'
 import { formatPinnedTest, printPinnedTests } from './helpers.js'
 import { RunnerEvents } from '../types.js'
+
+export type { Config, NormalizedConfig, CLIArgs, JsonSerializable } from './types.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const harnessTs = resolve(__dirname, '../testing/harness.ts')
@@ -123,8 +126,7 @@ export function processCLIArgs(argv: string[]) {
  * This is the primary entry point for running your tests. It uses the configuration
  * provided by {@link configure} and the CLI arguments parsed by {@link processCLIArgs}.
  *
- * @returns A Promise that resolves when the test run is complete. The promise resolves with a
- *          {@link RunnerResult} object containing information about the test execution,
+ * @returns A Promise that resolves when the test run is complete,
  *          or rejects if the test run encounters an error (e.g., uncaught exceptions).
  *
  * @category Execution

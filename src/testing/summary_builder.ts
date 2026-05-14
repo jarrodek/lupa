@@ -16,6 +16,9 @@ export class SummaryBuilder {
 
   /**
    * Register a custom summary reporter
+   *
+   * @param reporter - Reporter to register
+   * @returns This summary builder instance
    */
   use(reporter: () => { key: string; value: string | string[] }[]): this {
     this.#reporters.push(reporter)
@@ -24,6 +27,8 @@ export class SummaryBuilder {
 
   /**
    * Builds the summary table
+   *
+   * @returns Array of strings representing the summary table
    */
   build(): string[] {
     const keys: string[] = []
