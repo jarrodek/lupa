@@ -1,0 +1,127 @@
+# Functions
+
+## Configuration
+
+### `configure`
+Configure the Lupa test runner.
+
+This is the primary entry point for configuring your test environment.
+It hydrates the provided configuration options and merges them with parsed CLI arguments.
+
+You must call this function before calling run.
+```ts
+configure(options: Config): void
+```
+**Parameters:**
+- `options: Config` — The configuration object. You must provide either a top-level `files` array
+                 or a `suites` array to define your test files.
+**Basic Configuration**
+```ts
+import { configure, run } from '@jarrodek/lupa/runner'
+
+configure({
+  files: ['tests/**/*.spec.ts'],
+  testPlugins: ['@jarrodek/lupa/assert']
+})
+
+run()
+```
+**Using Test Suites**
+```ts
+import { configure, run } from '@jarrodek/lupa/runner'
+
+configure({
+  suites: [
+    { name: 'components', files: ['tests/components/**/*.spec.ts'] },
+    { name: 'e2e', files: ['tests/e2e/**/*.spec.ts'] }
+  ],
+  timeout: 5000,
+  forceExit: true
+})
+
+run()
+```
+
+## runner
+
+### `processCLIArgs`
+Process command line arguments. Later the parsed output
+will be used by Lupa to compute the configuration
+```ts
+processCLIArgs(argv: string[]): void
+```
+**Parameters:**
+- `argv: string[]` — The command line arguments to parse.
+```ts
+import { processCLIArgs, configure, run } from '@jarrodek/lupa/runner'
+
+processCLIArgs(['--spec', 'tests/**/*.spec.ts'])
+configure({})
+
+run()
+```
+
+## Execution
+
+### `run`
+Run the test suite.
+
+This is the primary entry point for running your tests. It uses the configuration
+provided by configure and the CLI arguments parsed by processCLIArgs.
+```ts
+run(): Promise<void>
+```
+**Returns:** `Promise<void>` — A Promise that resolves when the test run is complete. The promise resolves with a
+         RunnerResult object containing information about the test execution,
+         or rejects if the test run encounters an error (e.g., uncaught exceptions).
+**Throws:** Throws if configuration is missing or invalid.
+```ts
+import { configure, run } from '@jarrodek/lupa/runner'
+
+configure({
+  files: ['tests/**/*.spec.ts'],
+  forceExit: true
+})
+
+run()
+```
+
+## testing
+
+### `test`
+Define a new test.
+
+The test callback receives a TestContext which provides
+access to assertions, fixtures, and other test utilities.
+```ts
+test(title: string, callback?: (context: TestContext) => void | Promise<void>): Test<undefined>
+```
+**Parameters:**
+- `title: string` — The name of the test.
+- `callback: (context: TestContext) => void | Promise<void>` (optional) — The function containing the test logic. Can be synchronous or asynchronous.
+**Returns:** `Test<undefined>`
+```ts
+test('math works', ({ assert }) => {
+  assert.equal(1 + 1, 2)
+})
+```
+
+## DOM
+
+### `fixture`
+Renders a Lit template into a dedicated fixture container and mounts it to the DOM.
+
+The fixture is automatically cleaned up and removed from the DOM
+when the current test finishes.
+```ts
+fixture(template: TemplateResult<1>): Promise<Element>
+```
+**Parameters:**
+- `template: TemplateResult<1>` — The `lit-html` template created using the `html` tag.
+**Returns:** `Promise<Element>` — A promise that resolves to the rendered DOM Element.
+```ts
+test('renders button', async ({ assert }) => {
+  const el = await fixture(html`<button>Click me</button>`)
+  assert.equal(el.textContent, 'Click me')
+})
+```

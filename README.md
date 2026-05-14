@@ -14,11 +14,15 @@ For years, tools like [`@web/test-runner`](https://modern-web.dev/docs/test-runn
 
 Lupa was built to be the spiritual successor for modern, Vite-based workflows.
 
-**With Lupa, you get:**
+## Features
+
 - **Native Browser Execution:** Tests run inside actual browsers (Chromium, Firefox, WebKit) via Playwright. No DOM mocks.
 - **Lightning Fast:** Uses Vite as the dev server. No bundling required, resulting in instant boot times.
 - **Intelligent Watch Mode:** A dependency-aware incremental test watcher. Change a component, and Lupa instantly re-runs *only* the tests that import it.
 - **Interactive Debugging:** Focus on a single test file and press `d` to pop open a headed browser with Chrome DevTools already open and attached.
+- **Test Grouping & Suites:** Organize your testing architecture intuitively with structured groups, tags, and execution suites.
+- **Data-Driven Datasets:** Avoid boilerplate by feeding dynamic datasets into parameterized tests.
+- **Browser-Specific Macros:** Create extensible test setups and custom assertions that run flawlessly inside the browser sandbox.
 
 ## The Japa Connection
 
@@ -86,6 +90,11 @@ For the ultimate developer experience, run it in **Watch Mode**:
 ```bash
 npx tsx bin/test.ts --watch
 ```
+
+## Troubleshooting
+
+- **Watch Mode Collisions:** You cannot run `npx tsx bin/test.ts` with both `--watch` and a parallel suite runner like `concurrently`. Multiple browser instances and Vite dev servers will conflict. Use parallelization strictly in headless CI environments.
+- **Hanging Tests:** If a test is failing to exit or hanging indefinitely, ensure that any external asynchronous resources (like custom servers) instantiated in `setup()` hooks return a proper cleanup function (e.g., `return () => server.close()`). Lupa guarantees execution of teardown cleanups even when assertions fail.
 
 ## Contributing
 

@@ -15,7 +15,10 @@ export let activeGroup: Group | undefined
 export let activeEmitter: Emitter | undefined
 export let activeRefiner: Refiner | undefined
 
-type OmitFirstArg<F> = F extends [_: any, ...args: infer R] ? R : never
+/**
+ * Utility type that removes the first argument from a function's parameter list.
+ */
+export type OmitFirstArg<F> = F extends [_: any, ...args: infer R] ? R : never
 
 /**
  * The current active test
@@ -27,6 +30,11 @@ let activeTest: Test | undefined
  */
 let activeFile: string | undefined
 
+/**
+ * Set the active test runner, suite, emitter, and refiner instances.
+ * This is called by the Lupa harness during boot and should not be used directly.
+ * @internal
+ */
 export function setActiveInstances(runner: WebRunner, suite: Suite, emitter: Emitter, refiner: Refiner) {
   activeRunner = runner
   activeSuite = suite
@@ -37,13 +45,27 @@ export function setActiveInstances(runner: WebRunner, suite: Suite, emitter: Emi
 /**
  * Set the current file being imported. Called by the harness
  * before importing each test file.
+ * @internal
  */
 export function setActiveFile(file: string | undefined) {
   activeFile = file
 }
 
 /**
- * Define a test
+ * Define a new test.
+ *
+ * The test callback receives a {@link TestContext} which provides
+ * access to assertions, fixtures, and other test utilities.
+ *
+ * @param title - The name of the test.
+ * @param callback - The function containing the test logic. Can be synchronous or asynchronous.
+ *
+ * @example
+ * ```ts
+ * test('math works', ({ assert }) => {
+ *   assert.equal(1 + 1, 2)
+ * })
+ * ```
  */
 export function test(title: string, callback?: (context: TestContext) => void | Promise<void>) {
   if (!activeEmitter || !activeRefiner || !activeSuite) {
@@ -73,7 +95,26 @@ export function test(title: string, callback?: (context: TestContext) => void | 
 }
 
 /**
- * Create a test group
+ * Group multiple tests together.
+ *
+ * Groups allow you to define shared setup/teardown hooks and configure
+ * timeouts or retries for all tests within the group.
+ *
+ * @param title - The name of the group.
+ * @param callback - A function where you define tests using the `test` method.
+ *
+ * @example
+ * ```ts
+ * test.group('Math operations', (group) => {
+ *   group.setup(() => {
+ *     // Runs once before all tests in this group
+ *   })
+ *
+ *   test('addition', ({ assert }) => {
+ *     assert.equal(1 + 1, 2)
+ *   })
+ * })
+ * ```
  */
 test.group = function (title: string, callback: (group: Group) => void) {
   if (!activeEmitter || !activeRefiner || !activeSuite) {
@@ -96,9 +137,23 @@ test.group = function (title: string, callback: (group: Group) => void) {
 }
 
 /**
- * Create a test bound macro. Within the macro, you can access the
- * currently executed test to read its context values or define
- * cleanup hooks
+ * Create a test macro.
+ *
+ * Macros are reusable test logic blocks. Within the macro, you can access the
+ * currently executing test to read its context values or define cleanup hooks.
+ *
+ * @param callback - The macro implementation function. The first argument will
+ *                   automatically be the active test instance.
+ * @returns A wrapped function that can be called inside your tests without needing to pass the test instance manually.
+ *
+ * @example
+ * ```ts
+ * const loginUser = test.macro(async (t, role: string) => {
+ *   const user = await db.createUser({ role })
+ *   t.cleanup(() => user.delete())
+ *   return user
+ * })
+ * ```
  */
 test.macro = function <T extends (test: Test<any>, ...args: any[]) => any>(
   callback: T
@@ -112,12 +167,31 @@ test.macro = function <T extends (test: Test<any>, ...args: any[]) => any>(
 }
 
 /**
- * Lit HTML template literal
+ * `html` template tag from `lit-html`.
+ * Used for creating DOM templates to be rendered by {@link fixture}.
  */
 export const html = litHtml
 
 /**
- * Renders a Lit template into a test fixture element and mounts it to the DOM
+ * Renders a Lit template into a dedicated fixture container and mounts it to the DOM.
+ *
+ * The fixture is automatically cleaned up and removed from the DOM
+ * when the current test finishes.
+ *
+ * @param template - The `lit-html` template created using the `html` tag.
+ * @returns A promise that resolves to the rendered DOM Element.
+ *
+ * @category DOM
+ * @useWhen Rendering Lit templates and Custom Elements into the DOM for interaction
+ * @avoidWhen Testing pure logic or functions that do not require a DOM
+ *
+ * @example
+ * ```ts
+ * test('renders button', async ({ assert }) => {
+ *   const el = await fixture(html`<button>Click me</button>`)
+ *   assert.equal(el.textContent, 'Click me')
+ * })
+ * ```
  */
 export async function fixture(template: ReturnType<typeof litHtml>): Promise<Element> {
   if (!activeTest) {
@@ -142,14 +216,17 @@ export async function fixture(template: ReturnType<typeof litHtml>): Promise<Ele
 }
 
 /**
- * Get the test of currently running test
+ * Returns the currently executing Test instance, or `undefined` if called outside of a test execution context.
  */
 export function getActiveTest() {
   return activeTest
 }
 
 /**
- * Get the test of currently running test or throw an error
+ * Returns the currently executing Test instance. Throws an error if called outside of a test execution context.
+ *
+ * @category Execution
+ * @throws {Error} Throws if called outside of an active test execution context
  */
 export function getActiveTestOrFail() {
   if (!activeTest) throw new Error('Cannot access active test outside of a test callback')

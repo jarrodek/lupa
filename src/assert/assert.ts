@@ -16,6 +16,8 @@ import { AssertDom } from './dom.js'
 import { assertIsAccessible } from './accessibility.js'
 import type axe from 'axe-core'
 
+type Constructor<T> = new (...args: any[]) => T
+
 /**
  * The Assert class is derived from chai.assert to allow support
  * for additional assertion methods and assertion planning.
@@ -77,6 +79,12 @@ export class Assert extends Macroable implements AssertContract {
 
   /**
    * Plan assertions to expect by the end of this test
+   *
+   * This method is used to declare the number of assertions you expect to run
+   * in a test. If the number of assertions that actually run does not match
+   * the planned number, the test will fail.
+   *
+   * @param assertionsToExpect - The number of assertions to expect
    */
   plan(assertionsToExpect: number): this {
     const error = new Error()
@@ -92,6 +100,13 @@ export class Assert extends Macroable implements AssertContract {
   /**
    * Evaluate an expression and raise {@link AssertionError} if expression
    * is not truthy
+   *
+   * This method is used internally by other assertion methods to evaluate expressions
+   * and raise {@link AssertionError} if the expression is not truthy.
+   *
+   * @param expression - The expression to evaluate
+   * @param message - The error message to use if the expression is not truthy
+   * @param stackProps - Additional properties to use for the error stack
    */
   evaluate(
     expression: any,
@@ -132,6 +147,8 @@ export class Assert extends Macroable implements AssertContract {
    * assert(foo === 'bar')
    * assert(age > 18, 'Not allowed to enter the club')
    *
+   * @param expression - The expression to evaluate
+   * @param message - The error message to use if the expression is not truthy
    */
   assert(expression: any, message?: string): void {
     this.incrementAssertionsCount()
@@ -139,29 +156,48 @@ export class Assert extends Macroable implements AssertContract {
   }
 
   /**
-   * Throw a failure. Optionally accepts "actual" and "expected" values for
-   * the default error message.
+   * Throws a failure.
    *
-   * @note
+   * @remarks
    * The actual and expected values are not compared. They are available as
-   * properties on the AssertionError.
+   * properties on the {@link AssertionError}.
    *
    * @example
    * assert.fail() // fail
    * assert.fail('Error message for the failure')
-   * assert.fail(1, 2, 'expected 1 to equal 2')
-   * assert.fail(1, 2, 'expected 1 to be greater than 2', '>')
    *
+   * @param message - The error message to use if the expression is not truthy
+   * @returns This method always throws an error
    */
   fail(message?: string): never
+
+  /**
+   * Throw a failure.
+   *
+   * @param actual - The actual value to use for the error message
+   * @param expected - The expected value to use for the error message
+   * @param message - The error message to use if the expression is not truthy
+   * @param operator - The operator to use for the error message
+   * @returns This method always throws an error
+   */
   fail<T>(actual: T, expected: T, message?: string, operator?: Chai.Operator): never
+  /**
+   * Throw a failure. Optionally accepts "actual" and "expected" values for
+   * the default error message.
+   *
+   * @param actual - The actual value to use for the error message
+   * @param expected - The expected value to use for the error message
+   * @param message - The error message to use if the expression is not truthy
+   * @param operator - The operator to use for the error message
+   * @returns This method always throws an error
+   */
   fail<T>(actual?: T | string, expected?: T, message?: string, operator?: Chai.Operator): never {
     this.incrementAssertionsCount()
     if (arguments.length === 1 && typeof actual === 'string') {
-      return assert.fail(actual)
+      assert.fail(actual)
     }
 
-    return assert.fail(actual, expected, message, operator)
+    assert.fail(actual, expected, message, operator)
   }
 
   /**
@@ -171,26 +207,30 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isOk({ hello: 'world' }) // passes
    * assert.isOk(null) // fails
    *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not truthy
    */
-  isOk(...args: Parameters<ChaiAssert['isOk']>): ReturnType<ChaiAssert['isOk']> {
+  isOk(value: unknown, message?: string): ReturnType<ChaiAssert['isOk']> {
     this.incrementAssertionsCount()
-    return assert.isOk(...args)
+    return assert.isOk(value, message)
   }
 
   /**
    * Assert the value is truthy
    *
-   * @alias
-   * isOk
+   * @remarks
+   * Alias for {@link isOk}
    *
    * @example
    * assert.ok({ hello: 'world' }) // passes
    * assert.ok(null) // fails
    *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not truthy
    */
-  ok(...args: Parameters<ChaiAssert['ok']>): ReturnType<ChaiAssert['ok']> {
+  ok(value: unknown, message?: string): ReturnType<ChaiAssert['ok']> {
     this.incrementAssertionsCount()
-    return assert.ok(...args)
+    return assert.ok(value, message)
   }
 
   /**
@@ -200,96 +240,114 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotOk({ hello: 'world' }) // fails
    * assert.isNotOk(null) // passes
    *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not falsy
    */
-  isNotOk(...args: Parameters<ChaiAssert['isNotOk']>): ReturnType<ChaiAssert['isNotOk']> {
+  isNotOk<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotOk']> {
     this.incrementAssertionsCount()
-    return assert.isNotOk(...args)
+    return assert.isNotOk(value, message)
   }
 
   /**
    * Assert the value is falsy
    *
-   * @alias
-   * isNotOk
+   * @remarks
+   * Alias for {@link isNotOk}
    *
    * @example
    * assert.notOk({ hello: 'world' }) // fails
    * assert.notOk(null) // passes
    *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not falsy
    */
-  notOk(...args: Parameters<ChaiAssert['notOk']>): ReturnType<ChaiAssert['notOk']> {
+  notOk<T>(value: T, message?: string): ReturnType<ChaiAssert['notOk']> {
     this.incrementAssertionsCount()
-    return assert.notOk(...args)
+    return assert.notOk(value, message)
   }
 
   /**
    * Assert two values are equal but not strictly. The comparison
    * is same as "foo == bar".
    *
-   * See {@link strictEqual} for strict equality
-   * See {@link deepEqual} for comparing objects and arrays
+   * @see {@link strictEqual} for strict equality
+   * @see {@link deepEqual} for comparing objects and arrays
    *
    * @example
    * assert.equal(3, 3) // passes
    * assert.equal(3, '3') // passes
    * assert.equal(Symbol.for('foo'), Symbol.for('foo')) // passes
    *
+   * @param actual - The actual value to compare
+   * @param expected - The expected value to compare
+   * @param message - The error message to use if the values are not equal
    */
-  equal(...args: Parameters<ChaiAssert['equal']>): ReturnType<ChaiAssert['equal']> {
+  equal<T>(actual: T, expected: T, message?: string): ReturnType<ChaiAssert['equal']> {
     this.incrementAssertionsCount()
-    return assert.equal(...args)
+    return assert.equal(actual, expected, message)
   }
 
   /**
    * Assert two values are not equal. The comparison
    * is same as "foo != bar".
    *
-   * See @notStrictEqual for strict inequality
-   * See @notDeepEqual for comparing objects and arrays
+   * @see {@link notStrictEqual} for strict inequality
+   * @see {@link notDeepEqual} for comparing objects and arrays
    *
    * @example
    * assert.notEqual(3, 2) // passes
    * assert.notEqual(3, '2') // passes
    * assert.notEqual(Symbol.for('foo'), Symbol.for('bar')) // passes
    *
+   * @param actual - The actual value to compare
+   * @param expected - The expected value to compare
+   * @param message - The error message to use if the values are not equal
    */
-  notEqual(...args: Parameters<ChaiAssert['notEqual']>): ReturnType<ChaiAssert['notEqual']> {
+  notEqual<T>(actual: T, expected: T, message?: string): ReturnType<ChaiAssert['notEqual']> {
     this.incrementAssertionsCount()
-    return assert.notEqual(...args)
+    return assert.notEqual(actual, expected, message)
   }
 
   /**
    * Assert two values are strictly equal. The comparison
    * is same as "foo === bar".
    *
-   * See @equal for non-strict equality
-   * See @deepEqual for comparing objects and arrays
+   * @see {@link equal} for non-strict equality
+   * @see {@link deepEqual} for comparing objects and arrays
    *
    * @example
    * assert.equal(3, 3) // passes
    * assert.equal(3, '3') // fails
    * assert.equal(Symbol.for('foo'), Symbol.for('foo')) // passes
+   *
+   * @param actual - The actual value to compare
+   * @param expected - The expected value to compare
+   * @param message - The error message to use if the values are not strictly equal
    */
-  strictEqual(...args: Parameters<ChaiAssert['strictEqual']>): ReturnType<ChaiAssert['strictEqual']> {
+  strictEqual<T>(actual: T, expected: T, message?: string): ReturnType<ChaiAssert['strictEqual']> {
     this.incrementAssertionsCount()
-    return assert.strictEqual(...args)
+    return assert.strictEqual(actual, expected, message)
   }
 
   /**
    * Assert two values are not strictly equal. The comparison
    * is same as "foo !== bar".
    *
-   * See @notEqual for non-strict equality
-   * See @notDeepEqual for comparing objects and arrays
+   * @see {@link notEqual} for non-strict equality
+   * @see {@link notDeepEqual} for comparing objects and arrays
    *
    * @example
    * assert.notStrictEqual(3, 2) // passes
    * assert.notStrictEqual(3, '2') // fails
    * assert.notStrictEqual(Symbol.for('foo'), Symbol.for('bar')) // passes
+   *
+   * @param actual - The actual value to compare
+   * @param expected - The expected value to compare
+   * @param message - The error message to use if the values are not strictly equal
    */
-  notStrictEqual(...args: Parameters<ChaiAssert['notStrictEqual']>): ReturnType<ChaiAssert['notStrictEqual']> {
+  notStrictEqual<T>(actual: T, expected: T, message?: string): ReturnType<ChaiAssert['notStrictEqual']> {
     this.incrementAssertionsCount()
-    return assert.notStrictEqual(...args)
+    return assert.notStrictEqual(actual, expected, message)
   }
 
   /**
@@ -306,10 +364,14 @@ export class Assert extends Macroable implements AssertContract {
    *   new Date('2020 01 22'),
    *   new Date('2020 01 22')
    * ) // passes
+   *
+   * @param actual - The actual value to compare
+   * @param expected - The expected value to compare
+   * @param message - The error message to use if the values are not deeply equal
    */
-  deepEqual(...args: Parameters<ChaiAssert['deepEqual']>): ReturnType<ChaiAssert['deepEqual']> {
+  deepEqual<T>(actual: T, expected: T, message?: string): ReturnType<ChaiAssert['deepEqual']> {
     this.incrementAssertionsCount()
-    return assert.deepEqual(...args)
+    return assert.deepEqual(actual, expected, message)
   }
 
   /**
@@ -322,11 +384,39 @@ export class Assert extends Macroable implements AssertContract {
    *   new Date('2020 01 22'),
    *   new Date('2020 01 23')
    * ) // passes
+   *
+   * @param actual - The actual value to compare
+   * @param expected - The expected value to compare
+   * @param message - The error message to use if the values are not deeply equal
    */
-  notDeepEqual(...args: Parameters<ChaiAssert['notDeepEqual']>): ReturnType<ChaiAssert['notDeepEqual']> {
+  notDeepEqual<T>(actual: T, expected: T, message?: string): ReturnType<ChaiAssert['notDeepEqual']> {
     this.incrementAssertionsCount()
-    return assert.notDeepEqual(...args)
+    return assert.notDeepEqual(actual, expected, message)
   }
+
+  /**
+   * Assert if the actual Date is above the expected Date.
+   *
+   * @example
+   * assert.isAbove(new Date('2020 12 20'), new Date('2020 12 18')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAbove - The value to be above
+   * @param message - The error message to use if the value is not above the expected value
+   */
+  isAbove(valueToCheck: Date, valueToBeAbove: Date, message?: string): void
+
+  /**
+   * Assert if the actual number is above the expected number.
+   *
+   * @example
+   * assert.isAbove(5, 2) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAbove - The value to be above
+   * @param message - The error message to use if the value is not above the expected value
+   */
+  isAbove(valueToCheck: number, valueToBeAbove: number, message?: string): void
 
   /**
    * Assert if the actual value is above the expected value. Supports
@@ -335,12 +425,14 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isAbove(5, 2) // passes
    * assert.isAbove(new Date('2020 12 20'), new Date('2020 12 18')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAbove - The value to be above
+   * @param message - The error message to use if the value is not above the expected value
    */
-  isAbove(valueToCheck: Date, valueToBeAbove: Date, message?: string): void
-  isAbove(valueToCheck: number, valueToBeAbove: number, message?: string): void
-  isAbove(
-    valueToCheck: number | Date,
-    valueToBeAbove: number | Date,
+  isAbove<T extends number | Date>(
+    valueToCheck: T,
+    valueToBeAbove: T,
     message?: string
   ): ReturnType<ChaiAssert['isAbove']> {
     this.incrementAssertionsCount()
@@ -349,14 +441,40 @@ export class Assert extends Macroable implements AssertContract {
 
   /**
    * Assert if the actual value is above or same as the expected value.
-   * Supports numbers and dates.
+   *
+   * @example
+   * assert.isAtLeast(new Date('2020 12 20'), new Date('2020 12 20')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAtLeast - The value to be at least
+   * @param message - The error message to use if the value is not at least the expected value
+   */
+  isAtLeast(valueToCheck: Date, valueToBeAtLeast: Date, message?: string): void
+
+  /**
+   * Assert if the actual value is above or same as the expected value.
    *
    * @example
    * assert.isAtLeast(2, 2) // passes
-   * assert.isAtLeast(new Date('2020 12 20'), new Date('2020 12 20')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAtLeast - The value to be at least
+   * @param message - The error message to use if the value is not at least the expected value
    */
-  isAtLeast(valueToCheck: Date, valueToBeAtLeast: Date, message?: string): void
   isAtLeast(valueToCheck: number, valueToBeAtLeast: number, message?: string): void
+
+  /**
+   * Assert if the actual value is above or same as the expected value.
+   * Supports numbers and dates.
+   *
+   * @example
+   * assert.isAtLeast(new Date('2020 12 20'), new Date('2020 12 20')) // passes
+   * assert.isAtLeast(2, 2) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAtLeast - The value to be at least
+   * @param message - The error message to use if the value is not at least the expected value
+   */
   isAtLeast(
     valueToCheck: number | Date,
     valueToBeAtLeast: number | Date,
@@ -368,14 +486,40 @@ export class Assert extends Macroable implements AssertContract {
 
   /**
    * Assert if the actual value is below the expected value.
-   * Supports numbers and dates.
+   *
+   * @example
+   * assert.isBelow(new Date('2020 12 20'), new Date('2020 12 24')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeBelow - The value to be below
+   * @param message - The error message to use if the value is not below the expected value
+   */
+  isBelow(valueToCheck: Date, valueToBeBelow: Date, message?: string): void
+
+  /**
+   * Assert if the actual value is below the expected value.
+   *
+   * @example
+   * assert.isBelow(2, 5) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeBelow - The value to be below
+   * @param message - The error message to use if the value is not below the expected value
+   */
+  isBelow(valueToCheck: number, valueToBeBelow: number, message?: string): void
+
+  /**
+   * Assert if the actual value is below the expected value. Supports
+   * numbers and dates.
    *
    * @example
    * assert.isBelow(2, 5) // passes
    * assert.isBelow(new Date('2020 12 20'), new Date('2020 12 24')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeBelow - The value to be below
+   * @param message - The error message to use if the value is not below the expected value
    */
-  isBelow(valueToCheck: Date, valueToBeBelow: Date, message?: string): void
-  isBelow(valueToCheck: number, valueToBeBelow: number, message?: string): void
   isBelow(
     valueToCheck: number | Date,
     valueToBeBelow: number | Date,
@@ -387,14 +531,38 @@ export class Assert extends Macroable implements AssertContract {
 
   /**
    * Assert if the actual value is below or same as the expected value.
+   *
+   * @example
+   * assert.isAtMost(new Date('2020 12 20'), new Date('2020 12 20')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAtMost - The value to be at most
+   * @param message - The error message to use if the value is not at most the expected value
+   */
+  isAtMost(valueToCheck: Date, valueToBeAtMost: Date, message?: string): void
+  /**
+   * Assert if the actual value is below or same as the expected value.
+   *
+   * @example
+   * assert.isAtMost(2, 2) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAtMost - The value to be at most
+   * @param message - The error message to use if the value is not at most the expected value
+   */
+  isAtMost(valueToCheck: number, valueToBeAtMost: number, message?: string): void
+  /**
+   * Assert if the actual value is below or same as the expected value.
    * Supports numbers and dates.
    *
    * @example
    * assert.isAtMost(2, 2) // passes
    * assert.isAtMost(new Date('2020 12 20'), new Date('2020 12 20')) // passes
+   *
+   * @param valueToCheck - The value to assert
+   * @param valueToBeAtMost - The value to be at most
+   * @param message - The error message to use if the value is not at most the expected value
    */
-  isAtMost(valueToCheck: Date, valueToBeAtMost: Date, message?: string): void
-  isAtMost(valueToCheck: number, valueToBeAtMost: number, message?: string): void
   isAtMost(
     valueToCheck: number | Date,
     valueToBeAtMost: number | Date,
@@ -412,10 +580,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isTrue(false) // fails
    * assert.isTrue(1) // fails
    * assert.isTrue('foo') // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not true
    */
-  isTrue(...args: Parameters<ChaiAssert['isTrue']>): ReturnType<ChaiAssert['isTrue']> {
+  isTrue(value: unknown, message?: string): ReturnType<ChaiAssert['isTrue']> {
     this.incrementAssertionsCount()
-    return assert.isTrue(...args)
+    return assert.isTrue(value, message)
   }
 
   /**
@@ -426,10 +597,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotTrue(false) // passes
    * assert.isNotTrue(1) // passes
    * assert.isNotTrue('foo') // passes
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not true
    */
-  isNotTrue(...args: Parameters<ChaiAssert['isNotTrue']>): ReturnType<ChaiAssert['isNotTrue']> {
+  isNotTrue<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotTrue']> {
     this.incrementAssertionsCount()
-    return assert.isNotTrue(...args)
+    return assert.isNotTrue(value, message)
   }
 
   /**
@@ -440,10 +614,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isFalse(true) // fails
    * assert.isFalse(0) // fails
    * assert.isFalse(null) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not false
    */
-  isFalse(...args: Parameters<ChaiAssert['isFalse']>): ReturnType<ChaiAssert['isFalse']> {
+  isFalse(value: unknown, message?: string): ReturnType<ChaiAssert['isFalse']> {
     this.incrementAssertionsCount()
-    return assert.isFalse(...args)
+    return assert.isFalse(value, message)
   }
 
   /**
@@ -454,10 +631,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotFalse(true) // passes
    * assert.isNotFalse(null) // passes
    * assert.isNotFalse(undefined) // passes
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not false
    */
-  isNotFalse(...args: Parameters<ChaiAssert['isNotFalse']>): ReturnType<ChaiAssert['isNotFalse']> {
+  isNotFalse<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotFalse']> {
     this.incrementAssertionsCount()
-    return assert.isNotFalse(...args)
+    return assert.isNotFalse(value, message)
   }
 
   /**
@@ -468,10 +648,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNull(true) // fails
    * assert.isNull(false) // fails
    * assert.isNull('foo') // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not null
    */
-  isNull(...args: Parameters<ChaiAssert['isNull']>): ReturnType<ChaiAssert['isNull']> {
+  isNull(value: unknown, message?: string): ReturnType<ChaiAssert['isNull']> {
     this.incrementAssertionsCount()
-    return assert.isNull(...args)
+    return assert.isNull(value, message)
   }
 
   /**
@@ -482,10 +665,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotNull(true) // passes
    * assert.isNotNull(false) // passes
    * assert.isNotNull('foo') // passes
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not null
    */
-  isNotNull(...args: Parameters<ChaiAssert['isNotNull']>): ReturnType<ChaiAssert['isNotNull']> {
+  isNotNull<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotNull']> {
     this.incrementAssertionsCount()
-    return assert.isNotNull(...args)
+    return assert.isNotNull(value, message)
   }
 
   /**
@@ -497,10 +683,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNaN(true) // fails
    * assert.isNaN(false) // fails
    * assert.isNaN(null) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not NaN
    */
-  isNaN(...args: Parameters<ChaiAssert['isNaN']>): ReturnType<ChaiAssert['isNaN']> {
+  isNaN<T>(value: T, message?: string): ReturnType<ChaiAssert['isNaN']> {
     this.incrementAssertionsCount()
-    return assert.isNaN(...args)
+    return assert.isNaN(value, message)
   }
 
   /**
@@ -512,10 +701,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotNaN(true) // passes
    * assert.isNotNaN(false) // passes
    * assert.isNotNaN(null) // passes
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not NaN
    */
-  isNotNaN(...args: Parameters<ChaiAssert['isNotNaN']>): ReturnType<ChaiAssert['isNotNaN']> {
+  isNotNaN<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotNaN']> {
     this.incrementAssertionsCount()
-    return assert.isNotNaN(...args)
+    return assert.isNotNaN(value, message)
   }
 
   /**
@@ -527,10 +719,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.exists('') // passes
    * assert.exists(null) // fails
    * assert.exists(undefined) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not defined
    */
-  exists(...args: Parameters<ChaiAssert['exists']>): ReturnType<ChaiAssert['exists']> {
+  exists<T>(value: T, message?: string): ReturnType<ChaiAssert['exists']> {
     this.incrementAssertionsCount()
-    return assert.exists(...args)
+    return assert.exists(value, message)
   }
 
   /**
@@ -542,10 +737,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.notExists('') // fails
    * assert.notExists(false) // fails
    * assert.notExists(0) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is defined
    */
-  notExists(...args: Parameters<ChaiAssert['notExists']>): ReturnType<ChaiAssert['notExists']> {
+  notExists(value: unknown, message?: string): ReturnType<ChaiAssert['notExists']> {
     this.incrementAssertionsCount()
-    return assert.notExists(...args)
+    return assert.notExists(value, message)
   }
 
   /**
@@ -557,10 +755,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isUndefined(0) // fails
    * assert.isUndefined('') // fails
    * assert.isUndefined(null) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not undefined
    */
-  isUndefined(...args: Parameters<ChaiAssert['isUndefined']>): ReturnType<ChaiAssert['isUndefined']> {
+  isUndefined(value: unknown, message?: string): ReturnType<ChaiAssert['isUndefined']> {
     this.incrementAssertionsCount()
-    assert.isUndefined(...args)
+    return assert.isUndefined(value, message)
   }
 
   /**
@@ -572,10 +773,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isDefined(false) // passes
    * assert.isDefined('') // passes
    * assert.isDefined(null) // passes
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not defined
    */
-  isDefined(...args: Parameters<ChaiAssert['isDefined']>): ReturnType<ChaiAssert['isDefined']> {
+  isDefined<T>(value: T, message?: string): ReturnType<ChaiAssert['isDefined']> {
     this.incrementAssertionsCount()
-    return assert.isDefined(...args)
+    return assert.isDefined(value, message)
   }
 
   /**
@@ -585,10 +789,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isFunction(function foo () {}) // passes
    * assert.isFunction(() => {}) // passes
    * assert.isFunction(class Foo {}) // passes
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not a function
    */
-  isFunction(...args: Parameters<ChaiAssert['isFunction']>): ReturnType<ChaiAssert['isFunction']> {
+  isFunction<T>(value: T, message?: string): ReturnType<ChaiAssert['isFunction']> {
     this.incrementAssertionsCount()
-    return assert.isFunction(...args)
+    return assert.isFunction(value, message)
   }
 
   /**
@@ -598,10 +805,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotFunction({}) // passes
    * assert.isNotFunction(null) // passes
    * assert.isNotFunction(() => {}) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is a function
    */
-  isNotFunction(...args: Parameters<ChaiAssert['isNotFunction']>): ReturnType<ChaiAssert['isNotFunction']> {
+  isNotFunction<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotFunction']> {
     this.incrementAssertionsCount()
-    return assert.isNotFunction(...args)
+    return assert.isNotFunction(value, message)
   }
 
   /**
@@ -612,10 +822,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isObject(new SomeClass()) // passes
    * assert.isObject(null) // fails
    * assert.isObject([]) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not an object
    */
-  isObject(...args: Parameters<ChaiAssert['isObject']>): ReturnType<ChaiAssert['isObject']> {
+  isObject<T>(value: T, message?: string): ReturnType<ChaiAssert['isObject']> {
     this.incrementAssertionsCount()
-    return assert.isObject(...args)
+    return assert.isObject(value, message)
   }
 
   /**
@@ -626,10 +839,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotObject([]) // passes
    * assert.isNotObject({}) // fails
    * assert.isNotObject(new SomeClass()) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is an object
    */
-  isNotObject(...args: Parameters<ChaiAssert['isNotObject']>): ReturnType<ChaiAssert['isNotObject']> {
+  isNotObject<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotObject']> {
     this.incrementAssertionsCount()
-    return assert.isNotObject(...args)
+    return assert.isNotObject(value, message)
   }
 
   /**
@@ -638,10 +854,13 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isArray([]) // passes
    * assert.isArray({}) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not an array
    */
-  isArray(...args: Parameters<ChaiAssert['isArray']>): ReturnType<ChaiAssert['isArray']> {
+  isArray<T>(value: T, message?: string): ReturnType<ChaiAssert['isArray']> {
     this.incrementAssertionsCount()
-    return assert.isArray(...args)
+    return assert.isArray(value, message)
   }
 
   /**
@@ -650,10 +869,13 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isNotArray([]) // fails
    * assert.isNotArray({}) // passes
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is an array
    */
-  isNotArray(...args: Parameters<ChaiAssert['isNotArray']>): ReturnType<ChaiAssert['isNotArray']> {
+  isNotArray<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotArray']> {
     this.incrementAssertionsCount()
-    return assert.isNotArray(...args)
+    return assert.isNotArray(value, message)
   }
 
   /**
@@ -663,10 +885,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isString('') // passes
    * assert.isString(new String(true)) // passes
    * assert.isString(1) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not a string
    */
-  isString(...args: Parameters<ChaiAssert['isString']>): ReturnType<ChaiAssert['isString']> {
+  isString<T>(value: T, message?: string): ReturnType<ChaiAssert['isString']> {
     this.incrementAssertionsCount()
-    return assert.isString(...args)
+    return assert.isString(value, message)
   }
 
   /**
@@ -676,10 +901,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotString(1) // passes
    * assert.isNotString('') // fails
    * assert.isNotString(new String(true)) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is a string
    */
-  isNotString(...args: Parameters<ChaiAssert['isNotString']>): ReturnType<ChaiAssert['isNotString']> {
+  isNotString<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotString']> {
     this.incrementAssertionsCount()
-    return assert.isNotString(...args)
+    return assert.isNotString(value, message)
   }
 
   /**
@@ -689,10 +917,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNumber(1) // passes
    * assert.isNumber(new Number('1')) // passes
    * assert.isNumber('1') // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not a number
    */
-  isNumber(...args: Parameters<ChaiAssert['isNumber']>): ReturnType<ChaiAssert['isNumber']> {
+  isNumber<T>(value: T, message?: string): ReturnType<ChaiAssert['isNumber']> {
     this.incrementAssertionsCount()
-    return assert.isNumber(...args)
+    return assert.isNumber(value, message)
   }
 
   /**
@@ -701,10 +932,13 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isNotNumber('1') // passes
    * assert.isNotNumber(1) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is a number
    */
-  isNotNumber(...args: Parameters<ChaiAssert['isNotNumber']>): ReturnType<ChaiAssert['isNotNumber']> {
+  isNotNumber<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotNumber']> {
     this.incrementAssertionsCount()
-    return assert.isNotNumber(...args)
+    return assert.isNotNumber(value, message)
   }
 
   /**
@@ -714,10 +948,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isFinite(1) // passes
    * assert.isFinite(Infinity) // fails
    * assert.isFinite(NaN) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not a finite number
    */
-  isFinite(...args: Parameters<ChaiAssert['isFinite']>): ReturnType<ChaiAssert['isFinite']> {
+  isFinite<T>(value: T, message?: string): ReturnType<ChaiAssert['isFinite']> {
     this.incrementAssertionsCount()
-    return assert.isFinite(...args)
+    return assert.isFinite(value, message)
   }
 
   /**
@@ -727,10 +964,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isBoolean(true) // passes
    * assert.isBoolean(false) // passes
    * assert.isBoolean(1) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is not a boolean
    */
-  isBoolean(...args: Parameters<ChaiAssert['isBoolean']>): ReturnType<ChaiAssert['isBoolean']> {
+  isBoolean<T>(value: T, message?: string): ReturnType<ChaiAssert['isBoolean']> {
     this.incrementAssertionsCount()
-    return assert.isBoolean(...args)
+    return assert.isBoolean(value, message)
   }
 
   /**
@@ -740,10 +980,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotBoolean(1) // passes
    * assert.isNotBoolean(false) // fails
    * assert.isNotBoolean(true) // fails
+   *
+   * @param value - The value to assert
+   * @param message - The error message to use if the value is a boolean
    */
-  isNotBoolean(...args: Parameters<ChaiAssert['isNotBoolean']>): ReturnType<ChaiAssert['isNotBoolean']> {
+  isNotBoolean<T>(value: T, message?: string): ReturnType<ChaiAssert['isNotBoolean']> {
     this.incrementAssertionsCount()
-    return assert.isNotBoolean(...args)
+    return assert.isNotBoolean(value, message)
   }
 
   /**
@@ -753,10 +996,14 @@ export class Assert extends Macroable implements AssertContract {
    * assert.typeOf({ foo: 'bar' }, 'object') // passes
    * assert.typeOf(['admin'], 'array') // passes
    * assert.typeOf(new Date(), 'date') // passes
+   *
+   * @param value - The value to assert
+   * @param type - The expected type
+   * @param message - The error message to use if the value is not of the expected type
    */
-  typeOf(...args: Parameters<ChaiAssert['typeOf']>): ReturnType<ChaiAssert['typeOf']> {
+  typeOf<T>(value: T, type: string, message?: string): ReturnType<ChaiAssert['typeOf']> {
     this.incrementAssertionsCount()
-    return assert.typeOf(...args)
+    return assert.typeOf(value, type, message)
   }
 
   /**
@@ -765,10 +1012,14 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.notTypeOf({ foo: 'bar' }, 'array') // passes
    * assert.notTypeOf(['admin'], 'string') // passes
+   *
+   * @param value - The value to assert
+   * @param type - The expected type
+   * @param message - The error message to use if the value is of the expected type
    */
-  notTypeOf(...args: Parameters<ChaiAssert['notTypeOf']>): ReturnType<ChaiAssert['notTypeOf']> {
+  notTypeOf<T>(value: T, type: string, message?: string): ReturnType<ChaiAssert['notTypeOf']> {
     this.incrementAssertionsCount()
-    return assert.notTypeOf(...args)
+    return assert.notTypeOf(value, type, message)
   }
 
   /**
@@ -780,10 +1031,15 @@ export class Assert extends Macroable implements AssertContract {
    *
    * class User extends BaseUser {}
    * assert.instanceOf(new User(), BaseUser) // passes
+   *
+   * @param value - The value to assert
+   * @param constructor - The expected constructor
+   * @param message - The error message to use if the value is not an instance of the expected constructor
+   * @template T - Expected type of value.
    */
-  instanceOf(...args: Parameters<ChaiAssert['instanceOf']>): ReturnType<ChaiAssert['instanceOf']> {
+  instanceOf<T>(value: T, constructor: Constructor<T>, message?: string): ReturnType<ChaiAssert['instanceOf']> {
     this.incrementAssertionsCount()
-    return assert.instanceOf(...args)
+    return assert.instanceOf(value, constructor, message)
   }
 
   /**
@@ -793,17 +1049,61 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.notInstanceOf(new User(), Function) // passes
    * assert.notInstanceOf(new User(), User) // fails
+   *
+   * @param value - The value to assert
+   * @param type - The expected constructor
+   * @param message - The error message to use if the value is not an instance of the expected constructor
+   * @template T - Type of value.
+   * @template U - Type that value shouldn't be an instance of.
    */
-  notInstanceOf(...args: Parameters<ChaiAssert['notInstanceOf']>): ReturnType<ChaiAssert['notInstanceOf']> {
+  notInstanceOf<T, U>(value: T, type: Constructor<U>, message?: string): ReturnType<ChaiAssert['notInstanceOf']> {
     this.incrementAssertionsCount()
-    return assert.notInstanceOf(...args)
+    return assert.notInstanceOf(value, type, message)
   }
 
+  /**
+   * Asserts that haystack includes needle.
+   *
+   * @param haystack   Container string.
+   * @param needle   Potential substring of haystack.
+   * @param message   Message to display on error.
+   */
+  include(haystack: string, needle: string, message?: string): void
+
+  /**
+   * Asserts that haystack includes needle.
+   *
+   * T   Type of values in haystack.
+   * @param haystack   Container array, set or map.
+   * @param needle   Potential value contained in haystack.
+   * @param message   Message to display on error.
+   */
+  include<T>(haystack: readonly T[] | ReadonlySet<T> | ReadonlyMap<any, T>, needle: T, message?: string): void
+
+  /**
+   * Asserts that haystack includes needle.
+   *
+   * T   Type of values in haystack.
+   * @param haystack   WeakSet container.
+   * @param needle   Potential value contained in haystack.
+   * @param message   Message to display on error.
+   */
+  include<T extends object>(haystack: WeakSet<T>, needle: T, message?: string): void
+
+  /**
+   * Asserts that haystack includes needle.
+   *
+   * T   Type of haystack.
+   * @param haystack   Object.
+   * @param needle   Potential subset of the haystack's properties.
+   * @param message   Message to display on error.
+   */
+  include<T>(haystack: T, needle: Partial<T>, message?: string): void
   /**
    * Assert the collection includes an item. Works for strings, arrays
    * and objects.
    *
-   * See {@link this.deepInclude} for deep comparison
+   * @see {@link deepInclude} for deep comparison
    *
    * @example
    * assert.include(
@@ -820,10 +1120,49 @@ export class Assert extends Macroable implements AssertContract {
   }
 
   /**
+   * Asserts that haystack does not include needle.
+   *
+   * @param haystack   Container string.
+   * @param needle   Potential substring of haystack.
+   * @param message   Message to display on error.
+   */
+  notInclude(haystack: string, needle: string, message?: string): void
+
+  /**
+   * Asserts that haystack does not include needle.
+   *
+   * @template T - Type of values in haystack.
+   * @param haystack - Container array, set or map.
+   * @param needle - Potential value contained in haystack.
+   * @param message - Message to display on error.
+   */
+  notInclude<T>(haystack: readonly T[] | ReadonlySet<T> | ReadonlyMap<any, T>, needle: T, message?: string): void
+
+  /**
+   * Asserts that haystack does not include needle.
+   *
+   * @template T - Type of values in haystack.
+   * @param haystack - WeakSet container.
+   * @param needle - Potential value contained in haystack.
+   * @param message - Message to display on error.
+   */
+  notInclude<T extends object>(haystack: WeakSet<T>, needle: T, message?: string): void
+
+  /**
+   * Asserts that haystack does not include needle.
+   *
+   * @template T - Type of haystack.
+   * @param haystack - Object.
+   * @param needle - Potential subset of the haystack's properties.
+   * @param message - Message to display on error.
+   */
+  notInclude<T>(haystack: T, needle: Partial<T>, message?: string): void
+
+  /**
    * Assert the collection to NOT include an item. Works for strings,
    * arrays and objects.
    *
-   * See {@link this.deepInclude} for nested object properties
+   * @see {@link deepInclude} for nested object properties
    *
    * @example
    * assert.notInclude(
@@ -833,11 +1172,44 @@ export class Assert extends Macroable implements AssertContract {
    *
    * assert.notInclude([1, 2, 3], 4) // passes
    * assert.notInclude('hello world', 'bar') // passes
+   *
+   * @param ...args - The arguments to pass to the underlying assert.notInclude function.
    */
   notInclude(...args: Parameters<ChaiAssert['notInclude']>): ReturnType<ChaiAssert['notInclude']> {
     this.incrementAssertionsCount()
     return assert.notInclude(...args)
   }
+
+  /**
+   * Asserts that haystack includes needle. Deep equality is used.
+   *
+   * @param haystack - Container string.
+   * @param needle - Potential substring of haystack.
+   * @param message - Message to display on error.
+   *
+   * @deprecated Does not have any effect on string. Use {@link Assert#include} instead.
+   */
+  deepInclude(haystack: string, needle: string, message?: string): void
+
+  /**
+   * Asserts that haystack includes needle. Deep equality is used.
+   *
+   * @template T - Type of values in haystack.
+   * @param haystack - Container array, set or map.
+   * @param needle - Potential value contained in haystack.
+   * @param message - Message to display on error.
+   */
+  deepInclude<T>(haystack: readonly T[] | ReadonlySet<T> | ReadonlyMap<any, T>, needle: T, message?: string): void
+
+  /**
+   * Asserts that haystack includes needle. Deep equality is used.
+   *
+   * @template T - Type of haystack.
+   * @param haystack - Object.
+   * @param needle - Potential subset of the haystack's properties.
+   * @param message - Message to display on error.
+   */
+  deepInclude<T>(haystack: T, needle: T extends WeakSet<any> ? never : Partial<T>, message?: string): void
 
   /**
    * Assert the collection includes an item. Works for strings, arrays
@@ -850,11 +1222,44 @@ export class Assert extends Macroable implements AssertContract {
    * ) // passes
    *
    * assert.deepInclude([1, [2], 3], [2]) // passes
+   *
+   * @param ...args - The arguments to pass to the underlying assert.deepInclude function.
    */
   deepInclude(...args: Parameters<ChaiAssert['deepInclude']>): ReturnType<ChaiAssert['deepInclude']> {
     this.incrementAssertionsCount()
     return assert.deepInclude(...args)
   }
+
+  /**
+   * Asserts that haystack does not include needle. Deep equality is used.
+   *
+   * @param haystack - Container string.
+   * @param needle - Potential substring of haystack.
+   * @param message - Message to display on error.
+   *
+   * @deprecated Does not have any effect on string. Use {@link Assert#notInclude} instead.
+   */
+  notDeepInclude(haystack: string, needle: string, message?: string): void
+
+  /**
+   * Asserts that haystack does not include needle. Deep equality is used.
+   *
+   * @template T - Type of values in haystack.
+   * @param haystack - Container array, set or map.
+   * @param needle - Potential value contained in haystack.
+   * @param message - Message to display on error.
+   */
+  notDeepInclude<T>(haystack: readonly T[] | ReadonlySet<T> | ReadonlyMap<any, T>, needle: T, message?: string): void
+
+  /**
+   * Asserts that haystack does not include needle. Deep equality is used.
+   *
+   * @template T - Type of haystack.
+   * @param haystack - Object.
+   * @param needle - Potential subset of the haystack's properties.
+   * @param message - Message to display on error.
+   */
+  notDeepInclude<T>(haystack: T, needle: T extends WeakSet<any> ? never : Partial<T>, message?: string): void
 
   /**
    * Assert the collection to NOT include an item. Works for strings,
@@ -878,10 +1283,14 @@ export class Assert extends Macroable implements AssertContract {
    *
    * @example
    * assert.match('foobar', /^foo/) // passes
+   *
+   * @param value - String to match.
+   * @param regexp - Regular expression to match against.
+   * @param message - Message to display on error.
    */
-  match(...args: Parameters<ChaiAssert['match']>): ReturnType<ChaiAssert['match']> {
+  match(value: string, regexp: RegExp, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.match(...args)
+    return assert.match(value, regexp, message)
   }
 
   /**
@@ -889,10 +1298,14 @@ export class Assert extends Macroable implements AssertContract {
    *
    * @example
    * assert.notMatch('foobar', /^foo/) // fails
+   *
+   * @param value - String to not match.
+   * @param regexp - Regular expression to not match against.
+   * @param message - Message to display on error.
    */
-  notMatch(...args: Parameters<ChaiAssert['notMatch']>): ReturnType<ChaiAssert['notMatch']> {
+  notMatch(value: string, regexp: RegExp, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.notMatch(...args)
+    return assert.notMatch(value, regexp, message)
   }
 
   /**
@@ -903,10 +1316,14 @@ export class Assert extends Macroable implements AssertContract {
    *   { id: 1, username: 'virk' },
    *   'id'
    * ) // passes
+   *
+   * @param object - Object to check for property.
+   * @param property - Property to check for.
+   * @param message - Message to display on error.
    */
-  property(...args: Parameters<ChaiAssert['property']>): ReturnType<ChaiAssert['property']> {
+  property<T>(object: T, property: string /* keyof T */, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.nestedProperty(...args)
+    return assert.property(object, property, message)
   }
 
   /**
@@ -917,10 +1334,14 @@ export class Assert extends Macroable implements AssertContract {
    *   { id: 1, username: 'virk' },
    *   'email'
    * ) // passes
+   *
+   * @param object - Object to check for property.
+   * @param property - Property to check for.
+   * @param message - Message to display on error.
    */
-  notProperty(...args: Parameters<ChaiAssert['notProperty']>): ReturnType<ChaiAssert['notProperty']> {
+  notProperty<T>(object: T, property: string, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.notNestedProperty(...args)
+    return assert.notProperty(object, property, message)
   }
 
   /**
@@ -940,10 +1361,17 @@ export class Assert extends Macroable implements AssertContract {
    *   'user',
    *   { id: 1 }
    * ) // fails
+   *
+   * @template T - Type of object.
+   * @template V - Type of value.
+   * @param object - Container object.
+   * @param property - Potential contained property of object.
+   * @param value - Potential expected property value.
+   * @param message - Message to display on error.
    */
-  propertyVal(...args: Parameters<ChaiAssert['propertyVal']>): ReturnType<ChaiAssert['propertyVal']> {
+  propertyVal<T, V>(object: T, property: string, /* keyof T */ value: V, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.nestedPropertyVal(...args)
+    return assert.nestedPropertyVal(object, property, value, message)
   }
 
   /**
@@ -955,10 +1383,17 @@ export class Assert extends Macroable implements AssertContract {
    *   'id',
    *   22
    * ) // passes
+   *
+   * @template T - Type of object.
+   * @template V - Type of value.
+   * @param object - Container object.
+   * @param property - Potential contained property of object.
+   * @param value - Potential expected property value.
+   * @param message - Message to display on error.
    */
-  notPropertyVal(...args: Parameters<ChaiAssert['notPropertyVal']>): ReturnType<ChaiAssert['notPropertyVal']> {
+  notPropertyVal<T, V>(object: T, property: string, value: V, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.notNestedPropertyVal(...args)
+    return assert.notNestedPropertyVal(object, property, value, message)
   }
 
   /**
@@ -970,10 +1405,17 @@ export class Assert extends Macroable implements AssertContract {
    *   'user',
    *   { id: 1 }
    * ) // passes
+   *
+   * @template T - Type of object.
+   * @template V - Type of value.
+   * @param object - Container object.
+   * @param property - Potential contained property of object.
+   * @param value - Potential expected property value.
+   * @param message - Message to display on error.
    */
-  deepPropertyVal(...args: Parameters<ChaiAssert['deepPropertyVal']>): ReturnType<ChaiAssert['deepPropertyVal']> {
+  deepPropertyVal<T, V>(object: T, property: string, value: V, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.deepNestedPropertyVal(...args)
+    return assert.deepNestedPropertyVal(object, property, value, message)
   }
 
   /**
@@ -985,12 +1427,17 @@ export class Assert extends Macroable implements AssertContract {
    *   'user',
    *   { email: 'foo@bar.com' }
    * ) // passes
+   *
+   * @template T - Type of object.
+   * @template V - Type of value.
+   * @param object - Container object.
+   * @param property - Potential contained property of object.
+   * @param value - Potential expected property value.
+   * @param message - Message to display on error.
    */
-  notDeepPropertyVal(
-    ...args: Parameters<ChaiAssert['notDeepPropertyVal']>
-  ): ReturnType<ChaiAssert['notDeepPropertyVal']> {
+  notDeepPropertyVal<T, V>(object: T, property: string, value: V, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.notDeepNestedPropertyVal(...args)
+    return assert.notDeepNestedPropertyVal(object, property, value, message)
   }
 
   /**
@@ -1000,8 +1447,13 @@ export class Assert extends Macroable implements AssertContract {
    * assert.lengthOf([1, 2, 3], 3)
    * assert.lengthOf(new Map([[1],[2]]), 2)
    * assert.lengthOf('hello world', 11)
+   *
+   * @template T - Type of object.
+   * @param object - The object to check
+   * @param length - The expected length
+   * @param message - The error message to use if the length does not match
    */
-  lengthOf<T extends { readonly length?: number | undefined; readonly size?: number | undefined }>(
+  lengthOf<T extends { readonly length?: number | undefined } | { readonly size?: number | undefined }>(
     object: T,
     length: number,
     message?: string
@@ -1018,10 +1470,19 @@ export class Assert extends Macroable implements AssertContract {
    *   { username: 'virk', age: 22, id: 1 },
    *   ['id', 'age']
    * ) // passes
+   *
+   * @template T - Type of object.
+   * @param object - The object to check
+   * @param keys - The expected keys
+   * @param message - The error message to use if the keys do not match
    */
-  properties(...args: Parameters<ChaiAssert['containsAllKeys']>): ReturnType<ChaiAssert['containsAllKeys']> {
+  properties<T>(
+    object: T,
+    keys: (object | string)[] | Record<string, any>,
+    message?: string
+  ): ReturnType<ChaiAssert['containsAllKeys']> {
     this.incrementAssertionsCount()
-    return assert.containsAllKeys(...args)
+    return assert.containsAllKeys(object, keys, message)
   }
 
   /**
@@ -1032,10 +1493,19 @@ export class Assert extends Macroable implements AssertContract {
    *   { username: 'virk', age: 22, id: 1 },
    *   ['id', 'name', 'dob']
    * ) // passes
+   *
+   * @template T - Type of object.
+   * @param object - The object to check
+   * @param keys - The expected keys
+   * @param message - The error message to use if the keys do not match
    */
-  anyProperties(...args: Parameters<ChaiAssert['hasAnyKeys']>): ReturnType<ChaiAssert['hasAnyKeys']> {
+  anyProperties<T>(
+    object: T,
+    keys: (object | string)[] | Record<string, any>,
+    message?: string
+  ): ReturnType<ChaiAssert['hasAnyKeys']> {
     this.incrementAssertionsCount()
-    return assert.hasAnyKeys(...args)
+    return assert.hasAnyKeys(object, keys, message)
   }
 
   /**
@@ -1052,10 +1522,19 @@ export class Assert extends Macroable implements AssertContract {
    *   { username: 'virk', age: 22, id: 1 },
    *   ['id', 'name']
    * ) // fails
+   *
+   * @template T - Type of object.
+   * @param object - The object to check
+   * @param keys - The expected keys
+   * @param message - The error message to use if the keys do not match
    */
-  onlyProperties(...args: Parameters<ChaiAssert['hasAllKeys']>): ReturnType<ChaiAssert['hasAllKeys']> {
+  onlyProperties<T>(
+    object: T,
+    keys: (object | string)[] | Record<string, any>,
+    message?: string
+  ): ReturnType<ChaiAssert['hasAllKeys']> {
     this.incrementAssertionsCount()
-    return assert.hasAllKeys(...args)
+    return assert.hasAllKeys(object, keys, message)
   }
 
   /**
@@ -1071,12 +1550,19 @@ export class Assert extends Macroable implements AssertContract {
    *   { id: 1, name: 'foo' },
    *   ['email', 'id']
    * ) // fails
+   *
+   * @template T - Type of object.
+   * @param object - The object to check
+   * @param keys - The expected keys
+   * @param message - The error message to use if the keys do not match
    */
-  notAnyProperties(
-    ...args: Parameters<ChaiAssert['doesNotHaveAnyKeys']>
+  notAnyProperties<T>(
+    object: T,
+    keys: (object | string)[] | Record<string, any>,
+    message?: string
   ): ReturnType<ChaiAssert['doesNotHaveAnyKeys']> {
     this.incrementAssertionsCount()
-    return assert.doesNotHaveAnyKeys(...args)
+    return assert.doesNotHaveAnyKeys(object, keys, message)
   }
 
   /**
@@ -1087,31 +1573,83 @@ export class Assert extends Macroable implements AssertContract {
    *   { id: 1, name: 'foo' },
    *   ['id', 'name', 'email']
    * ) // passes
+   *
+   * @template T - Type of object.
+   * @param object - The object to check
+   * @param keys - The expected keys
+   * @param message - The error message to use if the keys do not match
    */
-  notAllProperties(
-    ...args: Parameters<ChaiAssert['doesNotHaveAllKeys']>
+  notAllProperties<T>(
+    object: T,
+    keys: (object | string)[] | Record<string, any>,
+    message?: string
   ): ReturnType<ChaiAssert['doesNotHaveAllKeys']> {
     this.incrementAssertionsCount()
-    return assert.doesNotHaveAllKeys(...args)
+    return assert.doesNotHaveAllKeys(object, keys, message)
   }
 
   /**
-   * Except the function to throw an exception. Optionally, you can assert
-   * for the exception class or message.
+   * Expect the function to throw an exception.
    *
-   * See @rejects for async function calls
+   * @see {@link rejects} for async function calls
    *
    * @example
    * function foo() { throw new Error('blow up') }
    *
    * assert.throws(foo) // passes
+   *
+   * @param fn - The function to throw
+   */
+  throws(fn: () => unknown): void
+  /**
+   * Expect the function to throw an exception. Optionally, you can assert
+   * for the exception class or message.
+   *
+   * @see {@link rejects} for async function calls
+   *
+   * @example
+   * function foo() { throw new Error('blow up') }
+   *
    * assert.throws(foo, Error) // passes
    * assert.throws(foo, 'blow up') // passes
+   * assert.throws(foo, /blow/) // passes
    * assert.throws(foo, 'failed') // fails
+   *
+   * @param fn - The function to throw
+   * @param errType - The error constructor, error message, or regular expression to match
+   * @param message - The error message to use if the function does not throw
    */
-  throws(fn: () => unknown, message?: string): void
-  throws(fn: () => unknown, errType: RegExp | AnyErrorConstructor, message?: string): void
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
+  throws(fn: () => unknown, errType: RegExp | AnyErrorConstructor | string, message?: string): void
+  /**
+   * Expect the function to throw an exception. Optionally, you can assert
+   * for the exception class or message.
+   *
+   * @see {@link rejects} for async function calls
+   *
+   * @example
+   * function foo() { throw new Error('blow up') }
+   *
+   * assert.throws(foo, Error, 'blow up') // passes
+   * assert.throws(foo, Error, /blow/) // passes
+   *
+   * @param fn - The function to throw
+   * @param constructor - The error constructor to match
+   * @param regExp - The error message or regular expression to match
+   * @param message - The error message to use if the function does not throw
+   */
   throws(fn: () => unknown, constructor: AnyErrorConstructor, regExp: RegExp | string, message?: string): void
+  /**
+   * Expect the function to throw an exception. Optionally, you can assert
+   * for the exception class or message.
+   *
+   * @see {@link rejects} for async function calls
+   *
+   * @param fn - The function to throw
+   * @param errType - The error constructor, error message, or regular expression to match
+   * @param regExp - The error message or regular expression to match
+   * @param message - The error message to use if the function does not throw
+   */
   throws(
     fn: () => unknown,
     errType?: RegExp | AnyErrorConstructor | string,
@@ -1119,43 +1657,78 @@ export class Assert extends Macroable implements AssertContract {
     message?: string
   ): void {
     this.incrementAssertionsCount()
-    const args: [any, any, ...any[]] = [fn, errType, regExp, message]
+    const args: [any, any?, ...any[]] = [fn]
+    if (errType !== undefined) args.push(errType)
+    if (regExp !== undefined) args.push(regExp)
+    if (message !== undefined) args.push(message)
     return assert.throws(...args)
   }
 
   /**
-   * Except the function to not throw an exception. Optionally, you can assert
-   * the exception is not from a certain class or have a certain message
+   * Expect the function to not throw an exception.
    *
-   * See @rejects for async function calls
+   * @see {@link rejects} for async function calls
+   *
+   * @example
+   * assert.doesNotThrow(() => {}) // passes
+   *
+   * @param fn - The function to not throw
+   */
+  doesNotThrow(fn: () => unknown): void
+  /**
+   * Expect the function to not throw an exception. Optionally, you can assert
+   * the exception is not from a certain class or have a certain message.
+   *
+   * @see {@link rejects} for async function calls
    *
    * @example
    * function foo() { throw new Error('blow up') }
    *
    * assert.doesNotThrow(foo) // fails
-   * assert.doesNotThrow(foo, 'failed') // passes
-   * assert.doesNotThrow(() => {}) // passes
+   * assert.doesNotThrow(foo, 'failed') // passes (because 'failed' does not match 'blow up')
+   * assert.doesNotThrow(foo, /failed/) // passes
+   *
+   * @param fn - The function to not throw
+   * @param errType - The error message or regular expression to not throw
+   * @param message - The error message to use if the function throws
    */
-  doesNotThrow(fn: () => unknown, message?: string): void
-  doesNotThrow(fn: () => unknown, regExp: RegExp): void
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
+  doesNotThrow(fn: () => unknown, errType: RegExp | string, message?: string): void
+  /**
+   * Expect the function to not throw an exception. Optionally, you can assert
+   * the exception is not from a certain class or have a certain message.
+   *
+   * @see {@link rejects} for async function calls
+   *
+   * @example
+   * function foo() { throw new Error('blow up') }
+   *
+   * assert.doesNotThrow(foo, TypeError) // passes
+   * assert.doesNotThrow(foo, Error) // fails
+   *
+   * @param fn - The function to not throw
+   * @param constructor - The error constructor to not throw
+   * @param message - The error message to use if the function throws
+   */
+  // eslint-disable-next-line @typescript-eslint/unified-signatures
   doesNotThrow(fn: () => unknown, constructor: AnyErrorConstructor, message?: string): void
-  doesNotThrow(fn: () => unknown, constructor: AnyErrorConstructor, regExp: RegExp | string, message?: string): void
-  doesNotThrow(
-    fn: () => unknown,
-    errType?: RegExp | AnyErrorConstructor | string,
-    regExp?: RegExp | string,
-    message?: string
-  ): void {
+  /**
+   * Expect the function to not throw an exception. Optionally, you can assert
+   * the exception is not from a certain class or have a certain message.
+   *
+   * @see {@link rejects} for async function calls
+   *
+   * @param fn - The function to not throw
+   * @param errType - The error constructor, message, or regex to not throw
+   * @param message - The error message to use if the function throws
+   */
+  doesNotThrow(fn: () => unknown, errType?: RegExp | AnyErrorConstructor | string, message?: string): void {
     this.incrementAssertionsCount()
-    const args: [any, any, ...any[]] = [fn, errType, regExp, message]
+    const args: [any, any?, ...any[]] = [fn]
+    if (errType !== undefined) args.push(errType)
+    if (message !== undefined) args.push(message)
     return assert.doesNotThrow(...args)
   }
-
-  /**
-   * @deprecated
-   * Use {@link Assert.doesNotThrow} without the "s"
-   */
-  doesNotThrows = this.doesNotThrow.bind(this)
 
   /**
    * Assert the value is closer to the expected value + delta
@@ -1164,10 +1737,15 @@ export class Assert extends Macroable implements AssertContract {
    * assert.closeTo(10, 6, 8) // passes
    * assert.closeTo(10, 6, 4) // passes
    * assert.closeTo(10, 20, 10) // passes
+   *
+   * @param actual - The value to check
+   * @param expected - Potential expected value.
+   * @param delta - Maximum differenced between values.
+   * @param message - The error message to use if the value is not within the delta range
    */
-  closeTo(...args: Parameters<ChaiAssert['closeTo']>): ReturnType<ChaiAssert['closeTo']> {
+  closeTo(actual: number, expected: number, delta: number, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.closeTo(...args)
+    return assert.closeTo(actual, expected, delta, message)
   }
 
   /**
@@ -1177,10 +1755,15 @@ export class Assert extends Macroable implements AssertContract {
    * assert.approximately(10, 6, 8) // passes
    * assert.approximately(10, 6, 4) // passes
    * assert.approximately(10, 20, 10) // passes
+   *
+   * @param actual - The value to check
+   * @param expected - Potential expected value.
+   * @param delta - Maximum differenced between values.
+   * @param message - The error message to use if the value is not within the delta range
    */
-  approximately(...args: Parameters<ChaiAssert['approximately']>): ReturnType<ChaiAssert['approximately']> {
+  approximately(actual: number, expected: number, delta: number, message?: string): void {
     this.incrementAssertionsCount()
-    return assert.approximately(...args)
+    return assert.approximately(actual, expected, delta, message)
   }
 
   /**
@@ -1199,10 +1782,15 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, { id: 1 }, 3],
    *   [1, { id: 1 }, 3]
    * ) // fails
+   *
+   * @param set1 - Actual set of values.
+   * @param set2 - Potential expected set of values.
+   * @param message - The error message to use if the sets are not equal
+   * @template T - The type of the values in the sets.
    */
-  sameMembers(...args: Parameters<ChaiAssert['sameMembers']>): ReturnType<ChaiAssert['sameMembers']> {
+  sameMembers<T>(set1: T[], set2: T[], message?: string): ReturnType<ChaiAssert['sameMembers']> {
     this.incrementAssertionsCount()
-    return assert.sameMembers(...args)
+    return assert.sameMembers(set1, set2, message)
   }
 
   /**
@@ -1222,12 +1810,15 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, 2, 3]
    * ) // fails
    *
+   * @param set1 - Actual set of values.
+   * @param set2 - Potential expected set of values.
+   * @param message - The error message to use if the sets are not equal
+   * @template T - The type of the values in the sets.
    */
-  notSameMembers(...args: Parameters<ChaiAssert['sameMembers']>): ReturnType<ChaiAssert['sameMembers']> {
+  notSameMembers<T>(set1: T[], set2: T[], message?: string): void {
     this.incrementAssertionsCount()
-
     // @ts-expect-error not in @types/chai
-    return assert['notSameMembers'](...args)
+    return assert['notSameMembers'](set1, set2, message)
   }
 
   /**
@@ -1243,10 +1834,15 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, { id: 1 }, 3],
    *   [1, { id: 1 }, 3]
    * ) // passes
+   *
+   * @param set1 - Actual set of values.
+   * @param set2 - Potential expected set of values.
+   * @param message - The error message to use if the sets are not equal
+   * @template T - The type of the values in the sets.
    */
-  sameDeepMembers(...args: Parameters<ChaiAssert['sameDeepMembers']>): ReturnType<ChaiAssert['sameDeepMembers']> {
+  sameDeepMembers<T>(set1: T[], set2: T[], message?: string): ReturnType<ChaiAssert['sameDeepMembers']> {
     this.incrementAssertionsCount()
-    return assert.sameDeepMembers(...args)
+    return assert.sameDeepMembers(set1, set2, message)
   }
 
   /**
@@ -1258,10 +1854,14 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, { id: 2 }, 3]
    * ) // passes
    *
+   * @param set1 - Actual set of values.
+   * @param set2 - Potential expected set of values.
+   * @param message - The error message to use if the sets are not equal
+   * @template T - The type of the values in the sets.
    */
-  notSameDeepMembers(...args: Parameters<ChaiAssert['sameDeepMembers']>): ReturnType<ChaiAssert['sameDeepMembers']> {
+  notSameDeepMembers<T>(set1: T[], set2: T[], message?: string): ReturnType<ChaiAssert['sameDeepMembers']> {
     this.incrementAssertionsCount()
-    return assert.notSameDeepMembers(...args)
+    return assert.notSameDeepMembers(set1, set2, message)
   }
 
   /**
@@ -1280,12 +1880,15 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, 3, 2],
    *   [1, 2, 3]
    * ) // fails
+   *
+   * @param set1 - Actual array of values.
+   * @param set2 - Potential expected array of values.
+   * @param message - The error message to use if the arrays are not equal.
+   * @template T - The type of the values in the arrays.
    */
-  sameOrderedMembers(
-    ...args: Parameters<ChaiAssert['sameOrderedMembers']>
-  ): ReturnType<ChaiAssert['sameOrderedMembers']> {
+  sameOrderedMembers<T>(set1: T[], set2: T[], message?: string): ReturnType<ChaiAssert['sameOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.sameOrderedMembers(...args)
+    return assert.sameOrderedMembers(set1, set2, message)
   }
 
   /**
@@ -1305,12 +1908,15 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, 3, 2],
    *   [1, 2, 3]
    * ) // fails
+   *
+   * @param set1 - Actual set of values.
+   * @param set2 - Potential expected set of values.
+   * @param message - The error message to use if the sets are not equal
+   * @template T - The type of the values in the sets.
    */
-  notSameOrderedMembers(
-    ...args: Parameters<ChaiAssert['notSameOrderedMembers']>
-  ): ReturnType<ChaiAssert['notSameOrderedMembers']> {
+  notSameOrderedMembers<T>(set1: T[], set2: T[], message?: string): ReturnType<ChaiAssert['notSameOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.notSameOrderedMembers(...args)
+    return assert.notSameOrderedMembers(set1, set2, message)
   }
 
   /**
@@ -1328,12 +1934,15 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, { id: 1 }, { name: 'virk' }],
    *   [1, { name: 'virk' }, { id: 1 }]
    * ) // fails
+   *
+   * @param set1 - Actual array of values.
+   * @param set2 - Potential expected array of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  sameDeepOrderedMembers(
-    ...args: Parameters<ChaiAssert['sameDeepOrderedMembers']>
-  ): ReturnType<ChaiAssert['sameDeepOrderedMembers']> {
+  sameDeepOrderedMembers<T>(set1: T[], set2: T[], message?: string): ReturnType<ChaiAssert['sameDeepOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.sameDeepOrderedMembers(...args)
+    return assert.sameDeepOrderedMembers(set1, set2, message)
   }
 
   /**
@@ -1353,12 +1962,19 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, { id: 1 }, { name: 'virk' }],
    *   [1, { id: 1 }, { name: 'virk' }]
    * ) // fails
+   *
+   * @param set1 - Actual array of values.
+   * @param set2 - Potential expected array of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  notSameDeepOrderedMembers(
-    ...args: Parameters<ChaiAssert['notSameDeepOrderedMembers']>
+  notSameDeepOrderedMembers<T>(
+    set1: T[],
+    set2: T[],
+    message?: string
   ): ReturnType<ChaiAssert['notSameDeepOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.notSameDeepOrderedMembers(...args)
+    return assert.notSameDeepOrderedMembers(set1, set2, message)
   }
 
   /**
@@ -1370,10 +1986,15 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.includeMembers([1, 2, 4, 5], [1, 2]) // passes
    * assert.includeMembers([1, 2, 4, 5], [1, 3]) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  includeMembers(...args: Parameters<ChaiAssert['includeMembers']>): ReturnType<ChaiAssert['includeMembers']> {
+  includeMembers<T>(superset: T[], subset: T[], message?: string): ReturnType<ChaiAssert['includeMembers']> {
     this.incrementAssertionsCount()
-    return assert.includeMembers(...args)
+    return assert.includeMembers(superset, subset, message)
   }
 
   /**
@@ -1385,10 +2006,15 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.notIncludeMembers([1, 2, 4, 5], [1, 3]) // passes
    * assert.notIncludeMembers([1, 2, 4, 5], [1, 2]) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  notIncludeMembers(...args: Parameters<ChaiAssert['notIncludeMembers']>): ReturnType<ChaiAssert['notIncludeMembers']> {
+  notIncludeMembers<T>(superset: T[], subset: T[], message?: string): ReturnType<ChaiAssert['notIncludeMembers']> {
     this.incrementAssertionsCount()
-    return assert.notIncludeMembers(...args)
+    return assert.notIncludeMembers(superset, subset, message)
   }
 
   /**
@@ -1406,12 +2032,15 @@ export class Assert extends Macroable implements AssertContract {
    *   [{ id: 1 }, { id: 2 }],
    *   [{ id: 3 }]
    * ) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  includeDeepMembers(
-    ...args: Parameters<ChaiAssert['includeDeepMembers']>
-  ): ReturnType<ChaiAssert['includeDeepMembers']> {
+  includeDeepMembers<T>(superset: T[], subset: T[], message?: string): ReturnType<ChaiAssert['includeDeepMembers']> {
     this.incrementAssertionsCount()
-    return assert.includeDeepMembers(...args)
+    return assert.includeDeepMembers(superset, subset, message)
   }
 
   /**
@@ -1429,12 +2058,19 @@ export class Assert extends Macroable implements AssertContract {
    *   [{ id: 1 }, { id: 2 }],
    *   [{ id: 2 }]
    * ) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  notIncludeDeepMembers(
-    ...args: Parameters<ChaiAssert['notIncludeDeepMembers']>
+  notIncludeDeepMembers<T>(
+    superset: T[],
+    subset: T[],
+    message?: string
   ): ReturnType<ChaiAssert['notIncludeDeepMembers']> {
     this.incrementAssertionsCount()
-    return assert.notIncludeDeepMembers(...args)
+    return assert.notIncludeDeepMembers(superset, subset, message)
   }
 
   /**
@@ -1459,12 +2095,19 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, 2, 4, 5],
    *   [1, 2, 5]
    * ) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  includeOrderedMembers(
-    ...args: Parameters<ChaiAssert['includeOrderedMembers']>
+  includeOrderedMembers<T>(
+    superset: T[],
+    subset: T[],
+    message?: string
   ): ReturnType<ChaiAssert['includeOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.includeOrderedMembers(...args)
+    return assert.includeOrderedMembers(superset, subset, message)
   }
 
   /**
@@ -1490,12 +2133,19 @@ export class Assert extends Macroable implements AssertContract {
    *   [1, 2, 4, 5],
    *   [1, 2, 4]
    * ) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  notIncludeOrderedMembers(
-    ...args: Parameters<ChaiAssert['notIncludeOrderedMembers']>
+  notIncludeOrderedMembers<T>(
+    superset: T[],
+    subset: T[],
+    message?: string
   ): ReturnType<ChaiAssert['notIncludeOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.notIncludeOrderedMembers(...args)
+    return assert.notIncludeOrderedMembers(superset, subset, message)
   }
 
   /**
@@ -1519,12 +2169,19 @@ export class Assert extends Macroable implements AssertContract {
    *   [{ id: 1 }, { id: 2 }, { id: 4 }],
    *   [{ id: 1 }, { id: 4 }, { id: 2 }]
    * ) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  includeDeepOrderedMembers(
-    ...args: Parameters<ChaiAssert['includeDeepOrderedMembers']>
+  includeDeepOrderedMembers<T>(
+    superset: T[],
+    subset: T[],
+    message?: string
   ): ReturnType<ChaiAssert['includeDeepOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.includeDeepOrderedMembers(...args)
+    return assert.includeDeepOrderedMembers(superset, subset, message)
   }
 
   /**
@@ -1549,12 +2206,19 @@ export class Assert extends Macroable implements AssertContract {
    *   [{ id: 1 }, { id: 2 }, { id: 4 }],
    *   [{ id: 1 }, { id: 2 }]
    * ) // fails
+   *
+   * @param superset - Actual set of values.
+   * @param subset - Potential contained set of values.
+   * @param message - The error message to use if the arrays are not equal
+   * @template T - The type of the values in the arrays.
    */
-  notIncludeDeepOrderedMembers(
-    ...args: Parameters<ChaiAssert['notIncludeDeepOrderedMembers']>
+  notIncludeDeepOrderedMembers<T>(
+    superset: T[],
+    subset: T[],
+    message?: string
   ): ReturnType<ChaiAssert['notIncludeDeepOrderedMembers']> {
     this.incrementAssertionsCount()
-    return assert.notIncludeDeepOrderedMembers(...args)
+    return assert.notIncludeDeepOrderedMembers(superset, subset, message)
   }
 
   /**
@@ -1563,25 +2227,33 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isSealed(Object.seal({})) // passes
    * assert.isSealed({}) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  isSealed(...args: Parameters<ChaiAssert['isSealed']>): ReturnType<ChaiAssert['isSealed']> {
+  isSealed<T>(object: T, message?: string): ReturnType<ChaiAssert['isSealed']> {
     this.incrementAssertionsCount()
-    return assert.isSealed(...args)
+    return assert.isSealed(object, message)
   }
 
   /**
    * Assert the object is sealed.
    *
-   * @alias
-   * isSealed
+   * @remarks
+   * Alias for {@link isSealed}
    *
    * @example
    * assert.sealed(Object.seal({})) // passes
    * assert.sealed({}) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  sealed(...args: Parameters<ChaiAssert['isSealed']>): ReturnType<ChaiAssert['isSealed']> {
+  sealed<T>(object: T, message?: string): ReturnType<ChaiAssert['isSealed']> {
     this.incrementAssertionsCount()
-    return assert.sealed(...args)
+    return assert.sealed(object, message)
   }
 
   /**
@@ -1590,25 +2262,33 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isNotSealed({}) // passes
    * assert.isNotSealed(Object.seal({})) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  isNotSealed(...args: Parameters<ChaiAssert['isNotSealed']>): ReturnType<ChaiAssert['isNotSealed']> {
+  isNotSealed<T>(object: T, message?: string): ReturnType<ChaiAssert['isNotSealed']> {
     this.incrementAssertionsCount()
-    return assert.isNotSealed(...args)
+    return assert.isNotSealed(object, message)
   }
 
   /**
    * Assert the object is not sealed.
    *
-   * @alias
-   * isNotSealed
+   * @remarks
+   * Alias for {@link isNotSealed}
    *
    * @example
    * assert.notSealed({}) // passes
    * assert.notSealed(Object.seal({})) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  notSealed(...args: Parameters<ChaiAssert['notSealed']>): ReturnType<ChaiAssert['notSealed']> {
+  notSealed<T>(object: T, message?: string): ReturnType<ChaiAssert['notSealed']> {
     this.incrementAssertionsCount()
-    return assert.notSealed(...args)
+    return assert.notSealed(object, message)
   }
 
   /**
@@ -1617,25 +2297,33 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isFrozen(Object.freeze({})) // passes
    * assert.isFrozen({}) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  isFrozen(...args: Parameters<ChaiAssert['isFrozen']>): ReturnType<ChaiAssert['isFrozen']> {
+  isFrozen<T>(object: T, message?: string): ReturnType<ChaiAssert['isFrozen']> {
     this.incrementAssertionsCount()
-    return assert.isFrozen(...args)
+    return assert.isFrozen(object, message)
   }
 
   /**
    * Assert the object is frozen.
    *
-   * @alias
-   * isFrozen
+   * @remarks
+   * Alias for {@link isFrozen}
    *
    * @example
    * assert.frozen(Object.freeze({})) // passes
    * assert.frozen({}) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  frozen(...args: Parameters<ChaiAssert['frozen']>): ReturnType<ChaiAssert['frozen']> {
+  frozen<T>(object: T, message?: string): ReturnType<ChaiAssert['frozen']> {
     this.incrementAssertionsCount()
-    return assert.frozen(...args)
+    return assert.frozen(object, message)
   }
 
   /**
@@ -1644,25 +2332,33 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.isNotFrozen({}) // passes
    * assert.isNotFrozen(Object.freeze({})) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  isNotFrozen(...args: Parameters<ChaiAssert['isNotFrozen']>): ReturnType<ChaiAssert['isNotFrozen']> {
+  isNotFrozen<T>(object: T, message?: string): ReturnType<ChaiAssert['isNotFrozen']> {
     this.incrementAssertionsCount()
-    return assert.isNotFrozen(...args)
+    return assert.isNotFrozen(object, message)
   }
 
   /**
    * Assert the object is not frozen.
    *
-   * @alias
-   * isNotFrozen
+   * @remarks
+   * Alias for {@link isNotFrozen}
    *
    * @example
    * assert.notFrozen({}) // passes
    * assert.notFrozen(Object.freeze({})) // fails
+   *
+   * @param object - Actual value.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the object.
    */
-  notFrozen(...args: Parameters<ChaiAssert['notFrozen']>): ReturnType<ChaiAssert['notFrozen']> {
+  notFrozen<T>(object: T, message?: string): ReturnType<ChaiAssert['notFrozen']> {
     this.incrementAssertionsCount()
-    return assert.notFrozen(...args)
+    return assert.notFrozen(object, message)
   }
 
   /**
@@ -1672,26 +2368,34 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isEmpty([]) // passes
    * assert.isEmpty({}) // passes
    * assert.isEmpty('') // passes
+   *
+   * @param target - Value to check.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the value.
    */
-  isEmpty(...args: Parameters<ChaiAssert['isEmpty']>): ReturnType<ChaiAssert['isEmpty']> {
+  isEmpty<T>(target: T, message?: string): ReturnType<ChaiAssert['isEmpty']> {
     this.incrementAssertionsCount()
-    return assert.isEmpty(...args)
+    return assert.isEmpty(target, message)
   }
 
   /**
    * Assert value to be empty
    *
-   * @alias
-   * isEmpty
+   * @remarks
+   * Alias for {@link isEmpty}
    *
    * @example
    * assert.empty([]) // passes
    * assert.empty({}) // passes
    * assert.empty('') // passes
+   *
+   * @param target - Value to check.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the value.
    */
-  empty(...args: Parameters<ChaiAssert['isEmpty']>): ReturnType<ChaiAssert['isEmpty']> {
+  empty<T>(target: T, message?: string): ReturnType<ChaiAssert['isEmpty']> {
     this.incrementAssertionsCount()
-    return assert.isEmpty(...args)
+    return assert.isEmpty(target, message)
   }
 
   /**
@@ -1701,26 +2405,34 @@ export class Assert extends Macroable implements AssertContract {
    * assert.isNotEmpty([1, 2]) // passes
    * assert.isNotEmpty({ foo: 'bar' }) // passes
    * assert.isNotEmpty('hello') // passes
+   *
+   * @param target - Value to check.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the value.
    */
-  isNotEmpty(...args: Parameters<ChaiAssert['isNotEmpty']>): ReturnType<ChaiAssert['isNotEmpty']> {
+  isNotEmpty<T>(target: T, message?: string): ReturnType<ChaiAssert['isNotEmpty']> {
     this.incrementAssertionsCount()
-    return assert.isNotEmpty(...args)
+    return assert.isNotEmpty(target, message)
   }
 
   /**
    * Assert value to not be empty
    *
-   * @alias
-   * isNotEmpty
+   * @remarks
+   * Alias for {@link isNotEmpty}
    *
    * @example
    * assert.notEmpty([1, 2]) // passes
    * assert.notEmpty({ foo: 'bar' }) // passes
    * assert.notEmpty('hello') // passes
+   *
+   * @param target - Value to check.
+   * @param message - Message to display when the assertion fails.
+   * @template T - Type of the value.
    */
-  notEmpty(...args: Parameters<ChaiAssert['isNotEmpty']>): ReturnType<ChaiAssert['isNotEmpty']> {
+  notEmpty<T>(target: T, message?: string): ReturnType<ChaiAssert['isNotEmpty']> {
     this.incrementAssertionsCount()
-    return assert.isNotEmpty(...args)
+    return assert.isNotEmpty(target, message)
   }
 
   /**
@@ -1740,6 +2452,10 @@ export class Assert extends Macroable implements AssertContract {
    *   ],
    *   [{ id: 1 }, { id: 2 }]
    * ) // passes
+   *
+   * @param haystack - The array or object to check
+   * @param needle - The subset to check for
+   * @param message - The error message to use if the subset is found
    */
   containSubset(haystack: any, needle: any, message?: string) {
     this.incrementAssertionsCount()
@@ -1763,6 +2479,10 @@ export class Assert extends Macroable implements AssertContract {
    *   ],
    *   [{ name: 'foo' }, { id: 2 }]
    * ) // passes
+   *
+   * @param haystack - The array or object to check
+   * @param needle - The subset to check for
+   * @param message - The error message to use if the subset is found
    */
   doesNotContainSubset(haystack: any, needle: any, message?: string) {
     this.incrementAssertionsCount()
@@ -1787,6 +2507,10 @@ export class Assert extends Macroable implements AssertContract {
    *   ],
    *   [{ id: 1 }, { id: 2 }]
    * ) // passes
+   *
+   * @param haystack - The array or object to check
+   * @param needle - The subset to check for
+   * @param message - The error message to use if the subset is found
    */
   containsSubset(haystack: any, needle: any, message?: string) {
     return this.containSubset(haystack, needle, message)
@@ -1802,6 +2526,10 @@ export class Assert extends Macroable implements AssertContract {
    *   { id: 1, created_at: Date },
    *   { email: 'foo@bar.com' }
    * ) // passes
+   *
+   * @param haystack - The array or object to check
+   * @param needle - The subset to check for
+   * @param message - The error message to use if the subset is found
    */
   notContainsSubset(haystack: any, needle: any, message?: string) {
     return this.doesNotContainSubset(haystack, needle, message)
@@ -1813,10 +2541,15 @@ export class Assert extends Macroable implements AssertContract {
    * @example
    * assert.oneOf('foo', ['foo', 'bar', 'baz']) // passes
    * assert.oneOf('foo', ['bar', 'baz']) // fails
+   *
+   * @param inList - Value expected to be in the list.
+   * @param list - The list of values to check against.
+   * @param message - The error message to use if the value is not in the list.
+   * @template T - Type of the values.
    */
-  oneOf(...args: Parameters<ChaiAssert['oneOf']>): ReturnType<ChaiAssert['oneOf']> {
+  oneOf<T>(inList: T, list: T[], message?: string): ReturnType<ChaiAssert['oneOf']> {
     this.incrementAssertionsCount()
-    return assert.oneOf(...args)
+    return assert.oneOf(inList, list, message)
   }
 
   /**
@@ -1827,19 +2560,63 @@ export class Assert extends Macroable implements AssertContract {
    *
    * @example
    * await assert.reject(() => throw new Error(''))
+   *
+   * @param fn - The function to reject
+   * @param message - The error message to use if the function does not reject
    */
   async rejects(fn: () => unknown, message?: string): Promise<void>
+  /**
+   * Assert the function to reject the promise or reject with a specific
+   * error class/message
+   *
+   * The method returns a promise
+   *
+   * @example
+   * await assert.reject(() => throw new Error(''))
+   *
+   * @param fn - The function to reject
+   * @param errType - The error type to reject with
+   * @param message - The error message to use if the function does not reject
+   */
   async rejects(
     fn: () => unknown | Promise<unknown>,
     errType: RegExp | AnyErrorConstructor,
     message?: string
   ): Promise<void>
+  /**
+   * Assert the function to reject the promise or reject with a specific
+   * error class/message
+   *
+   * The method returns a promise
+   *
+   * @example
+   * await assert.reject(() => throw new Error(''))
+   *
+   * @param fn - The function to reject
+   * @param constructor - The error constructor to reject with
+   * @param regExp - The error message to reject with
+   * @param message - The error message to use if the function does not reject
+   */
   async rejects(
     fn: () => unknown | Promise<unknown>,
     constructor: AnyErrorConstructor,
     regExp: RegExp | string,
     message?: string
   ): Promise<void>
+  /**
+   * Assert the function to reject the promise or reject with a specific
+   * error class/message
+   *
+   * The method returns a promise
+   *
+   * @example
+   * await assert.reject(() => throw new Error(''))
+   *
+   * @param fn - The function to reject
+   * @param errType - The error type to reject with
+   * @param regExp - The error message to reject with
+   * @param message - The error message to use if the function does not reject
+   */
   async rejects(
     fn: () => unknown | Promise<unknown>,
     errType?: RegExp | AnyErrorConstructor | string,
@@ -1959,19 +2736,102 @@ export class Assert extends Macroable implements AssertContract {
    * await assert.doesNotReject(
    *   async () => return 'foo',
    * ) // passes
+   *
+   * @param fn - The function to reject
+   * @param message - The error message to use if the function does not reject
    */
   async doesNotReject(fn: () => unknown, message?: string): Promise<void>
+  /**
+   * Assert the function does not reject the promise or the rejection
+   * does not match the expectations.
+   *
+   * The method returns a promise
+   *
+   * @example
+   * await assert.doesNotReject(
+   *   async () => throw new Error('foo'),
+   *   HttpError
+   * ) // passes: Error !== HttpError
+   *
+   * await assert.doesNotReject(
+   *   async () => throw new HttpError('Resource not found'),
+   *   HttpError,
+   *   'Server not available'
+   * ) // passes: Resource not found !== Server not available
+   *
+   * await assert.doesNotReject(
+   *   async () => return 'foo',
+   * ) // passes
+   *
+   * @param fn - The function to reject
+   * @param errType - The error type to reject with
+   * @param message - The error message to use if the function does not reject
+   */
   async doesNotReject(
     fn: () => unknown | Promise<unknown>,
     errType: RegExp | AnyErrorConstructor,
     message?: string
   ): Promise<void>
+  /**
+   * Assert the function does not reject the promise or the rejection
+   * does not match the expectations.
+   *
+   * The method returns a promise
+   *
+   * @example
+   * await assert.doesNotReject(
+   *   async () => throw new Error('foo'),
+   *   HttpError
+   * ) // passes: Error !== HttpError
+   *
+   * await assert.doesNotReject(
+   *   async () => throw new HttpError('Resource not found'),
+   *   HttpError,
+   *   'Server not available'
+   * ) // passes: Resource not found !== Server not available
+   *
+   * await assert.doesNotReject(
+   *   async () => return 'foo',
+   * ) // passes
+   *
+   * @param fn - The function to reject
+   * @param constructor - The error constructor to reject with
+   * @param regExp - The error message to reject with
+   * @param message - The error message to use if the function does not reject
+   */
   async doesNotReject(
     fn: () => unknown | Promise<unknown>,
     constructor: AnyErrorConstructor,
     regExp: RegExp | string,
     message?: string
   ): Promise<void>
+  /**
+   * Assert the function does not reject the promise or the rejection
+   * does not match the expectations.
+   *
+   * The method returns a promise
+   *
+   * @example
+   * await assert.doesNotReject(
+   *   async () => throw new Error('foo'),
+   *   HttpError
+   * ) // passes: Error !== HttpError
+   *
+   * await assert.doesNotReject(
+   *   async () => throw new HttpError('Resource not found'),
+   *   HttpError,
+   *   'Server not available'
+   * ) // passes: Resource not found !== Server not available
+   *
+   * await assert.doesNotReject(
+   *   async () => return 'foo',
+   * ) // passes
+   *
+   * @param fn - The function to reject
+   * @param errType - The error type to reject with
+   * @param regExp - The error message to reject with
+   * @param message - The error message to use if the function does not reject
+   */
   async doesNotReject(
     fn: () => unknown | Promise<unknown>,
     errType?: RegExp | AnyErrorConstructor | string,

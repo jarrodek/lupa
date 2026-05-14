@@ -86,6 +86,8 @@ export class Group extends Macroable {
   } = {
     /**
      * Define setup hook for all tests inside the group
+     *
+     * @param handler - The function to call before running the test executor callback
      */
     setup: (handler: TestHooksHandler) => {
       this.#testSetupHooks.push(handler)
@@ -93,6 +95,8 @@ export class Group extends Macroable {
 
     /**
      * Define teardown hook for all tests inside the group
+     *
+     * @param handler - The function to call after running the test executor callback
      */
     teardown: (handler: TestHooksHandler) => {
       this.#testTeardownHooks.push(handler)
@@ -100,6 +104,8 @@ export class Group extends Macroable {
 
     /**
      * Define timeout for all tests inside the group
+     *
+     * @param timeout - The timeout duration in milliseconds
      */
     timeout: (timeout: number) => {
       this.#testsTimeout = timeout
@@ -114,6 +120,8 @@ export class Group extends Macroable {
 
     /**
      * Define retries for all tests inside the group
+     *
+     * @param retries - The number of times to retry the test
      */
     retry: (retries: number) => {
       this.#testsRetries = retries
@@ -121,6 +129,9 @@ export class Group extends Macroable {
 
     /**
      * Skip all the tests inside the group
+     *
+     * @param skip - Whether to skip the tests
+     * @param skipReason - The reason for skipping the tests
      */
     skip: (skip, skipReason) => {
       this.#testsSkip = { skip: skip ?? true, skipReason }
@@ -145,8 +156,11 @@ export class Group extends Macroable {
    * Enable/disable the bail mode. In bail mode, all
    * upcoming tests will be skipped when the current
    * test fails
+   *
+   * @param toggle - Whether to enable or disable the bail mode
+   * @returns The group with the bail mode enabled or disabled
    */
-  bail(toggle = true) {
+  bail(toggle = true): this {
     if (this.#bail === undefined) {
       this.#bail = toggle
     }
@@ -156,6 +170,8 @@ export class Group extends Macroable {
   /**
    * Add a test to the group. Adding a test to the group
    * mutates the test properties
+   *
+   * @param test - The test to add to the group
    */
   add(test: Test<any>): this {
     debug('adding "%s" test to "%s" group', test.title, this.title)
@@ -190,6 +206,8 @@ export class Group extends Macroable {
 
   /**
    * Tap into each test and configure it
+   *
+   * @param callback - The function to call before running the test executor callback
    */
   tap(callback: (test: Test<any>) => void): this {
     this.tests.forEach((test) => callback(test))
@@ -199,6 +217,8 @@ export class Group extends Macroable {
 
   /**
    * Define setup hook for the group
+   *
+   * @param handler - The function to call before running the test executor callback
    */
   setup(handler: GroupHooksHandler): this {
     debug('registering "%s" group setup hook %s', this.title, handler)
@@ -208,6 +228,8 @@ export class Group extends Macroable {
 
   /**
    * Define teardown hook for the group
+   *
+   * @param handler - The function to call after running the test executor callback
    */
   teardown(handler: GroupHooksHandler): this {
     debug('registering "%s" group teardown hook %s', this.title, handler)
@@ -217,8 +239,10 @@ export class Group extends Macroable {
 
   /**
    * Execute group hooks and tests
+   *
+   * @returns A promise that resolves when the group has been executed
    */
-  async exec() {
+  async exec(): Promise<void> {
     if (!this.#refiner.allows(this)) {
       debug('group skipped by refined %s', this.title)
       return

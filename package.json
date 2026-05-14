@@ -20,6 +20,7 @@
   },
   "scripts": {
     "docs": "typedoc",
+    "docs:serve": "npx --yes serve docs",
     "test": "npm run test:unit",
     "test:unit": "tsx --test \"tests/unit/**/*.spec.ts\"",
     "coverage": "npx --yes c8 npm test",
@@ -41,7 +42,9 @@
     "./assert": "./dist/src/assert/index.js",
     "./runner": "./dist/src/runner/index.js",
     "./refiner": "./dist/src/refiner/main.js",
-    "./testing": "./dist/src/testing/index.js"
+    "./testing": "./dist/src/testing/index.js",
+    "./reporters": "./dist/src/reporters/index.js",
+    "./reporters/base": "./dist/src/reporters/base.js"
   },
   "dependencies": {
     "@japa/errors-printer": "^4.1.4",
@@ -70,6 +73,7 @@
     "@jridgewell/trace-mapping": "^0.3.31",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
+    "@to-skills/typedoc": "^1.0.9",
     "@types/chai": "^5.2.3",
     "@types/node": "^25.7.0",
     "eslint": "^10.0.0",
@@ -93,10 +97,13 @@
     "browser-runner",
     "vite",
     "playwright",
-    "typescript",
     "japa",
     "dom",
-    "test-runner"
+    "test-runner",
+    "shadow-dom",
+    "lit-html",
+    "browser-testing",
+    "component-testing"
   ],
   "husky": {
     "hooks": {

@@ -80,6 +80,8 @@ export class Suite extends Macroable {
 
   /**
    * Add a test or a group to the execution stack
+   *
+   * @param testOrGroup - The test or group to add to the execution stack
    */
   add(testOrGroup: Test<any> | Group): this {
     if (testOrGroup instanceof Group) {
@@ -96,6 +98,8 @@ export class Suite extends Macroable {
 
   /**
    * Tap into each test and configure it
+   *
+   * @param callback - The function to call before running the test executor callback
    */
   onTest(callback: (test: Test<any>) => void): this {
     this.stack.forEach((testOrGroup) => {
@@ -110,6 +114,8 @@ export class Suite extends Macroable {
 
   /**
    * Tap into each group and configure it
+   *
+   * @param callback - The function to call before running the test executor callback
    */
   onGroup(callback: (group: Group) => void): this {
     this.stack.forEach((testOrGroup) => {
@@ -126,8 +132,11 @@ export class Suite extends Macroable {
    * Enable/disable the bail mode. In bail mode, all
    * upcoming tests/group will be skipped when the current
    * test fails
+   *
+   * @param toggle - Whether to enable or disable the bail mode
+   * @returns The suite with the bail mode enabled or disabled
    */
-  bail(toggle = true) {
+  bail(toggle = true): this {
     if (this.#bail === undefined) {
       this.#bail = toggle
       this.onGroup((group) => group.bail(toggle))
@@ -137,6 +146,8 @@ export class Suite extends Macroable {
 
   /**
    * Register a test setup function
+   *
+   * @param handler - The function to call before running the test executor callback
    */
   setup(handler: SuiteHooksHandler): this {
     debug('registering suite setup hook %s', handler)
@@ -146,6 +157,8 @@ export class Suite extends Macroable {
 
   /**
    * Register a test teardown function
+   *
+   * @param handler - The function to call after running the test executor callback
    */
   teardown(handler: SuiteHooksHandler): this {
     debug('registering suite teardown hook %s', handler)
@@ -156,7 +169,7 @@ export class Suite extends Macroable {
   /**
    * Execute suite groups, tests and hooks
    */
-  async exec() {
+  async exec(): Promise<void> {
     /**
      * By default a suite is not allowed to be executed. However, we go
      * through all the tests/ groups within the suite  and if one

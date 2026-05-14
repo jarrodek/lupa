@@ -27,6 +27,19 @@ import type {
   BaseReporterOptions,
 } from '../types.js'
 
+export type {
+  TestEndNode,
+  SuiteEndNode,
+  GroupEndNode,
+  TestStartNode,
+  RunnerSummary,
+  RunnerEndNode,
+  GroupStartNode,
+  SuiteStartNode,
+  RunnerStartNode,
+  BaseReporterOptions,
+} from '../types.js'
+
 /**
  * Base reporter to build custom reporters on top of
  */

@@ -4,7 +4,8 @@
     "src/assert/index.ts",
     "src/runner/index.ts",
     "src/refiner/main.ts",
-    "src/testing/index.ts"
+    "src/testing/index.ts",
+    "src/reporters/index.ts"
   ],
   "out": "docs",
   "name": "Lupa",
@@ -13,5 +14,9 @@
   "disableSources": false,
   "excludePrivate": true,
   "excludeProtected": true,
-  "excludeInternal": true
+  "excludeInternal": true,
+  "projectDocuments": ["guides/**/*.md"],
+  "customCss": "assets/docs.css",
+  "lightHighlightTheme": "dark-plus",
+  "plugin": ["@to-skills/typedoc"]
 }

@@ -64,6 +64,9 @@ export class Refiner {
 
   /**
    * Find if the group is allowed to execute its tests.
+   *
+   * @param group - The group to check
+   * @returns True if the group is allowed to run
    */
   #isGroupAllowed(group: Group): boolean {
     const groupFilters = this.#filters.groups
@@ -172,6 +175,9 @@ export class Refiner {
    * all the user defined tags.
    *
    * Otherwise, any one match will pass the filter
+   *
+   * @param state - Enable or disable matching of all tags
+   * @returns The refiner instance
    */
   matchAllTags(state: boolean): this {
     this.#shouldMatchAllTags = state
@@ -180,6 +186,7 @@ export class Refiner {
 
   /**
    * Pin a test to be executed.
+   * @param test - The test to pin
    */
   pinTest(test: Test<any>): void {
     this.#pinnedTests.add(test)
@@ -187,6 +194,9 @@ export class Refiner {
 
   /**
    * Find if a test is pinned
+   *
+   * @param test - The test to check
+   * @returns True if the test is pinned
    */
   isPinned(test: Test<any>): boolean {
     return this.#pinnedTests.has(test)
@@ -194,6 +204,9 @@ export class Refiner {
 
   /**
    * Add a filter
+   *
+   * @param layer - The layer to add the filter to
+   * @param values - The values to add to the filter
    */
   add(layer: 'tests' | 'tags' | 'groups', values: string[]): void {
     if (layer === 'tags') {
@@ -212,6 +225,9 @@ export class Refiner {
   /**
    * Check if refiner allows a specific test or group to run by looking
    * at the applied filters
+   *
+   * @param testOrGroup - The test or group to check
+   * @returns True if the test or group is allowed to run
    */
   allows(testOrGroup: Test<any> | Group): boolean {
     if (testOrGroup instanceof Group) {

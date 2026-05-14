@@ -1,0 +1,112 @@
+---
+description: "A lightning-fast, Vite-powered browser testing framework for Web Components with an elegant, Japa-inspired API. Use when: Setting up your test runner execution script.. Also: testing, web-components, browser-runner, vite, playwright, japa, dom, test-runner, shadow-dom, lit-html, browser-testing, component-testing."
+license: Apache-2.0
+name: jarrodek-lupa
+---
+
+# @jarrodek/lupa
+
+A lightning-fast, Vite-powered browser testing framework for Web Components with an elegant, Japa-inspired API.
+
+## Features
+
+- **Native Browser Execution:** Tests run inside actual browsers (Chromium, Firefox, WebKit) via Playwright. No DOM mocks.
+- **Lightning Fast:** Uses Vite as the dev server. No bundling required, resulting in instant boot times.
+- **Intelligent Watch Mode:** A dependency-aware incremental test watcher. Change a component, and Lupa instantly re-runs *only* the tests that import it.
+- **Interactive Debugging:** Focus on a single test file and press `d` to pop open a headed browser with Chrome DevTools already open and attached.
+- **Test Grouping & Suites:** Organize your testing architecture intuitively with structured groups, tags, and execution suites.
+- **Data-Driven Datasets:** Avoid boilerplate by feeding dynamic datasets into parameterized tests.
+- **Browser-Specific Macros:** Create extensible test setups and custom assertions that run flawlessly inside the browser sandbox.
+
+## When to Use
+
+**Use this skill when:**
+- Setting up your test runner execution script. → use `configure`
+- Rendering Lit templates and Custom Elements into the DOM for interaction → use `fixture`
+
+**Do NOT use when:**
+- You are already inside a running test or suite. (`configure`)
+- Testing pure logic or functions that do not require a DOM (`fixture`)
+
+API surface: 5 functions, 5 classes, 6 types, 6 constants
+
+## NEVER
+
+- NEVER call this inside a test suite or hook. Fix: Call it only once at the end of your execution script.
+
+## Troubleshooting
+
+- **Watch Mode Collisions:** You cannot run `npx tsx bin/test.ts` with both `--watch` and a parallel suite runner like `concurrently`. Multiple browser instances and Vite dev servers will conflict. Use parallelization strictly in headless CI environments.
+- **Hanging Tests:** If a test is failing to exit or hanging indefinitely, ensure that any external asynchronous resources (like custom servers) instantiated in `setup()` hooks return a proper cleanup function (e.g., `return () => server.close()`). Lupa guarantees execution of teardown cleanups even when assertions fail.
+
+## Quick Reference
+
+**Configuration:** `configure` (Configure the Lupa test runner)
+**runner:** `processCLIArgs` (Process command line arguments)
+**Execution:** `run` (Run the test suite)
+**testing:** `test` (Define a new test), `WebPluginFn` (The default export contract for a browser test plugin module), `WebPluginContext` (Context provided to browser-side test plugins), `OmitFirstArg` (Utility type that removes the first argument from a function's parameter list), `html` (`html` template tag from `lit-html`)
+**DOM:** `fixture` (Renders a Lit template into a dedicated fixture container and mounts it to the DOM)
+**assert:** `Assert` (The Assert class is derived from chai), `default` (Browser test plugin for assertion support)
+**refiner:** `Refiner` (Exposes the API to refine unwanted tests based upon applied
+filters)
+**testing/test:** `Test` (Test class exposes a self contained API to configure and run
+tests along with its hooks)
+**testing/suite:** `Suite` (The Suite class exposes the API to run a group of tests
+or independent tests together as part of a suite)
+**testing/group:** `Group` (Group class exposes an API to group multiple tests together
+and bulk configure them)
+**types:** `TestExecutor` (The function to execute the test), `TestHooksHandler` (The function that can be registered as a test hook), `TestHooksCleanupHandler` (The function that can be registered as a cleanup handler)
+**reporters:** `spec` (Create an instance of the spec reporter), `dot` (Create an instance of the dot reporter), `ndjson` (Create an instance of the ndjson reporter), `github` (Create an instance of the github reporter)
+
+## Documentation
+
+- **datasets** — # Datasets
+
+Datasets allow you to run a specific test multiple times with different data every time.
+- **exceptions** — # Exceptions
+
+We all write tests that deal with exceptions and promise rejections.
+- **filtering-tests** — # Filtering Tests
+
+Lupa offers several filtering layers to find and run an individual or group of tests.
+- **grouping-tests** — # Grouping Tests
+
+You may group a collection of related tests using the `test.
+- **installation** — # Installation and Usage
+
+Lupa requires Node.
+- **introduction** — # Introduction
+
+Lupa comes with everything you need to test your modern frontend applications and Web Components natively in the browser.
+- **lifecycle-hooks** — # Lifecycle Hooks
+
+Lifecycle hooks are functions you can run before or after a test or a group of tests.
+- **skipping-tests** — # Skipping Tests
+
+Sometimes, you might run into situations where you want to skip specific tests temporarily.
+- **test-macros** — # Test Macros
+
+Test macros are reusable functions that are natively bound to the lifecycle of the currently executing test.
+- **test-reporters** — # Test Reporters
+
+Test reporters are used to collect test progress and display a summary after the tests have been executed.
+- **test-suites** — # Test Suites
+
+Test suites allow you to organize your tests logically by their type or domain.
+
+See `references/docs/` for full guides (11 total).
+
+## References
+
+Load these on demand — do NOT read all at once:
+
+- When calling any function → read `references/functions.md` for full signatures, parameters, and return types
+- When using a class → browse `references/classes/` for grouped indexes, properties, methods, and inheritance
+- When defining typed variables or function parameters → read `references/types.md`
+- When using exported constants → read `references/variables.md`
+- When learning concepts or workflows → browse `references/docs/` by category
+
+## Links
+
+- [Repository](https://github.com/jarrodek/lupa)
+- Author: Pawel Uchida-Psztyc

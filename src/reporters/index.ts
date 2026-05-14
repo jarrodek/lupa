@@ -5,6 +5,13 @@ import { GithubReporter } from './github.js'
 import type { BaseReporterOptions, NamedReporterContract } from '../types.js'
 
 /**
+ * @packageDocumentation
+ * @module Reporters
+ *
+ * Provides built-in test reporters (spec, dot, ndjson, github) and a way to register custom reporters.
+ */
+
+/**
  * Create an instance of the spec reporter
  */
 export const spec: (options?: BaseReporterOptions) => NamedReporterContract = (options) => {

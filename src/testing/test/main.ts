@@ -53,6 +53,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
    * the test executor callback
    *
    * Do note: Async methods are not allowed
+   *
+   * @param callback - The function to call before running the test executor callback
    */
   static executing(callback: (test: Test) => void): void {
     this.executingCallbacks.push(callback)
@@ -63,6 +65,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
    * the test executor callback
    *
    * Do note: Async methods are not allowed
+   *
+   * @param callback - The function to call after running the test executor callback
    */
   static executed(callback: (test: Test, hasError: boolean, errors: TestEndNode['errors']) => void): void {
     this.executedCallbacks.push(callback)
@@ -229,6 +233,9 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
 
   /**
    * Skip the test conditionally
+   *
+   * @param skip - Whether to skip the test, can be a function that returns true
+   * @param skipReason - The reason to skip the test
    */
   skip(skip: boolean | (() => Promise<boolean> | boolean) = true, skipReason?: string): this {
     if (typeof skip === 'function') {
@@ -244,6 +251,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
   /**
    * Expect the test to fail. Helpful in creating test cases
    * to showcase bugs
+   *
+   * @param failReason - The reason the test is expected to fail
    */
   fails(failReason?: string): this {
     this.options.isFailing = true
@@ -253,6 +262,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
 
   /**
    * Define custom timeout for the test
+   *
+   * @param timeout - The timeout in milliseconds
    */
   timeout(timeout: number): this {
     this.options.timeout = timeout
@@ -268,6 +279,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
 
   /**
    * Reset the timeout from within the test callback.
+   *
+   * @param duration - The timeout duration in milliseconds
    */
   resetTimeout(duration?: number): this {
     if (this.#activeRunner) {
@@ -286,6 +299,9 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
   /**
    * Assign tags to the test. Later you can use the tags to run
    * specific tests
+   *
+   * @param tags - The tags to assign to the test
+   * @param strategy - The strategy to use when assigning the tags
    */
   tags(tags: string[], strategy: 'replace' | 'append' | 'prepend' = 'replace'): this {
     if (strategy === 'replace') {
@@ -305,6 +321,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
   /**
    * Configure the number of times this test should be retried
    * when failing.
+   *
+   * @param retries - The number of times to retry the test
    */
   retry(retries: number): this {
     this.options.retries = retries
@@ -331,6 +349,9 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
   /**
    * Define the dataset for the test. The test executor will be invoked
    * for all the items inside the dataset array
+   *
+   * @param dataset - The dataset to use for the test
+   * @returns The test with the dataset configured
    */
   with<Dataset extends DataSetNode>(dataset: Dataset): Test<Dataset> {
     if (Array.isArray(dataset)) {
@@ -348,6 +369,9 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
 
   /**
    * Define the test executor function
+   *
+   * @param executor - The function to execute
+   * @param debuggingError - The error to use when debugging
    */
   run(executor: TestExecutor<TestData>, debuggingError?: Error): this {
     this.#debuggingError = debuggingError || new Error()
@@ -357,6 +381,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
 
   /**
    * Register a test setup function
+   *
+   * @param handler - The function to call before running the test executor callback
    */
   setup(handler: TestHooksHandler): this {
     debug('registering "%s" test setup hook %s', this.title, handler)
@@ -366,6 +392,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
 
   /**
    * Register a test teardown function
+   *
+   * @param handler - The function to call after running the test executor callback
    */
   teardown(handler: TestHooksHandler): this {
     debug('registering "%s" test teardown hook %s', this.title, handler)
@@ -375,6 +403,8 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
 
   /**
    * Register a cleanup hook from within the test
+   *
+   * @param handler - The function to call after running the test executor callback
    */
   cleanup(handler: TestHooksCleanupHandler): this {
     debug('registering "%s" test cleanup function %s', this.title, handler)
@@ -385,7 +415,7 @@ export class Test<TestData extends DataSetNode = undefined> extends Macroable {
   /**
    * Execute test
    */
-  async exec() {
+  async exec(): Promise<void> {
     const self = this.constructor as typeof Test
 
     /**
