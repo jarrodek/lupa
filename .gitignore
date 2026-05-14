@@ -21,6 +21,7 @@ coverage/
 .playwright/**
 .test-results/
 .wtr-cache/
+.nyc_output/
 
 # Logs
 logs/

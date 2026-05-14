@@ -10,11 +10,11 @@ While we have a solid base with Chai, we need a robust, web-component specific a
 - ~~**Light/Shadow DOM targeting:** `assert.shadowDom.equal(el, '...')`.~~
 - ~~**Style assertions:** `assert.dom.hasStyle(el, 'color', 'red')`.~~
 
-### 2. Coverage Reporting
-Native support for test coverage.
-- Instrument code via Vite (e.g., using `vite-plugin-istanbul` or `v8` coverage).
-- Extract `window.__coverage__` via the Playwright telemetry bridge.
-- Map coverage back to original TypeScript sources and generate standard `lcov`/`html` reports.
+~~### 2. Coverage Reporting~~
+~~Native support for test coverage.~~
+~~- Instrument code via Vite (e.g., using `vite-plugin-istanbul` or `v8` coverage).~~
+~~- Extract `window.__coverage__` via the Playwright telemetry bridge.~~
+~~- Map coverage back to original TypeScript sources and generate standard `lcov`/`html` reports.~~
 
 ### 3. Parallel Execution & Cross-Browser Matrix
 Scale test execution speed and browser matrix.

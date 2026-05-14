@@ -47,6 +47,7 @@ export type CLIArgs = {
   verbose?: boolean
   browser?: string
   viteConfig?: string
+  coverage?: boolean
 } & Record<string, string | string[] | boolean>
 
 /**
@@ -189,6 +190,30 @@ export interface BaseConfig {
    * Do not use together with 'viteConfig'.
    */
   vite?: InlineConfig
+
+  /**
+   * Whether to enable code coverage reporting using istanbul,
+   * or specific options to configure the coverage instrumentation.
+   */
+  coverage?: boolean | CoverageOptions
+}
+
+/**
+ * Options for configuring code coverage instrumentation
+ */
+export interface CoverageOptions {
+  /**
+   * Array of glob patterns to include in coverage
+   */
+  include?: string[]
+  /**
+   * Array of glob patterns to exclude from coverage
+   */
+  exclude?: string[]
+  /**
+   * Array of file extensions to instrument
+   */
+  extension?: string[]
 }
 
 /**
@@ -233,6 +258,7 @@ export type NormalizedBaseConfig = Required<Omit<BaseConfig, 'reporters' | 'vite
   }
   viteConfig?: string
   vite?: InlineConfig
+  coverage?: boolean | CoverageOptions
 }
 
 /**

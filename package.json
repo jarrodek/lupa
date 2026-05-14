@@ -61,9 +61,11 @@
     "fast-glob": "^3.3.3",
     "getopts": "^2.3.0",
     "lit-html": "^3.3.2",
+    "nyc": "^18.0.0",
     "serialize-error": "^13.0.1",
     "supports-color": "^10.2.2",
-    "timekeeper": "^2.3.1"
+    "timekeeper": "^2.3.1",
+    "vite-plugin-istanbul": "^8.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",

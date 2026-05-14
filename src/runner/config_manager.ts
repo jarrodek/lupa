@@ -141,6 +141,13 @@ export class ConfigManager {
 
     debug('filters applied using CLI flags %O', cliFilters)
 
+    let resolvedCoverage = this.#config.coverage ?? false
+    if (this.#cliArgs.coverage === true) {
+      resolvedCoverage = typeof this.#config.coverage === 'object' ? this.#config.coverage : true
+    } else if (this.#cliArgs.coverage === false || this.#cliArgs.coverage === 'false') {
+      resolvedCoverage = false
+    }
+
     const baseConfig: NormalizedBaseConfig = {
       cwd: this.#config.cwd ?? process.cwd(),
       exclude: this.#config.exclude || ['node_modules/**', '.git/**', 'coverage/**'],
@@ -162,6 +169,7 @@ export class ConfigManager {
       teardown: this.#config.teardown || [],
       viteConfig: finalViteConfig,
       vite: this.#config.vite,
+      coverage: resolvedCoverage,
     }
 
     /**

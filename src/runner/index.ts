@@ -8,13 +8,14 @@ import { resolve, dirname } from 'node:path'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { createServer, createLogger, type ViteDevServer, mergeConfig, type InlineConfig } from 'vite'
-import { chromium, firefox, webkit, type Browser } from 'playwright'
+import { chromium, firefox, webkit, type Browser, type Page } from 'playwright'
 
 import type { Config, NormalizedConfig, CLIArgs } from './types.js'
 import { Emitter } from '../testing/emitter.js'
 import { Runner } from './runner.js'
 import { CliParser } from './cli_parser.js'
 import { ConfigManager } from './config_manager.js'
+import { CoverageManager } from './coverage_manager.js'
 import { ExceptionsManager } from './exceptions_manager.js'
 import { WatchManager } from './watch_manager.js'
 import debug from './debug.js'
@@ -163,6 +164,8 @@ export async function run() {
   let headlessBrowser: Browser | undefined
   let globalTimeout: ReturnType<typeof setTimeout> | undefined
   let isShuttingDown = false
+  // eslint-disable-next-line prefer-const
+  let page: Page | undefined
 
   const exceptionsManager = new ExceptionsManager()
   exceptionsManager.monitor()
@@ -192,6 +195,14 @@ export async function run() {
       }
     } catch (error) {
       debug('error closing debug browser: %O', error)
+    }
+
+    try {
+      if (page) {
+        await coverageManager.extractAndReport(page)
+      }
+    } catch (err) {
+      console.error('Failed to extract coverage:', err)
     }
 
     try {
@@ -287,6 +298,9 @@ export async function run() {
 
   const finalViteConfig = runnerConfig?.vite ? mergeConfig(baseViteConfig, runnerConfig.vite) : baseViteConfig
 
+  const coverageManager = new CoverageManager(runnerConfig?.coverage, runnerConfig?.exclude)
+  await coverageManager.instrumentViteConfig(finalViteConfig)
+
   if (finalViteConfig.server?.middlewareMode) {
     throw new Error('Lupa cannot run with server.middlewareMode enabled in your Vite configuration.')
   }
@@ -307,7 +321,7 @@ export async function run() {
     headlessBrowser = await chromium.launch()
   }
 
-  const page = await headlessBrowser.newPage()
+  page = await headlessBrowser.newPage()
 
   page.on('console', (msg) => {
     const text = msg.text()
@@ -461,7 +475,7 @@ export async function run() {
     globalTimeout.unref()
 
     // Navigate to harness (or reload if already there)
-    await page.goto(`${serverUrl}__lupa__/runner.html`)
+    await page?.goto(`${serverUrl}__lupa__/runner.html`)
   }
 
   if (isWatchMode) {
