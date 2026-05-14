@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @module @jarrodek/lupa/runner
  */
-import { resolve, dirname } from 'node:path'
+import { resolve, dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { createServer, createLogger, type ViteDevServer, mergeConfig, type InlineConfig } from 'vite'
@@ -21,6 +21,7 @@ import { ExceptionsManager } from './exceptions_manager.js'
 import { WatchManager } from './watch_manager.js'
 import debug from './debug.js'
 import { ensureIsConfigured } from './validator.js'
+import { pathToFileURL } from 'node:url'
 
 import { Planner } from './planner.js'
 import { transformBrowserStack } from './stack_transformer.js'
@@ -250,6 +251,24 @@ export async function run() {
   // We capture browser output via Playwright, so Vite's forwarding is redundant.
   const logger = createLogger('silent')
 
+  const resolvedPlugins = await Promise.all(
+    (runnerConfig?.testPlugins || []).map(async (plugin) => {
+      const [specifier, options] = Array.isArray(plugin) ? plugin : [plugin, undefined]
+      let url = specifier
+      try {
+        const resolved = import.meta.resolve(specifier, pathToFileURL(cwd + '/').href)
+        if (resolved.startsWith('file://')) {
+          url = '/@fs' + fileURLToPath(resolved)
+        } else {
+          url = resolved
+        }
+      } catch {
+        // Leave as is, let the browser fail and report it
+      }
+      return [url, options]
+    })
+  )
+
   const baseViteConfig: InlineConfig = {
     root: cwd,
     configFile: runnerConfig?.viteConfig || false,
@@ -257,6 +276,9 @@ export async function run() {
     server: {
       host: true,
       port: 0, // Force dynamic port to avoid conflicts
+      fs: {
+        allow: [process.cwd(), join(__dirname, '../')],
+      },
     },
     plugins: [
       {
@@ -280,7 +302,7 @@ export async function run() {
                         retries: s.retries,
                         files: s.filesURLs.map((u) => u.pathname),
                       })),
-                      testPlugins: runnerConfig?.testPlugins || [],
+                      testPlugins: resolvedPlugins,
                       config: {
                         filters: runnerConfig?.filters,
                         timeout: runnerConfig?.timeout,
@@ -465,16 +487,17 @@ export async function run() {
     // We await the reporters setup
     await activeNodeRunner.start()
 
-    // Set a global safety timeout — if the browser never calls
-    // __lupa_runner_end__, we force shutdown to prevent hanging.
-    globalTimeout = setTimeout(async () => {
-      console.error('\n\nGlobal timeout reached. The test run took too long and was forcefully terminated.')
-      console.error('Consider increasing the timeout or checking for infinite loops in your tests.\n')
-      await shutdown(1)
-    }, DEFAULT_GLOBAL_TIMEOUT)
-
-    // Don't let the timeout keep the process alive if everything else is done
-    globalTimeout.unref()
+    if (!isWatchMode) {
+      // Set a global safety timeout — if the browser never calls
+      // __lupa_runner_end__, we force shutdown to prevent hanging.
+      globalTimeout = setTimeout(async () => {
+        console.error('\n\nGlobal timeout reached. The test run took too long and was forcefully terminated.')
+        console.error('Consider increasing the timeout or checking for infinite loops in your tests.\n')
+        await shutdown(1)
+      }, DEFAULT_GLOBAL_TIMEOUT)
+      // Don't let the timeout keep the process alive if everything else is done
+      globalTimeout.unref()
+    }
 
     // Navigate to harness (or reload if already there)
     await page?.goto(`${serverUrl}__lupa__/runner.html`)

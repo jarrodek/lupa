@@ -48,6 +48,10 @@ export async function boot() {
   const eventManager = new EventManager(emitter, import.meta.hot)
   eventManager.boot()
 
+  // Start exception manager early so we catch plugin and suite load errors
+  const exceptionsManager = new BrowserExceptionsManager(emitter)
+  exceptionsManager.monitor()
+
   // Load test plugins before suites
   const pluginContext: WebPluginContext = { runner, emitter, config: window.__lupa__.config }
   const testPlugins = window.__lupa__.testPlugins || []
@@ -61,7 +65,11 @@ export async function boot() {
         console.warn(`Test plugin "${specifier}" does not have a default export`)
       }
     } catch (error) {
-      console.error(`Failed to load test plugin: ${specifier}`, error)
+      const msg = `Failed to load test plugin: ${specifier}`
+      console.error(msg, error)
+      const importError = error instanceof Error ? error : new Error(String(error))
+      importError.message = `${msg}\n${importError.message}`
+      emitter.emit('uncaught:exception', { error: importError, type: 'error' })
     }
   }
 
@@ -100,12 +108,6 @@ export async function boot() {
       }
     }
   }
-
-  // Start exception manager AFTER files are imported, so that test setup runs
-  // Or actually, we should start it as early as possible so file imports are caught if they throw asynchronously.
-  const exceptionsManager = new BrowserExceptionsManager(emitter)
-  exceptionsManager.monitor()
-
   // Execute the runner
   await runner.start()
   await runner.exec()

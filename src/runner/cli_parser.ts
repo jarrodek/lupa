@@ -11,7 +11,14 @@
 import getopts from 'getopts'
 import { colors } from './helpers.js'
 import type { CLIArgs } from './types.js'
-import pkg from '../../package.json' with { type: 'json' }
+import { readFileSync } from 'node:fs'
+
+let pkg: any
+try {
+  pkg = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf-8'))
+} catch {
+  pkg = JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf-8'))
+}
 
 /**
  * Known commandline options. The user can still define additional flags and they
