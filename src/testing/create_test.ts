@@ -42,14 +42,8 @@ export function createTest(
     testInstance.retry(options.retries)
   }
 
-  /**
-   * Register test as a child either with the group or the suite
-   */
-  if (options.group) {
-    options.group.add(testInstance)
-  } else if (options.suite) {
-    options.suite.add(testInstance)
-  }
+  // Registration to group/suite is now handled by the caller (api.ts)
+  // to ensure internal lifecycle hooks are added before group hooks.
 
   return testInstance
 }

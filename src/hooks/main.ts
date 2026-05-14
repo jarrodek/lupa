@@ -226,6 +226,9 @@ export class Hooks<Events extends Record<string, [any[], any[]]>> {
    * ```
    */
   runner<Event extends Extract<keyof Events, string>>(action: Event): Runner<Events[Event][0], Events[Event][1]> {
+    if (!this.#hooks.has(action)) {
+      this.#hooks.set(action, new Set())
+    }
     return new Runner(action, this.#hooks.get(action))
   }
 }

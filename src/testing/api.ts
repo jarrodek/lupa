@@ -26,6 +26,11 @@ export type OmitFirstArg<F> = F extends [_: any, ...args: infer R] ? R : never
 let activeTest: Test | undefined
 
 /**
+ * The current executing group (during setup hooks)
+ */
+let activeExecutingGroup: Group | undefined
+
+/**
  * The current test file being imported
  */
 let activeFile: string | undefined
@@ -87,6 +92,16 @@ export function test(title: string, callback?: (context: TestContext) => void | 
     }
   })
 
+  // IMPORTANT: The `testInstance` MUST be added to the group/suite AFTER the
+  // internal setup hook above. `group.add()` maps `group.each.setup` hooks
+  // onto the test. By adding the test to the group here, we guarantee that
+  // `activeTest` is defined before the user's `group.each.setup` logic executes.
+  if (activeGroup) {
+    activeGroup.add(testInstance)
+  } else if (activeSuite) {
+    activeSuite.add(testInstance)
+  }
+
   if (callback) {
     testInstance.run(callback, debuggingError)
   }
@@ -125,6 +140,13 @@ test.group = function (title: string, callback: (group: Group) => void) {
     group: activeGroup,
     suite: activeSuite,
     file: activeFile,
+  })
+
+  groupInstance.setup((g) => {
+    activeExecutingGroup = g
+    return () => {
+      activeExecutingGroup = undefined
+    }
   })
 
   // set active group so tests defined inside the callback are attached to it
@@ -194,18 +216,28 @@ export const html = litHtml
  * ```
  */
 export async function fixture(template: ReturnType<typeof litHtml>): Promise<Element> {
-  if (!activeTest) {
-    throw new Error('Cannot render fixture outside of a test')
+  const isInsideTest = !!activeTest
+  const isInsideGroup = !!activeExecutingGroup
+
+  if (!isInsideTest && !isInsideGroup) {
+    throw new Error('Cannot render fixture outside of a test or group hook')
   }
 
   const container = document.createElement('div')
   container.className = 'lupa-fixture'
   document.body.appendChild(container)
 
-  // Automatically clean up the fixture when the test finishes
-  activeTest.cleanup(() => {
-    container.remove()
-  })
+  if (isInsideTest) {
+    // Automatically clean up the fixture when the test finishes
+    activeTest?.cleanup(() => {
+      container.remove()
+    })
+  } else if (isInsideGroup) {
+    // Automatically clean up the fixture when the group finishes
+    activeExecutingGroup?.teardown(() => {
+      container.remove()
+    })
+  }
 
   render(template, container)
 
