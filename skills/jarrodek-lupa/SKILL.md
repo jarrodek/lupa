@@ -28,7 +28,7 @@ A lightning-fast, Vite-powered browser testing framework for Web Components with
 - You are already inside a running test or suite. (`configure`)
 - Testing pure logic or functions that do not require a DOM (`fixture`)
 
-API surface: 5 functions, 5 classes, 6 types, 6 constants
+API surface: 9 functions, 5 classes, 6 types, 6 constants
 
 ## NEVER
 
@@ -44,7 +44,7 @@ API surface: 5 functions, 5 classes, 6 types, 6 constants
 **Configuration:** `configure` (Configure the Lupa test runner)
 **runner:** `processCLIArgs` (Process command line arguments)
 **Execution:** `run` (Run the test suite)
-**testing:** `test` (Define a new test), `WebPluginFn` (The default export contract for a browser test plugin module), `WebPluginContext` (Context provided to browser-side test plugins), `OmitFirstArg` (Utility type that removes the first argument from a function's parameter list), `html` (`html` template tag from `lit-html`)
+**testing:** `test` (Define a new test), `aTimeout` (Returns a promise that resolves after the specified number of milliseconds), `nextFrame` (Returns a promise that resolves after the next browser animation frame), `oneEvent` (Returns a promise that resolves when the specified event is dispatched on the element), `waitUntil` (Polls the condition function until it returns true or the timeout is reached), `WebPluginFn` (The default export contract for a browser test plugin module), `WebPluginContext` (Context provided to browser-side test plugins), `OmitFirstArg` (Utility type that removes the first argument from a function's parameter list), `html` (`html` template tag from `lit-html`)
 **DOM:** `fixture` (Renders a Lit template into a dedicated fixture container and mounts it to the DOM)
 **assert:** `Assert` (The Assert class is derived from chai), `default` (Browser test plugin for assertion support)
 **refiner:** `Refiner` (Exposes the API to refine unwanted tests based upon applied

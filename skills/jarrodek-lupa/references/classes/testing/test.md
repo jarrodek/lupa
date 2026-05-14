@@ -11,7 +11,7 @@ constructor<TestData>(title: string, context: TestContext | ((test: Test<TestDat
 ```
 **Properties:**
 - `executingCallbacks: ((test: Test) => void)[]` — Methods to call before the test callback is executed
-- `executedCallbacks: ((test: Test, hasError: boolean, errors: { phase: "setup" | "setup:cleanup" | "teardown" | "teardown:cleanup" | "test" | "test:cleanup"; error: Error }[]) => void)[]` — Methods to call after the test callback is executed
+- `executedCallbacks: ((test: Test, hasError: boolean, errors: { phase: "setup" | "setup:cleanup" | "teardown" | "teardown:cleanup" | "test" | "test:cleanup"; error: TestError }[]) => void)[]` — Methods to call after the test callback is executed
 - `options: TestOptions` — Test options
 - `dataset: any[]` (optional) — Reference to the test dataset
 - `context: TestContext` — Reference to the test context. Available at the time
@@ -23,7 +23,7 @@ of running the test
 the test executor callback
 
 Do note: Async methods are not allowed
-- `executed(callback: (test: Test, hasError: boolean, errors: { phase: "setup" | "setup:cleanup" | "teardown" | "teardown:cleanup" | "test" | "test:cleanup"; error: Error }[]) => void): void` — Define a synchronous function to call after running
+- `executed(callback: (test: Test, hasError: boolean, errors: { phase: "setup" | "setup:cleanup" | "teardown" | "teardown:cleanup" | "test" | "test:cleanup"; error: TestError }[]) => void): void` — Define a synchronous function to call after running
 the test executor callback
 
 Do note: Async methods are not allowed

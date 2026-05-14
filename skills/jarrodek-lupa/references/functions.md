@@ -106,6 +106,61 @@ test('math works', ({ assert }) => {
 })
 ```
 
+### `aTimeout`
+Returns a promise that resolves after the specified number of milliseconds.
+```ts
+aTimeout(ms: number): Promise<void>
+```
+**Parameters:**
+- `ms: number` — Number of milliseconds to wait
+**Returns:** `Promise<void>` — Promise that resolves after the specified number of milliseconds
+```typescript
+await aTimeout(1000)
+```
+
+### `nextFrame`
+Returns a promise that resolves after the next browser animation frame.
+```ts
+nextFrame(): Promise<void>
+```
+**Returns:** `Promise<void>` — Promise that resolves after the next browser animation frame
+```typescript
+await nextFrame()
+```
+
+### `oneEvent`
+Returns a promise that resolves when the specified event is dispatched on the element.
+```ts
+oneEvent(element: Element | Window, eventName: string): Promise<Event>
+```
+**Parameters:**
+- `element: Element | Window` — Element to listen for the event on
+- `eventName: string` — Name of the event to wait for
+**Returns:** `Promise<Event>` — Promise that resolves when the specified event is dispatched on the element
+```typescript
+await oneEvent(element, 'click')
+```
+
+### `waitUntil`
+Polls the condition function until it returns true or the timeout is reached.
+
+If the condition function throws an error, the error is suppressed and the polling
+continues until the condition returns true or the timeout expires. The `interval`
+option determines the delay between polling attempts (default is 50ms), and the
+`timeout` option determines the maximum total duration before the promise rejects
+with the provided `message` (default is 1000ms).
+```ts
+waitUntil(condition: () => boolean | Promise<boolean>, message: string, options: { timeout?: number; interval?: number }): Promise<void>
+```
+**Parameters:**
+- `condition: () => boolean | Promise<boolean>` — Function to poll
+- `message: string` — default: `'waitUntil timed out'` — Message to use when throwing an error
+- `options: { timeout?: number; interval?: number }` — default: `{}` — Options for waitUntil
+**Returns:** `Promise<void>` — Promise that resolves when the condition is met
+```typescript
+await waitUntil(() => element.textContent === 'Hello')
+```
+
 ## DOM
 
 ### `fixture`
