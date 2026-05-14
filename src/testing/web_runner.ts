@@ -113,7 +113,7 @@ export class WebRunner extends Macroable {
           groupOrTest.tests.forEach(($test) => {
             if ($test.isPinned) {
               try {
-                $test.options.meta.abort('Finding pinned test location')
+                $test.options.meta.abort?.('Finding pinned test location')
               } catch (e: any) {
                 pinnedTests.push({ title: $test.title, stack: e.stack })
               }
@@ -121,7 +121,7 @@ export class WebRunner extends Macroable {
           })
         } else if (groupOrTest.isPinned) {
           try {
-            groupOrTest.options.meta.abort('Finding pinned test location')
+            groupOrTest.options.meta.abort?.('Finding pinned test location')
           } catch (e: any) {
             pinnedTests.push({ title: groupOrTest.title, stack: e.stack })
           }

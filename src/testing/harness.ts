@@ -7,6 +7,7 @@ import { Refiner } from '../refiner/main.js'
 import { setActiveInstances, setActiveFile } from './api.js'
 import { BrowserExceptionsManager } from './exceptions_manager.js'
 import type { WebPluginContext } from './web_plugin.js'
+import { EventManager } from './event_manager.js'
 
 // We expect window.__lupa__ to be injected by the Node.js runner
 declare global {
@@ -42,56 +43,10 @@ export async function boot() {
   const runner = new WebRunner(emitter)
   const refiner = new Refiner(window.__lupa__.config?.filters || {})
 
-  // Relay all emitter events back to the Node.js orchestrator via Vite HMR
-  const events = [
-    'runner:start',
-    'runner:end',
-    'suite:start',
-    'suite:end',
-    'group:start',
-    'group:end',
-    'test:start',
-    'test:end',
-    'uncaught:exception',
-    'runner:pinned_tests',
-  ] as const
-
   const isDebug = new URLSearchParams(window.location.search).get('debug') === '1'
 
-  for (const eventName of events) {
-    emitter.on(eventName, (data) => {
-      if (import.meta.hot && !isDebug) {
-        // Serialize Error objects because JSON.stringify drops them
-        let payload = data
-        if (data && Array.isArray((data as any).errors)) {
-          payload = {
-            ...data,
-            errors: (data as any).errors.map((e: any) => ({
-              ...e,
-              error:
-                e.error instanceof Error
-                  ? {
-                      message: e.error.message,
-                      stack: e.error.stack,
-                      name: e.error.name,
-                    }
-                  : e.error,
-            })),
-          }
-        } else if (eventName === 'uncaught:exception' && data && (data as any).error instanceof Error) {
-          payload = {
-            ...(data as any),
-            error: {
-              message: (data as any).error.message,
-              stack: (data as any).error.stack,
-              name: (data as any).error.name,
-            },
-          }
-        }
-        import.meta.hot.send('lupa:telemetry', { event: eventName, data: payload })
-      }
-    })
-  }
+  const eventManager = new EventManager(emitter, import.meta.hot)
+  eventManager.boot()
 
   // Load test plugins before suites
   const pluginContext: WebPluginContext = { runner, emitter, config: window.__lupa__.config }

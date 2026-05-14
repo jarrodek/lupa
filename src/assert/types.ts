@@ -84,3 +84,55 @@ export interface PluginConfig {
  * error classes with any constructor signature
  */
 export type AnyErrorConstructor = new (...args: any[]) => Error
+
+/**
+ * Options for Semantic DOM assertions
+ */
+export interface SemanticDomOptions {
+  /**
+   * Completely ignore specific attributes.
+   * - `'*'`: Ignores ALL attributes on all elements.
+   * - `['class', 'id']`: Ignores these attributes globally.
+   * - `[{ tags: ['input'], attributes: ['id'] }]`: Ignores specific attributes on specific tags.
+   */
+  ignoredAttributes?: '*' | (string | AttributeMatcher)[]
+
+  /**
+   * The attribute MUST exist, but we ignore its value during comparison.
+   * Example: `['data-id', 'aria-describedby']`
+   * Or target specific tags: `[{ tags: ['input'], attributes: ['id'] }]`
+   */
+  ignoreAttributeValueFor?: (string | AttributeMatcher)[]
+
+  /**
+   * Ignores specific tags completely from the comparison (removes them from the tree).
+   * Example: `['my-custom-element']`
+   */
+  ignoreTags?: string[]
+
+  /**
+   * Ignores elements that match the given CSS selectors (removes them from the tree).
+   * Example: `['.item', '#dynamic-child']`
+   */
+  ignoreChildren?: string[]
+
+  /**
+   * If true, all text nodes (inner text content) are ignored in the comparison.
+   */
+  ignoreTextContent?: boolean
+}
+
+/**
+ * Only the combination of tag and attribute names will be used to match the attribute.
+ */
+export interface AttributeMatcher {
+  /**
+   * The list of element tags to match.
+   */
+  tags: string[]
+
+  /**
+   * The list of attributes to match.
+   */
+  attributes: string[]
+}

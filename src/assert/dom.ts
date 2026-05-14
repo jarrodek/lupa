@@ -1,4 +1,6 @@
 import type { Assert } from './assert.js'
+import type { SemanticDomOptions } from './types.js'
+import { normalizeDom } from './semantic_dom.js'
 
 /**
  * DOM-specific assertion methods
@@ -126,5 +128,112 @@ export class AssertDom {
       operator: 'strictEqual',
       showDiff: false,
     })
+  }
+
+  /**
+   * Asserts that an element's outer DOM matches the expected HTML string semantically.
+   */
+  equal(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+    const actual = normalizeDom(element.outerHTML, options)
+    const expected = normalizeDom(expectedHtml, options)
+    this.#assert.evaluate(actual === expected, message || 'expected DOM to semantically equal the provided HTML', {
+      actual,
+      expected,
+      operator: 'strictEqual',
+      showDiff: true,
+    })
+  }
+
+  /**
+   * Asserts that an element's outer DOM does NOT match the expected HTML string semantically.
+   */
+  notEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+    const actual = normalizeDom(element.outerHTML, options)
+    const expected = normalizeDom(expectedHtml, options)
+    this.#assert.evaluate(
+      actual !== expected,
+      message || 'expected DOM to differ from the provided HTML, but they were semantically identical',
+      {
+        actual,
+        expected,
+        operator: 'notStrictEqual',
+        // No diff is shown for negative assertions because the values are identical when the assertion fails.
+        showDiff: false,
+      }
+    )
+  }
+
+  /**
+   * Asserts that an element's Light DOM (innerHTML) matches the expected HTML string semantically.
+   */
+  lightEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+    const actual = normalizeDom(element.innerHTML, options)
+    const expected = normalizeDom(expectedHtml, options)
+    this.#assert.evaluate(
+      actual === expected,
+      message || 'expected Light DOM to semantically equal the provided HTML',
+      {
+        actual,
+        expected,
+        operator: 'strictEqual',
+        showDiff: true,
+      }
+    )
+  }
+
+  /**
+   * Asserts that an element's Light DOM (innerHTML) does NOT match the expected HTML string semantically.
+   */
+  notLightEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+    const actual = normalizeDom(element.innerHTML, options)
+    const expected = normalizeDom(expectedHtml, options)
+    this.#assert.evaluate(
+      actual !== expected,
+      message || 'expected Light DOM to differ from the provided HTML, but they were semantically identical',
+      {
+        actual,
+        expected,
+        operator: 'notStrictEqual',
+        // No diff is shown for negative assertions because the values are identical when the assertion fails.
+        showDiff: false,
+      }
+    )
+  }
+
+  /**
+   * Asserts that an element's Shadow DOM matches the expected HTML string semantically.
+   */
+  shadowEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+    const actual = normalizeDom(element.shadowRoot?.innerHTML || '', options)
+    const expected = normalizeDom(expectedHtml, options)
+    this.#assert.evaluate(
+      actual === expected,
+      message || 'expected Shadow DOM to semantically equal the provided HTML',
+      {
+        actual,
+        expected,
+        operator: 'strictEqual',
+        showDiff: true,
+      }
+    )
+  }
+
+  /**
+   * Asserts that an element's Shadow DOM does NOT match the expected HTML string semantically.
+   */
+  notShadowEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+    const actual = normalizeDom(element.shadowRoot?.innerHTML || '', options)
+    const expected = normalizeDom(expectedHtml, options)
+    this.#assert.evaluate(
+      actual !== expected,
+      message || 'expected Shadow DOM to differ from the provided HTML, but they were semantically identical',
+      {
+        actual,
+        expected,
+        operator: 'notStrictEqual',
+        // No diff is shown for negative assertions because the values are identical when the assertion fails.
+        showDiff: false,
+      }
+    )
   }
 }

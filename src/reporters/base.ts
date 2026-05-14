@@ -154,7 +154,6 @@ export abstract class BaseReporter {
         })
       })
     })
-
     return errorsList
   }
 

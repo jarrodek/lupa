@@ -148,7 +148,10 @@ export class Group extends Macroable {
     this.#refiner = refiner
     this.options = {
       title: this.title,
-      meta: {},
+      meta: {
+        fileName: '',
+        suite: '',
+      },
     }
   }
 

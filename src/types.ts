@@ -1,4 +1,5 @@
 import type { CleanupHandler, HookHandler } from './hooks/types.js'
+import type { AssertionError } from 'assertion-error'
 
 import type { Test } from './testing/test/main.js'
 import type { Group } from './testing/group/main.js'
@@ -8,6 +9,8 @@ import type { Runner } from './runner/runner.js'
 import type { TestContext } from './testing/test_context.js'
 
 export { Runner }
+
+export type TestError = AssertionError<unknown> | Error
 
 /**
  * Summary reporters are registered with the SummaryBuilder to
@@ -117,7 +120,7 @@ export interface TestOptions {
   failReason?: string
   retries?: number
   retryAttempt?: number
-  meta: Record<string, any>
+  meta: TestMetadata
 }
 
 /**
@@ -134,7 +137,7 @@ export type TestStartNode = Omit<TestOptions, 'title'> & {
     index: number
     row: any
   }
-  meta: Record<string, any>
+  meta: TestMetadata
 }
 
 /**
@@ -150,7 +153,7 @@ export type TestEndNode = Omit<TestOptions, 'title'> & {
   hasError: boolean
   errors: {
     phase: 'setup' | 'test' | 'setup:cleanup' | 'teardown' | 'teardown:cleanup' | 'test:cleanup'
-    error: Error
+    error: TestError
   }[]
   retryAttempt?: number
   dataset?: {
@@ -160,12 +163,42 @@ export type TestEndNode = Omit<TestOptions, 'title'> & {
   }
 }
 
+export interface GroupMetadata {
+  /**
+   * File path in which the group is defined
+   */
+  fileName?: string
+  /**
+   * Suite name in which the group is defined
+   */
+  suite?: string
+}
+
+export interface TestMetadata {
+  /**
+   * File path in which the test is defined
+   */
+  fileName?: string
+  /**
+   * Suite name in which the test is defined
+   */
+  suite?: string
+  /**
+   * Group name in which the test is defined
+   */
+  group?: string
+  /**
+   * Abort the test if the condition is met
+   */
+  abort?: (message: string) => any
+}
+
 /**
  * Group options
  */
 export interface GroupOptions {
   title: string
-  meta: Record<string, any>
+  meta: GroupMetadata
 }
 
 /**
@@ -180,7 +213,7 @@ export type GroupEndNode = GroupOptions & {
   hasError: boolean
   errors: {
     phase: 'setup' | 'setup:cleanup' | 'teardown' | 'teardown:cleanup'
-    error: Error
+    error: TestError
   }[]
 }
 
@@ -199,7 +232,7 @@ export interface SuiteEndNode {
   hasError: boolean
   errors: {
     phase: 'setup' | 'setup:cleanup' | 'teardown' | 'teardown:cleanup'
-    error: Error
+    error: TestError
   }[]
 }
 
@@ -226,6 +259,33 @@ export interface FilteringOptions {
 }
 
 /**
+ * Uncaught exception
+ */
+export interface UncaughtExceptionNode {
+  error: TestError
+  type: 'error' | 'rejection'
+}
+
+/**
+ * Runner pinned tests
+ */
+export interface RunnerPinnedTestsNode {
+  /**
+   * Pinned tests metadata
+   */
+  tests: {
+    /**
+     * Test title
+     */
+    title: string
+    /**
+     * Test stack trace
+     */
+    stack: string
+  }[]
+}
+
+/**
  * Events emitted by the runner emitter. These can be extended as well
  */
 export interface RunnerEvents {
@@ -237,8 +297,8 @@ export interface RunnerEvents {
   'suite:end': SuiteEndNode
   'runner:start': RunnerStartNode
   'runner:end': RunnerEndNode
-  'uncaught:exception': { error: Error; type: 'error' | 'rejection' }
-  'runner:pinned_tests': { tests: { title: string; stack: string }[] }
+  'uncaught:exception': UncaughtExceptionNode
+  'runner:pinned_tests': RunnerPinnedTestsNode
 }
 
 /**
