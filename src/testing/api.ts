@@ -215,7 +215,7 @@ export const html = litHtml
  * })
  * ```
  */
-export async function fixture(template: ReturnType<typeof litHtml>): Promise<Element> {
+export async function fixture<T extends Element = Element>(template: ReturnType<typeof litHtml>): Promise<T> {
   const isInsideTest = !!activeTest
   const isInsideGroup = !!activeExecutingGroup
 
@@ -244,7 +244,7 @@ export async function fixture(template: ReturnType<typeof litHtml>): Promise<Ele
   // Wait for next frame to ensure elements are upgraded and connected
   await new Promise((resolve) => requestAnimationFrame(resolve))
 
-  return container.firstElementChild as Element
+  return container.firstElementChild as T
 }
 
 /**
