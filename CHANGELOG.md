@@ -1,3 +1,13 @@
+## [1.3.1](https://github.com/jarrodek/lupa/compare/v1.3.0...v1.3.1) (2026-05-15)
+
+
+### Bug Fixes
+
+* fixes [#1](https://github.com/jarrodek/lupa/issues/1) - fixture function to work in group setup ([46dea54](https://github.com/jarrodek/lupa/commit/46dea547df457f55d4bc3877b5f8c61758f8956d))
+* fixes [#2](https://github.com/jarrodek/lupa/issues/2) - fixture should define type template ([1412df6](https://github.com/jarrodek/lupa/commit/1412df6e95f3b375d3f4c0a5926002ce0e03a808))
+* fixes [#3](https://github.com/jarrodek/lupa/issues/3) - fixture should allow text templates ([fc982a5](https://github.com/jarrodek/lupa/commit/fc982a5a95f1819b657213f8c6629e2ad06af1d6))
+* fixes [#4](https://github.com/jarrodek/lupa/issues/4) allow custom JS / CSS in the test harness ([b8a8f06](https://github.com/jarrodek/lupa/commit/b8a8f062e0c9d4d3d5a8ef05604a0be0e03ce54c))
+
 # [1.3.0](https://github.com/jarrodek/lupa/compare/v1.2.0...v1.3.0) (2026-05-14)
 
 
