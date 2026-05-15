@@ -157,7 +157,7 @@ Returns a promise that resolves after the specified number of milliseconds.
 aTimeout(ms: number): Promise<void>
 ```
 **Parameters:**
-- `ms: number` — Number of milliseconds to wait
+- `ms: number` — default: `0` — Number of milliseconds to wait
 **Returns:** `Promise<void>` — Promise that resolves after the specified number of milliseconds
 ```typescript
 await aTimeout(1000)
@@ -176,14 +176,15 @@ await nextFrame()
 ### `oneEvent`
 Returns a promise that resolves when the specified event is dispatched on the element.
 ```ts
-oneEvent(element: Element | Window, eventName: string): Promise<Event>
+oneEvent<T, E>(element: Element | Window, eventName: string): Promise<E>
 ```
 **Parameters:**
-- `element: Element | Window` — Element to listen for the event on
+- `element: Element | Window`
 - `eventName: string` — Name of the event to wait for
-**Returns:** `Promise<Event>` — Promise that resolves when the specified event is dispatched on the element
+**Returns:** `Promise<E>` — Promise that resolves when the specified event is dispatched on the element
 ```typescript
-await oneEvent(element, 'click')
+const event = await oneEvent(element, 'click')
+assert.strictEqual(event.type, 'click')
 ```
 
 ### `waitUntil`

@@ -25,15 +25,21 @@ export function nextFrame(): Promise<void> {
 
 /**
  * Returns a promise that resolves when the specified event is dispatched on the element.
- * @param element - Element to listen for the event on
+ * @template T - Type of the event detail, only relevant for CustomEvents
+ * @template E - Type of the event, defaults to CustomEvent<T>
+ * @param eventTarget - Target of the event, usually an EventTarget
  * @param eventName - Name of the event to wait for
  * @returns Promise that resolves when the specified event is dispatched on the element
  * @example
  * ```typescript
- * await oneEvent(element, 'click')
+ * const event = await oneEvent(element, 'click')
+ * assert.strictEqual(event.type, 'click')
  * ```
  */
-export function oneEvent<E extends Event = CustomEvent>(element: Element | Window, eventName: string): Promise<E> {
+export function oneEvent<T = any, E extends Event = CustomEvent<T>>(
+  element: Element | Window,
+  eventName: string
+): Promise<E> {
   return new Promise((resolve) => {
     const listener = (event: E) => {
       element.removeEventListener(eventName, listener as EventListener)
@@ -102,16 +108,19 @@ export async function waitUntil(
  * Listens for one event, calls `event.preventDefault()` and resolves with this event object after it was fired.
  *
  * @example
- * const form = document.querySelector('form);
- * form.querySelector('button[type="submit"]).click();
- * const payload = await oneDefaultPreventedEvent(form, 'submit');
- * expect(payload).to.be.true;
- *
+ * ```typescript
+ * const form = document.querySelector('form')
+ * form.querySelector('button[type="submit"]).click()
+ * const event = await oneDefaultPreventedEvent(form, 'submit')
+ * assert.isTrue(event.defaultPrevented)
+ * ```
+ * @template T - Type of the event detail, only relevant for CustomEvents
+ * @template E - Type of the event, defaults to CustomEvent<T>
  * @param eventTarget Target of the event, usually an Element
  * @param eventName Name of the event
  * @returns Promise to await until the event has been fired
  */
-export function oneDefaultPreventedEvent<E extends Event = CustomEvent>(
+export function oneDefaultPreventedEvent<T = any, E extends Event = CustomEvent<T>>(
   eventTarget: Element | Window,
   eventName: string
 ): Promise<E> {
