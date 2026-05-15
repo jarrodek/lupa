@@ -45,6 +45,27 @@ If true, all text nodes (inner text content) are ignored in the comparison.
 
 **Type:** `boolean`
 
+## HarnessConfig
+
+Configuration options for the browser test harness HTML
+
+### Properties
+
+#### template
+
+Optional custom HTML template.
+It can be a function that receives the required scripts and stylesheets and returns the full HTML string.
+Alternatively, it can be an HTML string containing the
+`<!-- lupa-scripts -->` and `<!-- lupa-stylesheets -->` placeholders.
+
+**Type:** `string | ((context: { scripts: string; stylesheets: string }) => string)`
+
+#### stylesheets
+
+Optional list of absolute or relative CSS file paths to include in the harness.
+
+**Type:** `string[]`
+
 ## BaseConfig
 
 Base configuration options
@@ -164,6 +185,12 @@ Whether to enable code coverage reporting using istanbul,
 or specific options to configure the coverage instrumentation.
 
 **Type:** `boolean | CoverageOptions`
+
+#### harness
+
+Customize the HTML harness environment
+
+**Type:** `HarnessConfig`
 
 ## CoverageOptions
 

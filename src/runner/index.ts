@@ -9,8 +9,9 @@ import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { createServer, createLogger, type ViteDevServer, mergeConfig, type InlineConfig } from 'vite'
 import { chromium, firefox, webkit, type Browser, type Page } from 'playwright'
+import { pathToFileURL } from 'node:url'
 
-import type { Config, NormalizedConfig, CLIArgs } from './types.js'
+import type { Config, NormalizedConfig, CLIArgs, JsonSerializable } from './types.js'
 export type * from './types.js'
 import { Emitter } from '../testing/emitter.js'
 import { Runner } from './runner.js'
@@ -21,15 +22,13 @@ import { ExceptionsManager } from './exceptions_manager.js'
 import { WatchManager } from './watch_manager.js'
 import debug from './debug.js'
 import { ensureIsConfigured } from './validator.js'
-import { pathToFileURL } from 'node:url'
-
 import { Planner } from './planner.js'
 import { transformBrowserStack } from './stack_transformer.js'
 import { formatPinnedTest, printPinnedTests } from './helpers.js'
 import { RunnerEvents } from '../types.js'
+import lupaHarnessPlugin from './plugins/harness.js'
 
 export { SummaryBuilder } from './summary_builder.js'
-
 export type { Config, NormalizedConfig, CLIArgs, JsonSerializable } from './types.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -253,7 +252,7 @@ export async function run() {
   // We capture browser output via Playwright, so Vite's forwarding is redundant.
   const logger = createLogger('silent')
 
-  const resolvedPlugins = await Promise.all(
+  const resolvedPlugins: (JsonSerializable | undefined)[][] = await Promise.all(
     (runnerConfig?.testPlugins || []).map(async (plugin) => {
       const [specifier, options] = Array.isArray(plugin) ? plugin : [plugin, undefined]
       let url = specifier
@@ -282,44 +281,7 @@ export async function run() {
         allow: [process.cwd(), join(__dirname, '../')],
       },
     },
-    plugins: [
-      {
-        name: 'lupa-harness',
-        configureServer(server) {
-          server.middlewares.use('/__lupa__/runner.html', async (_req, res) => {
-            res.setHeader('Content-Type', 'text/html')
-            res.end(`
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <meta charset="utf-8">
-                  <title>Lupa Test Runner</title>
-                </head>
-                <body>
-                  <script>
-                    window.__lupa__ = ${JSON.stringify({
-                      suites: suites.map((s) => ({
-                        name: s.name,
-                        timeout: s.timeout,
-                        retries: s.retries,
-                        files: s.filesURLs.map((u) => u.pathname),
-                      })),
-                      testPlugins: resolvedPlugins,
-                      config: {
-                        filters: runnerConfig?.filters,
-                        timeout: runnerConfig?.timeout,
-                        retries: runnerConfig?.retries,
-                      },
-                    })}
-                  </script>
-                  <script type="module" src="/@fs${harnessPath}"></script>
-                </body>
-              </html>
-            `)
-          })
-        },
-      },
-    ],
+    plugins: [lupaHarnessPlugin(suites, resolvedPlugins, runnerConfig, harnessPath)],
   }
 
   const finalViteConfig = runnerConfig?.vite ? mergeConfig(baseViteConfig, runnerConfig.vite) : baseViteConfig

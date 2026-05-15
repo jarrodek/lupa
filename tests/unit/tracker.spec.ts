@@ -104,4 +104,54 @@ test('Tracker', async (t) => {
     assert.strictEqual(summary.failureTree[0].errors.length, 1)
     assert.strictEqual(summary.failureTree[0].children[0].errors.length, 1)
   })
+
+  await t.test('resets current group and suite after they end', () => {
+    const tracker = new Tracker()
+    tracker.processEvent('runner:start', undefined as any)
+
+    // Start a suite and a group
+    tracker.processEvent('suite:start', { name: 'unit' } as SuiteStartNode)
+    tracker.processEvent('group:start', { title: 'Math' } as GroupStartNode)
+
+    // End the group WITHOUT errors
+    tracker.processEvent('group:end', {
+      hasError: false,
+      errors: [],
+    } as unknown as GroupEndNode)
+
+    // Now fire a failing test. It should be attached to the SUITE, not the GROUP,
+    // because the group has already ended.
+    tracker.processEvent('test:end', {
+      title: { original: '2+3', expanded: '2+3' },
+      isSkipped: false,
+      isTodo: false,
+      hasError: true,
+      isFailing: false,
+      errors: [{ phase: 'test', error: new Error('Wrong') }],
+    } as unknown as TestEndNode)
+
+    tracker.processEvent('suite:end', {
+      hasError: false,
+      errors: [],
+    } as unknown as SuiteEndNode)
+
+    // Now fire a failing test AFTER the suite ends. It should not be attached to the suite.
+    // (This scenario shouldn't happen in practice, but we test the tracker's reset logic)
+    tracker.processEvent('test:end', {
+      title: { original: 'leak', expanded: 'leak' },
+      isSkipped: false,
+      isTodo: false,
+      hasError: true,
+      isFailing: false,
+      errors: [{ phase: 'test', error: new Error('Leak') }],
+    } as unknown as TestEndNode)
+
+    const summary = tracker.getSummary()
+
+    assert.strictEqual(summary.hasError, true)
+    assert.strictEqual(summary.failureTree.length, 1)
+    assert.strictEqual(summary.failureTree[0].name, 'unit')
+    assert.strictEqual(summary.failureTree[0].children.length, 1) // Only '2+3', no 'Math' group or 'leak' test
+    assert.strictEqual((summary.failureTree[0].children[0] as any).title, '2+3')
+  })
 })

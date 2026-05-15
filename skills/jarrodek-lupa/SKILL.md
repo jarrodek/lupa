@@ -41,7 +41,7 @@ API surface: 9 functions, 11 classes, 56 types, 6 constants
 
 ## Configuration
 
-10 configuration interfaces — see references/config.md for details.
+11 configuration interfaces — see references/config.md for details.
 
 ## Quick Reference
 
@@ -54,6 +54,9 @@ API surface: 9 functions, 11 classes, 56 types, 6 constants
 - **assertions** — # Assertions
 
 Lupa doesn't force a specific assertion library onto you.
+- **customizing-harness** — # Customizing the HTML Test Harness
+
+Sometimes you need to inject global stylesheets (like a CSS reset or design system variables) into the browser environment, or you might need a very specific HTML structure surrounding your tests.
 - **datasets** — # Datasets
 
 Datasets allow you to run a specific test multiple times with different data every time.
@@ -91,7 +94,7 @@ Test suites allow you to organize your tests logically by their type or domain.
 
 Lupa runs your tests inside a headless browser using [Vite](https://vitejs.
 
-See `references/docs/` for full guides (13 total).
+See `references/docs/` for full guides (14 total).
 
 ## References
 

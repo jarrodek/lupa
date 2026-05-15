@@ -116,4 +116,22 @@ test('ConfigManager', async (t) => {
 
     assert.throws(() => manager.hydrate(), /Cannot specify both a vite config file and an inline vite config/)
   })
+
+  await t.test('preserves harness configuration', () => {
+    const config: Config = {
+      files: [],
+      harness: {
+        stylesheets: ['styles.css'],
+        template: '<!-- lupa-scripts -->',
+      },
+    }
+    const cliArgs: CLIArgs = { _: [] }
+
+    const manager = new ConfigManager(config, cliArgs)
+    const hydrated = manager.hydrate()
+
+    assert.ok(hydrated.harness)
+    assert.deepStrictEqual(hydrated.harness.stylesheets, ['styles.css'])
+    assert.strictEqual(hydrated.harness.template, '<!-- lupa-scripts -->')
+  })
 })

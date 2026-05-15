@@ -176,6 +176,24 @@ export type RunnerPluginFn = (context: {
 }) => void | Promise<void>
 
 /**
+ * Configuration options for the browser test harness HTML
+ */
+export interface HarnessConfig {
+  /**
+   * Optional custom HTML template.
+   * It can be a function that receives the required scripts and stylesheets and returns the full HTML string.
+   * Alternatively, it can be an HTML string containing the
+   * `<!-- lupa-scripts -->` and `<!-- lupa-stylesheets -->` placeholders.
+   */
+  template?: string | ((context: { scripts: string; stylesheets: string }) => string)
+
+  /**
+   * Optional list of absolute or relative CSS file paths to include in the harness.
+   */
+  stylesheets?: string[]
+}
+
+/**
  * Base configuration options
  */
 export interface BaseConfig {
@@ -283,6 +301,11 @@ export interface BaseConfig {
    * or specific options to configure the coverage instrumentation.
    */
   coverage?: boolean | CoverageOptions
+
+  /**
+   * Customize the HTML harness environment
+   */
+  harness?: HarnessConfig
 }
 
 /**
@@ -338,7 +361,9 @@ export interface TestSuite {
 /**
  * BaseConfig after normalized by the config manager
  */
-export type NormalizedBaseConfig = Required<Omit<BaseConfig, 'reporters' | 'viteConfig' | 'vite'>> & {
+export type NormalizedBaseConfig = Required<
+  Omit<BaseConfig, 'reporters' | 'viteConfig' | 'vite' | 'coverage' | 'harness'>
+> & {
   /**
    * Activated reporters
    */
@@ -364,6 +389,10 @@ export type NormalizedBaseConfig = Required<Omit<BaseConfig, 'reporters' | 'vite
    * Code coverage options
    */
   coverage?: boolean | CoverageOptions
+  /**
+   * Customize the HTML harness environment
+   */
+  harness?: HarnessConfig
 }
 
 /**

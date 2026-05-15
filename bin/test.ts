@@ -19,6 +19,28 @@ configure({
       },
     ],
   },
+  harness: {
+    stylesheets: [path.join(process.cwd(), 'tests/fixtures/test.styles.css')],
+    template: `
+      <!DOCTYPE html>
+      <html lang="en" class="dark">
+        <head>
+          <meta charset="utf-8">
+          <title>Custom Theme Tests</title>
+          <style>
+            .a-special-inlined-style-tag {
+              border-radius: 8px;
+            }
+          </style>
+          <!-- lupa-stylesheets -->
+        </head>
+        <body>
+          <div id="app-root"></div>
+          <!-- lupa-scripts -->
+        </body>
+      </html>
+    `,
+  },
 })
 
 run().catch((error) => {

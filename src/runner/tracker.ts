@@ -87,6 +87,7 @@ export class Tracker {
     if (suite.errors.length > 0 || suite.children.length > 0) {
       this.#failureTree.push(suite)
     }
+    this.#currentSuite = undefined
   }
 
   /**
@@ -117,6 +118,7 @@ export class Tracker {
     if (group.errors.length > 0 || group.children.length > 0) {
       this.#currentSuite?.children.push(group)
     }
+    this.#currentGroup = undefined
   }
 
   /**

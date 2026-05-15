@@ -170,6 +170,7 @@ export class ConfigManager {
       viteConfig: finalViteConfig,
       vite: this.#config.vite,
       coverage: resolvedCoverage,
+      harness: this.#config.harness,
     }
 
     /**

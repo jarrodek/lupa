@@ -1,6 +1,7 @@
 # Documentation
 
 - [assertions](assertions.md)
+- [customizing-harness](customizing-harness.md)
 - [datasets](datasets.md)
 - [exceptions](exceptions.md)
 - [filtering-tests](filtering-tests.md)
