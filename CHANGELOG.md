@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/jarrodek/lupa/compare/v1.4.0...v1.5.0) (2026-05-15)
+
+
+### Features
+
+* add CLI support for init and skills ([43df3bd](https://github.com/jarrodek/lupa/commit/43df3bde760eb24b49bd17030485dd9f73c9c7fc))
+
 # [1.4.0](https://github.com/jarrodek/lupa/compare/v1.3.1...v1.4.0) (2026-05-15)
 
 
