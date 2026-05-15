@@ -1,3 +1,11 @@
+# [1.4.0](https://github.com/jarrodek/lupa/compare/v1.3.1...v1.4.0) (2026-05-15)
+
+
+### Features
+
+* add commands for remote test control ([2761a33](https://github.com/jarrodek/lupa/commit/2761a33502e1cc99124b5f4406a8cdb168f4f8bf))
+* extract browser log handling into a dedicated class ([c438be5](https://github.com/jarrodek/lupa/commit/c438be52828f795dded5894d5812ffd757c53ff2))
+
 ## [1.3.1](https://github.com/jarrodek/lupa/compare/v1.3.0...v1.3.1) (2026-05-15)
 
 
