@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/jarrodek/lupa/compare/v1.5.1...v1.5.2) (2026-05-15)
+
+
+### Bug Fixes
+
+* fixing types on helpers ([e995704](https://github.com/jarrodek/lupa/commit/e995704736a05ae07a61719969c8288c51edf6a2))
+
 ## [1.5.1](https://github.com/jarrodek/lupa/compare/v1.5.0...v1.5.1) (2026-05-15)
 
 
