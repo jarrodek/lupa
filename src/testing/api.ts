@@ -5,8 +5,8 @@ import { Suite } from './suite/main.js'
 import { WebRunner } from './web_runner.js'
 import { Emitter } from './emitter.js'
 import { Refiner } from '../refiner/main.js'
-import { TestContext } from './test_context.js'
 import { createTest, createTestGroup } from './create_test.js'
+import { TestExecutor } from '../types.js'
 
 export { fixture } from './fixture.js'
 
@@ -74,7 +74,7 @@ export function setActiveFile(file: string | undefined) {
  * })
  * ```
  */
-export function test(title: string, callback?: (context: TestContext) => void | Promise<void>) {
+export function test(title: string, callback?: TestExecutor<undefined>) {
   if (!activeEmitter || !activeRefiner || !activeSuite) {
     throw new Error('Test API is not initialized. Ensure tests are executed via Lupa harness.')
   }
