@@ -27,6 +27,7 @@ import { transformBrowserStack } from './stack_transformer.js'
 import { formatPinnedTest, printPinnedTests } from './helpers.js'
 import { RunnerEvents } from '../types.js'
 import lupaHarnessPlugin from './plugins/harness.js'
+import { BrowserLogs } from './brower_logs.js'
 
 export { SummaryBuilder } from './summary_builder.js'
 export type { Config, NormalizedConfig, CLIArgs, JsonSerializable } from './types.js'
@@ -311,15 +312,9 @@ export async function run() {
 
   page = await headlessBrowser.newPage()
 
-  page.on('console', (msg) => {
-    const text = msg.text()
-    // Suppress Vite internal messages (HMR lifecycle, optimizations, etc.)
-    if (text.startsWith('[vite]')) return
-    if (cliArgs.verbose) {
-      console.log('[Browser Console]', text)
-    }
-  })
-  page.on('pageerror', (err) => console.error('[Browser Error]', err))
+  const logs = new BrowserLogs(page)
+  logs.verbose = !!cliArgs.verbose
+  logs.boot()
 
   let isRunning = false
   const isWatchMode = cliArgs.watch === true
