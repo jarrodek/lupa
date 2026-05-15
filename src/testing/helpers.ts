@@ -7,7 +7,7 @@
  * await aTimeout(1000)
  * ```
  */
-export function aTimeout(ms: number): Promise<void> {
+export function aTimeout(ms = 0): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
@@ -33,13 +33,13 @@ export function nextFrame(): Promise<void> {
  * await oneEvent(element, 'click')
  * ```
  */
-export function oneEvent(element: Element | Window, eventName: string): Promise<Event> {
+export function oneEvent<E extends Event = CustomEvent>(element: Element | Window, eventName: string): Promise<E> {
   return new Promise((resolve) => {
-    const listener = (event: Event) => {
-      element.removeEventListener(eventName, listener)
+    const listener = (event: E) => {
+      element.removeEventListener(eventName, listener as EventListener)
       resolve(event)
     }
-    element.addEventListener(eventName, listener)
+    element.addEventListener(eventName, listener as EventListener)
   })
 }
 
@@ -67,9 +67,11 @@ export async function waitUntil(
   message = 'waitUntil timed out',
   options: { timeout?: number; interval?: number } = {}
 ): Promise<void> {
-  const timeout = options.timeout || 1000
-  const interval = options.interval || 50
+  const { interval = 50, timeout = 1000 } = options
   const startTime = Date.now()
+
+  // Save the current stack so that we can reference it later if we timeout.
+  const { stack } = new Error()
 
   return new Promise((resolve, reject) => {
     const check = async () => {
@@ -83,7 +85,9 @@ export async function waitUntil(
       }
 
       if (Date.now() - startTime >= timeout) {
-        reject(new Error(message))
+        const error = new Error(message ? `Timeout: ${message}` : `waitUntil timed out after ${timeout}ms`)
+        error.stack = stack
+        reject(error)
         return
       }
 
@@ -91,5 +95,32 @@ export async function waitUntil(
     }
 
     check()
+  })
+}
+
+/**
+ * Listens for one event, calls `event.preventDefault()` and resolves with this event object after it was fired.
+ *
+ * @example
+ * const form = document.querySelector('form);
+ * form.querySelector('button[type="submit"]).click();
+ * const payload = await oneDefaultPreventedEvent(form, 'submit');
+ * expect(payload).to.be.true;
+ *
+ * @param eventTarget Target of the event, usually an Element
+ * @param eventName Name of the event
+ * @returns Promise to await until the event has been fired
+ */
+export function oneDefaultPreventedEvent<E extends Event = CustomEvent>(
+  eventTarget: Element | Window,
+  eventName: string
+): Promise<E> {
+  return new Promise((resolve) => {
+    function listener(ev: E) {
+      ev.preventDefault()
+      resolve(ev)
+      eventTarget.removeEventListener(eventName, listener as EventListener)
+    }
+    eventTarget.addEventListener(eventName, listener as EventListener)
   })
 }

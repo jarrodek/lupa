@@ -43,7 +43,7 @@ test.group('Testing Helpers', () => {
       await waitUntil(() => false, 'should timeout', { timeout: 20, interval: 10 })
       assert.fail('should have thrown')
     } catch (err: any) {
-      assert.equal(err.message, 'should timeout')
+      assert.equal(err.message, 'Timeout: should timeout')
     }
   })
 })
