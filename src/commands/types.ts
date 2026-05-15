@@ -42,6 +42,9 @@ export interface Media {
  * Type representing sendKeys command payload.
  */
 export interface TypePayload {
+  /**
+   * String to type.
+   */
   type: string
 }
 
@@ -49,6 +52,9 @@ export interface TypePayload {
  * Type representing sendKeys command payload.
  */
 export interface PressPayload {
+  /**
+   * Key to press.
+   */
   press: string
 }
 
@@ -56,6 +62,9 @@ export interface PressPayload {
  * Type representing sendKeys command payload.
  */
 export interface DownPayload {
+  /**
+   * Key to press.
+   */
   down: string
 }
 
@@ -63,6 +72,9 @@ export interface DownPayload {
  * Type representing sendKeys command payload.
  */
 export interface UpPayload {
+  /**
+   * Key to release.
+   */
   up: string
 }
 

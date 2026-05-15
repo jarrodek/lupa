@@ -7,6 +7,10 @@ import { executeCommand } from './execute_command.js'
  * so that the locator pinpoints the exact element.
  */
 export interface QueryByRole {
+  /**
+   * The role to use to locate the element. Only values from the [WAI-ARIA
+   * Roles list](https://www.w3.org/TR/wai-aria-1.2/#roles) are allowed.
+   */
   role: string
 }
 
@@ -16,6 +20,9 @@ export interface QueryByRole {
  * using the `label` locator strategy.
  */
 export interface QueryByLabel {
+  /**
+   * The accessible name to use to locate the element. This should be the text content of the label.
+   */
   label: string
 }
 
@@ -24,6 +31,9 @@ export interface QueryByLabel {
  * You can locate such an input using the `placeholder` locator strategy.
  */
 export interface QueryByPlaceholder {
+  /**
+   * The placeholder text to use to locate the element. This should be the text content of the placeholder.
+   */
   placeholder: string
 }
 
@@ -32,6 +42,9 @@ export interface QueryByPlaceholder {
  * exact string, or a regular expression when using the `text` locator strategy.
  */
 export interface QueryByText {
+  /**
+   * The text to use to locate the element.
+   */
   text: string
 }
 
@@ -40,6 +53,9 @@ export interface QueryByText {
  * You can locate an image based on the text alternative using the `altText` locator strategy.
  */
 export interface QueryByAltText {
+  /**
+   * The alt text to use to locate the element. This should be the text content of the alt attribute.
+   */
   altText: string
 }
 
@@ -47,6 +63,9 @@ export interface QueryByAltText {
  * Locate an element with a matching title attribute using the `title` locator strategy.
  */
 export interface QueryByTitle {
+  /**
+   * The title text to use to locate the element. This should be the text content of the title attribute.
+   */
   title: string
 }
 
@@ -54,6 +73,9 @@ export interface QueryByTitle {
  * Use this locator to find elements by their data-testid attribute.
  */
 export interface QueryByTestId {
+  /**
+   * The test id to use to locate the element. This should be the text content of the test id attribute.
+   */
   testId: string
 }
 
@@ -61,6 +83,9 @@ export interface QueryByTestId {
  * Use this locator to find elements by their CSS selector.
  */
 export interface QueryByCss {
+  /**
+   * The CSS selector to use to locate the element.
+   */
   css: string
 }
 
@@ -68,6 +93,9 @@ export interface QueryByCss {
  * Use this locator to find elements by their XPath.
  */
 export interface QueryByXPath {
+  /**
+   * The XPath to use to locate the element.
+   */
   xpath: string
 }
 

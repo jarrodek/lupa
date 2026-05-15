@@ -5,9 +5,22 @@ import type { Assert } from './assert.js'
  * Asserts that a given DOM element or NodeList has no accessibility violations
  * according to axe-core.
  *
+ * @remarks
+ * This function integrates axe-core to run accessibility checks on a specified context.
+ * The `element` parameter can be a CSS selector string, a single DOM element, or a NodeList.
+ * When a string is provided, axe-core will query the document for matching elements.
+ * Any violations found will be formatted into a readable error message and trigger an assertion failure.
+ *
+ * @example
+ * import { assert } from '@jarrodek/lupa/assert'
+ * await assert.isAccessible('#my-element')
+ * await assert.isAccessible(document.querySelector('main'))
+ *
  * @param assertInstance The main Assert instance to track assertions and evaluate
  * @param element The DOM element(s) to test
  * @param options axe-core run options
+ *
+ * @returns A Promise that resolves when the assertion has been evaluated.
  */
 export async function assertIsAccessible(
   assertInstance: Assert,

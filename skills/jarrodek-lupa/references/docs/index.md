@@ -2,6 +2,7 @@
 
 - [assertions](assertions.md)
 - [cli](cli.md)
+- [commands](commands.md)
 - [customizing-harness](customizing-harness.md)
 - [datasets](datasets.md)
 - [exceptions](exceptions.md)

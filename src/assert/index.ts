@@ -54,3 +54,4 @@ export default setup
 export { Assert }
 export { AssertDom } from './dom.js'
 export type * from './types.js'
+export { AssertionError } from 'assertion-error'

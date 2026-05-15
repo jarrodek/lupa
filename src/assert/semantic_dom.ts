@@ -25,8 +25,22 @@ function matchesAttributeRule(el: Element, name: string, rules?: (string | Attri
 /**
  * Normalizes a DOM element or HTML string into a deterministic HTML string
  * for semantic comparison, applying all ignore rules.
+ *
+ * @example
+ * const normalized = normalizeDom(document.body, {
+ *   ignoreTextContent: true,
+ *   ignoreAttributeValueFor: [
+ *     {
+ *       tags: ['*'],
+ *       attributes: ['class', 'data-testid'],
+ *     },
+ *   ],
+ * })
+ *
  * @param html - The HTML string or DOM element to normalize
  * @param options - Optional options to control the normalization process
+ *
+ * @returns The normalized HTML string
  */
 export function normalizeDom(html: string | Element | DocumentFragment, options: SemanticDomOptions = {}): string {
   const container = document.createElement('div')

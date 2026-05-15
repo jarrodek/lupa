@@ -1,5 +1,51 @@
 # Functions
 
+## assert
+
+### `assertIsAccessible`
+Asserts that a given DOM element or NodeList has no accessibility violations
+according to axe-core.
+
+This function integrates axe-core to run accessibility checks on a specified context.
+The `element` parameter can be a CSS selector string, a single DOM element, or a NodeList.
+When a string is provided, axe-core will query the document for matching elements.
+Any violations found will be formatted into a readable error message and trigger an assertion failure.
+```ts
+assertIsAccessible(assertInstance: Assert, element: string | Element | NodeList, options?: RunOptions): Promise<void>
+```
+**Parameters:**
+- `assertInstance: Assert` — The main Assert instance to track assertions and evaluate
+- `element: string | Element | NodeList` — The DOM element(s) to test
+- `options: RunOptions` (optional) — axe-core run options
+**Returns:** `Promise<void>` — A Promise that resolves when the assertion has been evaluated.
+```ts
+import { assert } from '@jarrodek/lupa/assert'
+await assert.isAccessible('#my-element')
+await assert.isAccessible(document.querySelector('main'))
+```
+
+### `normalizeDom`
+Normalizes a DOM element or HTML string into a deterministic HTML string
+for semantic comparison, applying all ignore rules.
+```ts
+normalizeDom(html: string | Element | DocumentFragment, options: SemanticDomOptions): string
+```
+**Parameters:**
+- `html: string | Element | DocumentFragment` — The HTML string or DOM element to normalize
+- `options: SemanticDomOptions` — default: `{}` — Optional options to control the normalization process
+**Returns:** `string` — The normalized HTML string
+```ts
+const normalized = normalizeDom(document.body, {
+  ignoreTextContent: true,
+  ignoreAttributeValueFor: [
+    {
+      tags: ['*'],
+      attributes: ['class', 'data-testid'],
+    },
+  ],
+})
+```
+
 ## Configuration
 
 ### `configure`

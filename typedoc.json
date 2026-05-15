@@ -2,6 +2,11 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": [
     "src/assert/index.ts",
+    "src/assert/assert.ts",
+    "src/assert/dom.ts",
+    "src/assert/accessibility.ts",
+    "src/assert/semantic_dom.ts",
+    "src/assert/types.ts",
     "src/runner/index.ts",
     "src/refiner/main.ts",
     "src/testing/index.ts",

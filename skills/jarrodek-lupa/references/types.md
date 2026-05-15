@@ -2,6 +2,12 @@
 
 ## assert
 
+### `Constructor`
+A generic class constructor
+```ts
+(args: any[]) => T
+```
+
 ### `ChaiAssert`
 Unnecessary similar methods have been removed
 ```ts
@@ -380,52 +386,53 @@ for example whether some element is a button or a checkbox.
 When locating by role, you should usually pass the accessible name as well,
 so that the locator pinpoints the exact element.
 **Properties:**
-- `role: string`
+- `role: string` — The role to use to locate the element. Only values from the [WAI-ARIA
+Roles list](https://www.w3.org/TR/wai-aria-1.2/#roles) are allowed.
 
 ### `QueryByLabel`
 Most form controls usually have dedicated labels that could be conveniently used
 to interact with the form. In this case, you can locate the control by its associated label
 using the `label` locator strategy.
 **Properties:**
-- `label: string`
+- `label: string` — The accessible name to use to locate the element. This should be the text content of the label.
 
 ### `QueryByPlaceholder`
 Inputs may have a placeholder attribute to hint to the user what value should be entered.
 You can locate such an input using the `placeholder` locator strategy.
 **Properties:**
-- `placeholder: string`
+- `placeholder: string` — The placeholder text to use to locate the element. This should be the text content of the placeholder.
 
 ### `QueryByText`
 Find an element by the text it contains. You can match by a substring,
 exact string, or a regular expression when using the `text` locator strategy.
 **Properties:**
-- `text: string`
+- `text: string` — The text to use to locate the element.
 
 ### `QueryByAltText`
 All images should have an alt attribute that describes the image.
 You can locate an image based on the text alternative using the `altText` locator strategy.
 **Properties:**
-- `altText: string`
+- `altText: string` — The alt text to use to locate the element. This should be the text content of the alt attribute.
 
 ### `QueryByTitle`
 Locate an element with a matching title attribute using the `title` locator strategy.
 **Properties:**
-- `title: string`
+- `title: string` — The title text to use to locate the element. This should be the text content of the title attribute.
 
 ### `QueryByTestId`
 Use this locator to find elements by their data-testid attribute.
 **Properties:**
-- `testId: string`
+- `testId: string` — The test id to use to locate the element. This should be the text content of the test id attribute.
 
 ### `QueryByCss`
 Use this locator to find elements by their CSS selector.
 **Properties:**
-- `css: string`
+- `css: string` — The CSS selector to use to locate the element.
 
 ### `QueryByXPath`
 Use this locator to find elements by their XPath.
 **Properties:**
-- `xpath: string`
+- `xpath: string` — The XPath to use to locate the element.
 
 ### `LocatorQuery`
 Set of supported locator queries.
@@ -450,20 +457,5 @@ Used internally by the runner to execute locator actions.
 ### `TimeoutOption`
 Options that can be passed to locator actions.
 **Properties:**
-- `timeout: number` (optional) — Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
-option in the config, or by using the
-[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
-or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
-
-### `ForceOption`
-Options that can be passed to locator actions.
-**Properties:**
-- `force: boolean` (optional) — Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
-
-### `StrictOption`
-Options that can be passed to locator actions.
-**Properties:**
-- `strict: boolean` (optional) — When true, the call requires selector to resolve to a single element. If given selector resolves to more than one
-element, the call throws an exception.
 
 <!-- truncated -->
