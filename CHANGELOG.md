@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/jarrodek/lupa/compare/v1.5.2...v1.5.3) (2026-05-15)
+
+
+### Bug Fixes
+
+* fixing custom event type definition ([00ee503](https://github.com/jarrodek/lupa/commit/00ee50323dea9e4ddd87d687361d096e7d88c5e4))
+
 ## [1.5.2](https://github.com/jarrodek/lupa/compare/v1.5.1...v1.5.2) (2026-05-15)
 
 
