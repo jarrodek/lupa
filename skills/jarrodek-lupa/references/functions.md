@@ -327,3 +327,28 @@ it('natively selects an option by value', async () => {
  expect(select.value).to.equal(valueToSelect)
 })
 ```
+
+### `query`
+Creates a locator that can execute multiple actions like click, type, etc.
+It interacts with the Playwright's Page object, but via RPC calls.
+```ts
+query(query: LocatorQuery): Locator
+```
+**Parameters:**
+- `query: LocatorQuery` — The query to use to locate the element.
+**Returns:** `Locator` — A locator.
+```typescript
+import { query } from '@jarrodek/lupa/commands'
+
+await query({ text: 'Submit' }).click()
+```
+```typescript
+import { query } from '@jarrodek/lupa/commands'
+
+await query({ label: 'Subscribe' }).check()
+```
+```typescript
+import { query } from '@jarrodek/lupa/commands'
+
+await query({ placeholder: 'Username' }).fill('admin')
+```

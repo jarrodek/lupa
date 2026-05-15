@@ -1,7 +1,7 @@
-import { render, html as litHtml } from 'lit-html'
+import { render, html as litHtml, type TemplateResult } from 'lit-html'
 import { getActiveTest, getActiveExecutingGroup } from './api.js'
 
-type TemplateTypes = string | ReturnType<typeof litHtml>
+export type TemplateTypes = string | ReturnType<typeof litHtml> | TemplateResult
 
 /**
  * Renders a HTML string or a Lit template into a dedicated fixture container and mounts it to the DOM.

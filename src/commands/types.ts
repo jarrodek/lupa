@@ -114,4 +114,11 @@ export interface SelectOptionPayload {
 /**
  * Type representing all available commands.
  */
-export type CommandNames = 'setViewport' | 'emulateMedia' | 'sendKeys' | 'sendMouse' | 'resetMouse' | 'selectOption'
+export type CommandNames =
+  | 'setViewport'
+  | 'emulateMedia'
+  | 'sendKeys'
+  | 'sendMouse'
+  | 'resetMouse'
+  | 'selectOption'
+  | 'locator'

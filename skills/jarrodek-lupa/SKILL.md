@@ -28,7 +28,7 @@ A lightning-fast, Vite-powered browser testing framework for Web Components with
 - You are already inside a running test or suite. (`configure`)
 - Testing pure logic or functions that do not require a DOM (`fixture`)
 
-API surface: 15 functions, 11 classes, 61 types, 6 constants
+API surface: 16 functions, 12 classes, 85 types, 6 constants
 
 ## NEVER
 
@@ -41,13 +41,13 @@ API surface: 15 functions, 11 classes, 61 types, 6 constants
 
 ## Configuration
 
-11 configuration interfaces — see references/config.md for details.
+22 configuration interfaces — see references/config.md for details.
 
 ## Quick Reference
 
-**Key functions:** `configure` (Configure the Lupa test runner), `run` (Run the test suite), `fixture` (Renders a HTML string or a Lit template into a dedicated fixture container and mounts it to the DOM), `waitUntil` (Polls the condition function until it returns true or the timeout is reached)
+**Key functions:** `configure` (Configure the Lupa test runner), `run` (Run the test suite), `waitUntil` (Polls the condition function until it returns true or the timeout is reached), `fixture` (Renders a HTML string or a Lit template into a dedicated fixture container and mounts it to the DOM)
 
-*93 exports total — see references/ for full API.*
+*119 exports total — see references/ for full API.*
 
 ## Documentation
 

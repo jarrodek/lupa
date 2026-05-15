@@ -3,6 +3,22 @@ import type { Media, SelectOptionPayload, SendKeysPayload, SendMousePayload, Vie
 
 export { Media, SelectOptionPayload, SendKeysPayload, SendMousePayload, Viewport }
 
+export {
+  query,
+  type BlurOptions,
+  type ClearOptions,
+  type ClickOptions,
+  type CheckOptions,
+  type FillOptions,
+  type TypeOptions,
+  type DoubleClickOptions,
+  type HoverOptions,
+  type PressOptions,
+  type TapOptions,
+  type UncheckOptions,
+  type LocatorQuery,
+} from './locator.js'
+
 /**
  * Sets the viewport size of the browser.
  *

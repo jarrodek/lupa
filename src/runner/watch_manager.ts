@@ -4,6 +4,8 @@ import { Emitter } from '../testing/emitter.js'
 import { FilesManager } from './files_manager.js'
 import type { NormalizedConfig } from './types.js'
 import debug from './debug.js'
+import { CommandsHandler } from '../commands/rpc_handler.js'
+import type { Key } from 'node:readline'
 
 export class WatchManager {
   #vite: ViteDevServer
@@ -158,7 +160,7 @@ export class WatchManager {
     return Array.from(affected)
   }
 
-  #onKeypress = async (_str: any, key: any) => {
+  #onKeypress = async (_str: string | undefined, key: Key) => {
     if (key.ctrl && key.name === 'c') {
       await this.#shutdown(0)
     }
@@ -183,6 +185,11 @@ export class WatchManager {
       }
     } else if (key.name === 'd') {
       if (!this.#focusedFile) {
+        console.log('\n[Focus Mode] Select a file to debug')
+        await this.#promptFocusFile()
+      }
+
+      if (!this.#focusedFile) {
         return
       }
 
@@ -199,8 +206,20 @@ export class WatchManager {
 
         this.debugBrowser = await launchClass.launch(launchOptions)
         const debugPage = await this.debugBrowser.newPage()
-        debugPage.on('close', () => {
-          this.debugBrowser = undefined
+
+        const commandsHandler = new CommandsHandler(debugPage)
+        await commandsHandler.boot()
+
+        const browser = this.debugBrowser
+        debugPage.on('close', async () => {
+          debug('closing debug browser')
+          await commandsHandler.teardown()
+          await browser.close().catch(() => {
+            debug('browser already closed')
+          })
+          if (this.debugBrowser === browser) {
+            this.debugBrowser = undefined
+          }
         })
 
         const serverUrl = this.#vite.resolvedUrls?.local[0] || `http://localhost:${this.#vite.config.server.port}`
@@ -250,7 +269,7 @@ export class WatchManager {
     process.stdin.on('keypress', this.#onKeypress)
   }
 
-  async #promptFocusFile() {
+  async #promptFocusFile(): Promise<void> {
     process.stdin.off('keypress', this.#onKeypress)
 
     if (process.stdin.isTTY) {
@@ -302,26 +321,30 @@ export class WatchManager {
       output: process.stdout,
     })
 
-    rl.question('\nEnter file number (or press Enter to cancel): ', (answer) => {
-      rl.close()
-      process.stdin.resume()
+    return new Promise((resolve) => {
+      rl.question('\nEnter file number (or press Enter to cancel): ', (answer) => {
+        rl.close()
+        process.stdin.resume()
 
-      if (process.stdin.isTTY) {
-        process.stdin.setRawMode(true)
-      }
+        if (process.stdin.isTTY) {
+          process.stdin.setRawMode(true)
+        }
 
-      process.stdin.on('keypress', this.#onKeypress)
+        process.stdin.on('keypress', this.#onKeypress)
 
-      const num = parseInt(answer.trim(), 10)
-      if (!isNaN(num) && num > 0 && num <= displayList.length) {
-        const selected = displayList[num - 1]
-        this.#focusedFile = selected.pathname.split('/').pop() || null
-        console.log(`\nFocusing on: ${this.#focusedFile}`)
-        this.#executeTests()
-      } else {
-        console.log('\nCancelled focus mode selection.')
-        this.printWaitingMessage()
-      }
+        const num = parseInt(answer.trim(), 10)
+        if (!isNaN(num) && num > 0 && num <= displayList.length) {
+          const selected = displayList[num - 1]
+          this.#focusedFile = selected.pathname.split('/').pop() || null
+          console.log(`\nFocusing on: ${this.#focusedFile}`)
+          this.#executeTests()
+          resolve()
+        } else {
+          console.log('\nCancelled focus mode selection.')
+          this.printWaitingMessage()
+          resolve()
+        }
+      })
     })
   }
 }

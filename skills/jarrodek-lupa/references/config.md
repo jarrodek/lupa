@@ -373,3 +373,321 @@ Base reporter options
 Maximum number of frames to capture
 
 **Type:** `number`
+
+## BlurOptions
+
+Options for the blur action.
+
+### Properties
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+## ClearOptions
+
+Options for the clear action.
+
+### Properties
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+#### force
+
+Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+**Type:** `boolean`
+
+## ClickOptions
+
+### Properties
+
+#### button
+
+Defaults to `left`.
+
+**Type:** `"right" | "left" | "middle"`
+
+#### clickCount
+
+defaults to 1. See [UIEvent.detail].
+
+**Type:** `number`
+
+#### delay
+
+Time to wait between `mousedown` and `mouseup` in milliseconds. Defaults to 0.
+
+**Type:** `number`
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+#### force
+
+Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+**Type:** `boolean`
+
+#### strict
+
+When true, the call requires selector to resolve to a single element. If given selector resolves to more than one
+element, the call throws an exception.
+
+**Type:** `boolean`
+
+#### trial
+
+When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
+to `false`. Useful to wait until the element is ready for the action without performing it.
+
+**Type:** `boolean`
+
+#### modifiers
+
+Modifier keys to press. Ensures that only these modifiers are pressed during the operation, and then restores
+current modifiers back. If not specified, currently pressed modifiers are used. "ControlOrMeta" resolves to
+"Control" on Windows and Linux and to "Meta" on macOS.
+
+**Type:** `("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[]`
+
+#### position
+
+A point to use relative to the top-left corner of element padding box. If not specified, uses some visible point of
+the element.
+
+**Type:** `{ x: number; y: number }`
+
+## CheckOptions
+
+### Properties
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+#### force
+
+Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+**Type:** `boolean`
+
+#### strict
+
+When true, the call requires selector to resolve to a single element. If given selector resolves to more than one
+element, the call throws an exception.
+
+**Type:** `boolean`
+
+#### trial
+
+When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
+to `false`. Useful to wait until the element is ready for the action without performing it.
+
+**Type:** `boolean`
+
+#### position
+
+A point to use relative to the top-left corner of element padding box. If not specified, uses some visible point of
+the element.
+
+**Type:** `{ x: number; y: number }`
+
+## FillOptions
+
+### Properties
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+#### force
+
+Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+**Type:** `boolean`
+
+#### strict
+
+When true, the call requires selector to resolve to a single element. If given selector resolves to more than one
+element, the call throws an exception.
+
+**Type:** `boolean`
+
+## TypeOptions
+
+### Properties
+
+#### delay
+
+Time to wait between `keydown` and `keyup` in milliseconds. Defaults to 0.
+
+**Type:** `number`
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+#### force
+
+Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+**Type:** `boolean`
+
+#### modifiers
+
+Modifier keys to press. Ensures that only these modifiers are pressed during the operation, and then restores
+current modifiers back. If not specified, currently pressed modifiers are used. "ControlOrMeta" resolves to
+"Control" on Windows and Linux and to "Meta" on macOS.
+
+**Type:** `("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[]`
+
+## DoubleClickOptions
+
+### Properties
+
+#### button
+
+Defaults to `left`.
+
+**Type:** `"right" | "left" | "middle"`
+
+#### delay
+
+Time to wait between `mousedown` and `mouseup` in milliseconds. Defaults to 0.
+
+**Type:** `number`
+
+#### steps
+
+Defaults to 1. Sends `n` interpolated `mousemove` events to represent travel between Playwright's current cursor
+position and the provided destination. When set to 1, emits a single `mousemove` event at the destination location.
+
+**Type:** `number`
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+#### force
+
+Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+**Type:** `boolean`
+
+#### trial
+
+When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
+to `false`. Useful to wait until the element is ready for the action without performing it.
+
+**Type:** `boolean`
+
+#### modifiers
+
+Modifier keys to press. Ensures that only these modifiers are pressed during the operation, and then restores
+current modifiers back. If not specified, currently pressed modifiers are used. "ControlOrMeta" resolves to
+"Control" on Windows and Linux and to "Meta" on macOS.
+
+**Type:** `("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[]`
+
+#### position
+
+A point to use relative to the top-left corner of element padding box. If not specified, uses some visible point of
+the element.
+
+**Type:** `{ x: number; y: number }`
+
+## HoverOptions
+
+### Properties
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+**Type:** `number`
+
+#### force
+
+Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+**Type:** `boolean`
+
+#### trial
+
+When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
+to `false`. Useful to wait until the element is ready for the action without performing it.
+
+**Type:** `boolean`
+
+#### modifiers
+
+Modifier keys to press. Ensures that only these modifiers are pressed during the operation, and then restores
+current modifiers back. If not specified, currently pressed modifiers are used. "ControlOrMeta" resolves to
+"Control" on Windows and Linux and to "Meta" on macOS.
+
+**Type:** `("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[]`
+
+#### position
+
+A point to use relative to the top-left corner of element padding box. If not specified, uses some visible point of
+the element.
+
+**Type:** `{ x: number; y: number }`
+
+## PressOptions
+
+### Properties
+
+#### delay
+
+Time to wait between `keydown` and `keyup` in milliseconds. Defaults to 0.
+
+**Type:** `number`
+
+#### timeout
+
+Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+
+<!-- truncated -->

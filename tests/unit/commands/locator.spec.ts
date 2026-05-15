@@ -1,0 +1,164 @@
+import { test, describe, beforeEach, afterEach } from 'node:test'
+import * as assert from 'node:assert'
+import { query } from '../../../src/commands/locator.js'
+
+describe('Locator', () => {
+  let rpcCalls: { command: string; payload: any }[] = []
+  let originalWindow: any
+
+  beforeEach(() => {
+    rpcCalls = []
+    originalWindow = globalThis.window
+
+    globalThis.window = {
+      // @ts-expect-error - Mocking global window
+      __lupa_command__: async (command: string, payload: any) => {
+        rpcCalls.push({ command, payload })
+      },
+    }
+  })
+
+  afterEach(() => {
+    globalThis.window = originalWindow
+  })
+
+  test('blur', async () => {
+    const loc = query({ text: 'test' })
+    await loc.blur({ timeout: 1000 })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'blur',
+        query: { text: 'test' },
+        args: { timeout: 1000 },
+      },
+    })
+  })
+
+  test('clear', async () => {
+    const loc = query({ css: '.my-class' })
+    await loc.clear({ force: true })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'clear',
+        query: { css: '.my-class' },
+        args: { force: true },
+      },
+    })
+  })
+
+  test('check', async () => {
+    const loc = query({ role: 'checkbox' })
+    await loc.check({ force: true })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'check',
+        query: { role: 'checkbox' },
+        args: { force: true },
+      },
+    })
+  })
+
+  test('click', async () => {
+    const loc = query({ testId: 'submit-btn' })
+    await loc.click({ clickCount: 2 })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'click',
+        query: { testId: 'submit-btn' },
+        args: { clickCount: 2 },
+      },
+    })
+  })
+
+  test('fill', async () => {
+    const loc = query({ placeholder: 'username' })
+    await loc.fill('admin', { timeout: 500 })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'fill',
+        query: { placeholder: 'username' },
+        args: { text: 'admin', options: { timeout: 500 } },
+      },
+    })
+  })
+
+  test('dblclick', async () => {
+    const loc = query({ label: 'agree' })
+    await loc.dblclick({ delay: 100 })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'dblclick',
+        query: { label: 'agree' },
+        args: { delay: 100 },
+      },
+    })
+  })
+
+  test('hover', async () => {
+    const loc = query({ title: 'help' })
+    await loc.hover({ modifiers: ['Shift'] })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'hover',
+        query: { title: 'help' },
+        args: { modifiers: ['Shift'] },
+      },
+    })
+  })
+
+  test('press', async () => {
+    const loc = query({ altText: 'image' })
+    await loc.press('Enter', { delay: 50 })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'press',
+        query: { altText: 'image' },
+        args: { key: 'Enter', options: { delay: 50 } },
+      },
+    })
+  })
+
+  test('tap', async () => {
+    const loc = query({ xpath: '//div' })
+    await loc.tap({ position: { x: 10, y: 20 } })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'tap',
+        query: { xpath: '//div' },
+        args: { position: { x: 10, y: 20 } },
+      },
+    })
+  })
+
+  test('uncheck', async () => {
+    const loc = query({ role: 'checkbox' })
+    await loc.uncheck({ timeout: 200 })
+    assert.strictEqual(rpcCalls.length, 1)
+    assert.deepStrictEqual(rpcCalls[0], {
+      command: 'locator',
+      payload: {
+        action: 'uncheck',
+        query: { role: 'checkbox' },
+        args: { timeout: 200 },
+      },
+    })
+  })
+})

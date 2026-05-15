@@ -352,6 +352,11 @@ Utility type that removes the first argument from a function's parameter list.
 F extends [_: any, args: infer R] ? R : never
 ```
 
+### `TemplateTypes`
+```ts
+string | ReturnType<typeof litHtml> | TemplateResult
+```
+
 ## hooks
 
 ### `CleanupHandler`
@@ -368,36 +373,97 @@ Shape of the hook handler
 
 ## commands
 
-### `Media`
-Type representing emulateMedia command payload.
+### `QueryByRole`
+The role locator reflects how users and assistive technology perceive the page,
+for example whether some element is a button or a checkbox.
+When locating by role, you should usually pass the accessible name as well,
+so that the locator pinpoints the exact element.
 **Properties:**
-- `colorScheme: "light" | "dark" | "no-preference"` (optional) — Color scheme of the media.
-- `reducedMotion: "reduce" | "no-preference"` (optional) — Reduced motion of the media.
-- `media: "print" | "screen"` (optional) — Media type.
-- `forcedColors: "none" | "active"` (optional) — Forced colors of the media.
+- `role: string`
 
-### `SelectOptionPayload`
-Type representing selectOption command payload.
+### `QueryByLabel`
+Most form controls usually have dedicated labels that could be conveniently used
+to interact with the form. In this case, you can locate the control by its associated label
+using the `label` locator strategy.
 **Properties:**
-- `selector: string` — A CSS selector to select the option.
-- `value: string | string[]` — Value of the option to select.
+- `label: string`
 
-### `SendKeysPayload`
-Type representing sendKeys command payload.
+### `QueryByPlaceholder`
+Inputs may have a placeholder attribute to hint to the user what value should be entered.
+You can locate such an input using the `placeholder` locator strategy.
+**Properties:**
+- `placeholder: string`
+
+### `QueryByText`
+Find an element by the text it contains. You can match by a substring,
+exact string, or a regular expression when using the `text` locator strategy.
+**Properties:**
+- `text: string`
+
+### `QueryByAltText`
+All images should have an alt attribute that describes the image.
+You can locate an image based on the text alternative using the `altText` locator strategy.
+**Properties:**
+- `altText: string`
+
+### `QueryByTitle`
+Locate an element with a matching title attribute using the `title` locator strategy.
+**Properties:**
+- `title: string`
+
+### `QueryByTestId`
+Use this locator to find elements by their data-testid attribute.
+**Properties:**
+- `testId: string`
+
+### `QueryByCss`
+Use this locator to find elements by their CSS selector.
+**Properties:**
+- `css: string`
+
+### `QueryByXPath`
+Use this locator to find elements by their XPath.
+**Properties:**
+- `xpath: string`
+
+### `LocatorQuery`
+Set of supported locator queries.
 ```ts
-TypePayload | PressPayload | DownPayload | UpPayload
+QueryByRole | QueryByText | QueryByLabel | QueryByPlaceholder | QueryByText | QueryByAltText | QueryByTitle | QueryByTestId | QueryByCss | QueryByXPath
 ```
 
-### `SendMousePayload`
-Type representing sendMouse command payload.
-**Properties:**
-- `type: "move" | "click" | "down" | "up"` — Mouse event type.
-- `position: [number, number]` (optional) — Mouse position.
-- `button: "right" | "left" | "middle"` (optional) — Mouse button.
-- `clickCount: number` (optional) — Number of clicks.
+### `SupportedLocatorAction`
+Set of supported locator actions.
+```ts
+"blur" | "clear" | "check" | "click" | "dblclick" | "fill" | "hover" | "press" | "tap" | "uncheck"
+```
 
-### `Viewport`
-Type representing viewport command payload.
+### `LocatorActionPayload`
+Payload for locator actions.
+Used internally by the runner to execute locator actions.
 **Properties:**
-- `width: number` — Width of the viewport.
-- `height: number` — Height of the viewport.
+- `action: SupportedLocatorAction` — The action to perform on the element.
+- `query: LocatorQuery` — The query to use to locate the element.
+- `args: unknown` (optional) — Additional arguments for the action.
+
+### `TimeoutOption`
+**Properties:**
+- `timeout: number` (optional) — Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
+option in the config, or by using the
+[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
+or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
+
+### `ForceOption`
+**Properties:**
+- `force: boolean` (optional) — Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
+
+### `StrictOption`
+**Properties:**
+- `strict: boolean` (optional) — When true, the call requires selector to resolve to a single element. If given selector resolves to more than one
+element, the call throws an exception.
+
+### `TrialOption`
+**Properties:**
+- `trial: boolean` (optional) — When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
+
+<!-- truncated -->

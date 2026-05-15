@@ -6,8 +6,11 @@
     "src/refiner/main.ts",
     "src/testing/index.ts",
     "src/testing/plugins.ts",
+    "src/testing/fixture.ts",
     "src/reporters/index.ts",
-    "src/commands/index.ts"
+    "src/commands/index.ts",
+    "src/commands/locator.ts",
+    "src/commands/types.ts"
   ],
   "out": "docs",
   "name": "Lupa",

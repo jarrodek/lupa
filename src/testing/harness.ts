@@ -45,8 +45,10 @@ export async function boot() {
 
   const isDebug = new URLSearchParams(window.location.search).get('debug') === '1'
 
-  const eventManager = new EventManager(emitter, import.meta.hot)
-  eventManager.boot()
+  if (!isDebug) {
+    const eventManager = new EventManager(emitter, import.meta.hot)
+    eventManager.boot()
+  }
 
   // Start exception manager early so we catch plugin and suite load errors
   const exceptionsManager = new BrowserExceptionsManager(emitter)
