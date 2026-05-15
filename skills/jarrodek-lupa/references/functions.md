@@ -93,11 +93,11 @@ Define a new test.
 The test callback receives a TestContext which provides
 access to assertions, fixtures, and other test utilities.
 ```ts
-test(title: string, callback?: (context: TestContext) => void | Promise<void>): Test<undefined>
+test(title: string, callback?: (context: TestContext, done: (error?: any) => void) => void | Promise<void>): Test<undefined>
 ```
 **Parameters:**
 - `title: string` — The name of the test.
-- `callback: (context: TestContext) => void | Promise<void>` (optional) — The function containing the test logic. Can be synchronous or asynchronous.
+- `callback: (context: TestContext, done: (error?: any) => void) => void | Promise<void>` (optional) — The function containing the test logic. Can be synchronous or asynchronous.
 **Returns:** `Test<undefined>`
 ```ts
 test('math works', ({ assert }) => {

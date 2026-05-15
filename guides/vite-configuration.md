@@ -31,8 +31,10 @@ export default defineConfig({
           const result = await esbuild.transform(code, {
             loader: 'ts',
             target: 'es2024',
+            sourcemap: true,
+            sourcefile: id,
           })
-          
+
           return { code: result.code, map: result.map }
         }
       },
@@ -43,6 +45,9 @@ export default defineConfig({
 
 > [!NOTE]
 > By omitting `tsconfigRaw` in the `esbuild.transform()` options, esbuild assumes standard decorators and natively transpiles them down to standard JavaScript, preventing browser `SyntaxError`s.
+
+> [!WARNING]
+> It is critical to include `sourcemap: true` and `sourcefile: id` in the `esbuild.transform()` options. Without these, Vite will not receive a source map for the type-stripping transformation, which will lead to highly inaccurate stack traces and line numbers when a test fails.
 
 ### 2. Run your tests
 
@@ -74,7 +79,12 @@ configure({
         enforce: 'pre',
         async transform(code, id) {
           if (id.endsWith('.ts') && code.includes('@')) {
-            const result = await esbuild.transform(code, { loader: 'ts', target: 'es2024' })
+            const result = await esbuild.transform(code, { 
+              loader: 'ts', 
+              target: 'es2024',
+              sourcemap: true,
+              sourcefile: id
+            })
             return { code: result.code, map: result.map }
           }
         },
