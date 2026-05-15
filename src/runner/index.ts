@@ -28,6 +28,7 @@ import { formatPinnedTest, printPinnedTests } from './helpers.js'
 import { RunnerEvents } from '../types.js'
 import lupaHarnessPlugin from './plugins/harness.js'
 import { BrowserLogs } from './brower_logs.js'
+import { CommandsHandler } from '../commands/rpc_handler.js'
 
 export { SummaryBuilder } from './summary_builder.js'
 export type { Config, NormalizedConfig, CLIArgs, JsonSerializable } from './types.js'
@@ -315,6 +316,9 @@ export async function run() {
   const logs = new BrowserLogs(page)
   logs.verbose = !!cliArgs.verbose
   logs.boot()
+
+  const commandsHandler = new CommandsHandler(page)
+  await commandsHandler.boot()
 
   let isRunning = false
   const isWatchMode = cliArgs.watch === true

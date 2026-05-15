@@ -45,7 +45,8 @@
     "./testing": "./dist/src/testing/index.js",
     "./testing/api": "./dist/src/testing/plugins.js",
     "./reporters": "./dist/src/reporters/index.js",
-    "./reporters/base": "./dist/src/reporters/base.js"
+    "./reporters/base": "./dist/src/reporters/base.js",
+    "./commands": "./dist/src/commands/index.js"
   },
   "dependencies": {
     "@japa/errors-printer": "^4.1.4",

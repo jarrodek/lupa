@@ -365,3 +365,39 @@ Shape of the hook handler
 ```ts
 (args: Args) => void | CleanupHandler<CleanUpArgs> | Promise<void> | Promise<CleanupHandler<CleanUpArgs>>
 ```
+
+## commands
+
+### `Media`
+Type representing emulateMedia command payload.
+**Properties:**
+- `colorScheme: "light" | "dark" | "no-preference"` (optional) — Color scheme of the media.
+- `reducedMotion: "reduce" | "no-preference"` (optional) — Reduced motion of the media.
+- `media: "print" | "screen"` (optional) — Media type.
+- `forcedColors: "none" | "active"` (optional) — Forced colors of the media.
+
+### `SelectOptionPayload`
+Type representing selectOption command payload.
+**Properties:**
+- `selector: string` — A CSS selector to select the option.
+- `value: string | string[]` — Value of the option to select.
+
+### `SendKeysPayload`
+Type representing sendKeys command payload.
+```ts
+TypePayload | PressPayload | DownPayload | UpPayload
+```
+
+### `SendMousePayload`
+Type representing sendMouse command payload.
+**Properties:**
+- `type: "move" | "click" | "down" | "up"` — Mouse event type.
+- `position: [number, number]` (optional) — Mouse position.
+- `button: "right" | "left" | "middle"` (optional) — Mouse button.
+- `clickCount: number` (optional) — Number of clicks.
+
+### `Viewport`
+Type representing viewport command payload.
+**Properties:**
+- `width: number` — Width of the viewport.
+- `height: number` — Height of the viewport.

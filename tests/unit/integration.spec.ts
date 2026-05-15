@@ -48,8 +48,8 @@ test('Integration: Lupa Framework End-to-End', async (t) => {
 
       // Assert that exactly 44 tests passed and 1 failed
       assert.ok(
-        output.includes('Tests  44 passed, 1 failed, 1 skipped (46)'),
-        `Summary should report 44 passed and 1 failed. Actual output: ${output}`
+        output.includes('Tests  49 passed, 1 failed, 1 skipped (51)'),
+        `Summary should report 49 passed and 1 failed. Actual output: ${output}`
       )
 
       // Assert that the failing function stack trace is present
