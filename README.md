@@ -32,11 +32,21 @@ A lot of Lupa's core logic, CLI parsing, and reporter architecture was directly 
 
 ## Quick Start Overview
 
-Lupa avoids injecting a massive global CLI tool into your project. Instead, tests are configured and executed via a custom script (typically `bin/test.ts`), giving you total control over the environment.
+Lupa avoids injecting a massive global CLI tool for executing tests. Instead, tests are configured and executed via a custom script (typically `bin/test.ts`), giving you total control over the environment.
 
-### 1. The Execution Script
+We provide a lightweight setup CLI to instantly scaffold this configuration for you.
 
-Create a `bin/test.ts` file to configure and run your suite:
+### 1. Initialize Lupa
+
+Run the interactive initialization command in your project root:
+
+```bash
+npx lupa init
+```
+
+This will automatically create your `bin/test.ts` configuration file, set up your test directories, and scaffold example tests based on your preferences.
+
+If you prefer to configure things manually, here is an example of what `npx lupa init` generates for your execution script:
 
 ```typescript
 import { configure, processCLIArgs, run } from '@jarrodek/lupa/runner'

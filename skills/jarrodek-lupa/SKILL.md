@@ -28,7 +28,7 @@ A lightning-fast, Vite-powered browser testing framework for Web Components with
 - You are already inside a running test or suite. (`configure`)
 - Testing pure logic or functions that do not require a DOM (`fixture`)
 
-API surface: 16 functions, 12 classes, 85 types, 6 constants
+API surface: 16 functions, 12 classes, 85 types, 7 constants
 
 ## NEVER
 
@@ -47,13 +47,16 @@ API surface: 16 functions, 12 classes, 85 types, 6 constants
 
 **Key functions:** `configure` (Configure the Lupa test runner), `run` (Run the test suite), `waitUntil` (Polls the condition function until it returns true or the timeout is reached), `fixture` (Renders a HTML string or a Lit template into a dedicated fixture container and mounts it to the DOM)
 
-*119 exports total — see references/ for full API.*
+*120 exports total — see references/ for full API.*
 
 ## Documentation
 
 - **assertions** — # Assertions
 
 Lupa doesn't force a specific assertion library onto you.
+- **cli** — # Lupa CLI Reference
+
+Lupa provides a lightweight, interactive Command-Line Interface to help you quickly scaffold testing environments and import agent skills into your workspace.
 - **customizing-harness** — # Customizing the HTML Test Harness
 
 Sometimes you need to inject global stylesheets (like a CSS reset or design system variables) into the browser environment, or you might need a very specific HTML structure surrounding your tests.
@@ -94,7 +97,7 @@ Test suites allow you to organize your tests logically by their type or domain.
 
 Lupa runs your tests inside a headless browser using [Vite](https://vitejs.
 
-See `references/docs/` for full guides (14 total).
+See `references/docs/` for full guides (15 total).
 
 ## References
 

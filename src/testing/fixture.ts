@@ -1,6 +1,22 @@
 import { render, html as litHtml, type TemplateResult } from 'lit-html'
 import { getActiveTest, getActiveExecutingGroup } from './api.js'
 
+/**
+ * Type alias for a template that can be rendered by the fixture function.
+ *
+ * @example
+ * ```ts
+ * test('renders lit template', async ({ assert }) => {
+ *   const el = await fixture<HTMLButtonElement>(html`<button>Click me</button>`)
+ *   assert.equal(el.textContent, 'Click me')
+ * })
+ *
+ * test('renders string template', async ({ assert }) => {
+ *   const el = await fixture<HTMLDivElement>('<div id="test"></div>')
+ *   assert.equal(el.id, 'test')
+ * })
+ * ```
+ */
 export type TemplateTypes = string | ReturnType<typeof litHtml> | TemplateResult
 
 /**

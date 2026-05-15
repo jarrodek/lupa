@@ -353,6 +353,7 @@ F extends [_: any, args: infer R] ? R : never
 ```
 
 ### `TemplateTypes`
+Type alias for a template that can be rendered by the fixture function.
 ```ts
 string | ReturnType<typeof litHtml> | TemplateResult
 ```
@@ -447,6 +448,7 @@ Used internally by the runner to execute locator actions.
 - `args: unknown` (optional) — Additional arguments for the action.
 
 ### `TimeoutOption`
+Options that can be passed to locator actions.
 **Properties:**
 - `timeout: number` (optional) — Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
 option in the config, or by using the
@@ -454,16 +456,14 @@ option in the config, or by using the
 or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
 
 ### `ForceOption`
+Options that can be passed to locator actions.
 **Properties:**
 - `force: boolean` (optional) — Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
 
 ### `StrictOption`
+Options that can be passed to locator actions.
 **Properties:**
 - `strict: boolean` (optional) — When true, the call requires selector to resolve to a single element. If given selector resolves to more than one
 element, the call throws an exception.
-
-### `TrialOption`
-**Properties:**
-- `trial: boolean` (optional) — When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
 
 <!-- truncated -->

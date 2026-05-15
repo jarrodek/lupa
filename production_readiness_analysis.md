@@ -98,7 +98,7 @@ Most of the critical architectural and testing gaps have been resolved. The rema
 | Focus mode (single file) | ✅ Done | Active in watch CLI (`f` key), isolates logging |
 | Custom Vite config | ✅ Done | CLI and programmatic `vite` config fully supported |
 | Multi-browser parallel runs | ❌ Missing | Currently runs one browser instance serially |
-| Coverage support | ❌ Missing | No integration with v8/istanbul coverage for browser testing |
+| Coverage support | ✅ Done | No integration with v8/istanbul coverage for browser testing |
 
 ---
 
@@ -121,6 +121,6 @@ Most of the critical architectural and testing gaps have been resolved. The rema
 5. ~~Allow user Vite config passthrough~~ (Done)
 
 ### Phase 3: Feature Complete (v1.0) — ~1 week
-1. Coverage support (v8 + Istanbul)
+1. ~~Coverage support (v8 + Istanbul)~~ (Done)
 2. ~~API documentation (generated from JSDoc)~~ (Done)
 3. ~~`CHANGELOG.md` + semantic release setup~~ (Done)

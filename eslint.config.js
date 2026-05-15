@@ -134,7 +134,7 @@ export default [
     },
   },
   {
-    files: ['demo/**/*.ts'],
+    files: ['demo/**/*.ts', 'bin/**/*.ts'],
     rules: {
       'no-console': 'off'
     }

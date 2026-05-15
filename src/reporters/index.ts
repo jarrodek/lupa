@@ -14,11 +14,9 @@ import type { BaseReporterOptions, NamedReporterContract } from '../types.js'
 export { BaseReporterOptions, NamedReporterContract }
 
 /**
- * @packageDocumentation
- * @module Reporters
- *
- * Provides built-in test reporters (spec, dot, ndjson, github) and a way to register custom reporters.
+ * Built-in reporter names.
  */
+export const reporterNames = ['spec', 'dot', 'ndjson', 'github'] as const
 
 /**
  * Create an instance of the spec reporter

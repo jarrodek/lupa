@@ -1,6 +1,7 @@
 # Documentation
 
 - [assertions](assertions.md)
+- [cli](cli.md)
 - [customizing-harness](customizing-harness.md)
 - [datasets](datasets.md)
 - [exceptions](exceptions.md)

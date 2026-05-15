@@ -3,6 +3,11 @@
 ## commands
 
 ### `Locator`
+A bridge to Playwright's Locator object, used to locate elements on the page
+and execute actions on them. It uses RPC calls to interact with the Playwright's Page object.
+
+Not all Playwright's Locator actions are supported. Only actions that are relevant to testing
+are implemented.
 ```ts
 constructor(query: LocatorQuery): Locator
 ```

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { configure, processCLIArgs, run } from '../../src/runner/index.js'
-import { SpecReporter } from '../../src/reporters/spec.js'
+import { spec } from '../../src/reporters/index.js'
 
 processCLIArgs(process.argv.slice(2))
 
@@ -9,15 +9,7 @@ configure({
   testPlugins: [path.join(process.cwd(), 'src/assert/index.ts')],
   reporters: {
     activated: ['spec'],
-    list: [
-      {
-        name: 'spec',
-        handler: (runner, emitter) => {
-          const reporter = new SpecReporter()
-          reporter.boot(runner, emitter)
-        },
-      },
-    ],
+    list: [spec()],
   },
   harness: {
     stylesheets: [path.join(process.cwd(), 'tests/fixtures/test.styles.css')],

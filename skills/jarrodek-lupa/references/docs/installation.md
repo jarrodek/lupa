@@ -12,9 +12,17 @@ npm install --save-dev @jarrodek/lupa
 
 ## Configuring Lupa
 
-Because Lupa avoids heavy CLI wrappers, you configure and run your tests via a simple entry point file. This allows you to easily inject configuration, environment variables, or other backend setup code before your tests boot.
+Because Lupa avoids heavy execution CLI wrappers, you configure and run your tests via a simple entry point file. This allows you to easily inject configuration, environment variables, or other backend setup code before your tests boot.
 
-Create a `bin/test.ts` file in the root of your project:
+The easiest way to generate this file is using our interactive initialization CLI:
+
+```bash
+npx lupa init
+```
+
+This command will ask you a few questions and automatically scaffold a `bin/test.ts` file, your test directories, and example test files.
+
+Alternatively, you can manually create a `bin/test.ts` file in the root of your project:
 
 ```ts
 import { configure, processCLIArgs, run } from '@jarrodek/lupa/runner'

@@ -412,6 +412,8 @@ Whether to bypass the [actionability](https://playwright.dev/docs/actionability)
 
 ## ClickOptions
 
+Options that can be passed to locator actions.
+
 ### Properties
 
 #### button
@@ -478,6 +480,8 @@ the element.
 
 ## CheckOptions
 
+Options for the check action.
+
 ### Properties
 
 #### timeout
@@ -518,6 +522,8 @@ the element.
 
 ## FillOptions
 
+Options for the fill action.
+
 ### Properties
 
 #### timeout
@@ -543,6 +549,8 @@ element, the call throws an exception.
 **Type:** `boolean`
 
 ## TypeOptions
+
+Options for the type action.
 
 ### Properties
 
@@ -576,6 +584,8 @@ current modifiers back. If not specified, currently pressed modifiers are used. 
 **Type:** `("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[]`
 
 ## DoubleClickOptions
+
+Options for the double click action.
 
 ### Properties
 
@@ -637,6 +647,8 @@ the element.
 
 ## HoverOptions
 
+Options for the hover action.
+
 ### Properties
 
 #### timeout
@@ -678,16 +690,10 @@ the element.
 
 ## PressOptions
 
+Options for the press action.
+
 ### Properties
 
 #### delay
-
-Time to wait between `keydown` and `keyup` in milliseconds. Defaults to 0.
-
-**Type:** `number`
-
-#### timeout
-
-Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
 
 <!-- truncated -->

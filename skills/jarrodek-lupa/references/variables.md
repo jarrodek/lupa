@@ -24,6 +24,12 @@ const html: (strings: TemplateStringsArray, values: unknown[]) => TemplateResult
 
 ## reporters
 
+### `reporterNames`
+Built-in reporter names.
+```ts
+const reporterNames: readonly ["spec", "dot", "ndjson", "github"]
+```
+
 ### `spec`
 Create an instance of the spec reporter
 ```ts

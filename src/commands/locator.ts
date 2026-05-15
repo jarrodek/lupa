@@ -120,6 +120,9 @@ export interface LocatorActionPayload {
   args?: unknown
 }
 
+/**
+ * Options that can be passed to locator actions.
+ */
 export interface TimeoutOption {
   /**
    * Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
@@ -130,6 +133,9 @@ export interface TimeoutOption {
   timeout?: number
 }
 
+/**
+ * Options that can be passed to locator actions.
+ */
 export interface ForceOption {
   /**
    * Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
@@ -137,6 +143,9 @@ export interface ForceOption {
   force?: boolean
 }
 
+/**
+ * Options that can be passed to locator actions.
+ */
 export interface StrictOption {
   /**
    * When true, the call requires selector to resolve to a single element. If given selector resolves to more than one
@@ -145,6 +154,9 @@ export interface StrictOption {
   strict?: boolean
 }
 
+/**
+ * Options that can be passed to locator actions.
+ */
 export interface TrialOption {
   /**
    * When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
@@ -153,6 +165,9 @@ export interface TrialOption {
   trial?: boolean
 }
 
+/**
+ * Options that can be passed to locator actions.
+ */
 export interface ModifiersOption {
   /**
    * Modifier keys to press. Ensures that only these modifiers are pressed during the operation, and then restores
@@ -162,6 +177,9 @@ export interface ModifiersOption {
   modifiers?: ('Alt' | 'Control' | 'ControlOrMeta' | 'Meta' | 'Shift')[]
 }
 
+/**
+ * Options that can be passed to locator actions.
+ */
 export interface PositionOption {
   /**
    * A point to use relative to the top-left corner of element padding box. If not specified, uses some visible point of
@@ -209,10 +227,19 @@ export interface ClickOptions
   delay?: number
 }
 
+/**
+ * Options for the check action.
+ */
 export interface CheckOptions extends TimeoutOption, ForceOption, StrictOption, TrialOption, PositionOption {}
 
+/**
+ * Options for the fill action.
+ */
 export interface FillOptions extends TimeoutOption, ForceOption, StrictOption {}
 
+/**
+ * Options for the type action.
+ */
 export interface TypeOptions extends TimeoutOption, ForceOption, ModifiersOption {
   /**
    * Time to wait between `keydown` and `keyup` in milliseconds. Defaults to 0.
@@ -220,6 +247,9 @@ export interface TypeOptions extends TimeoutOption, ForceOption, ModifiersOption
   delay?: number
 }
 
+/**
+ * Options for the double click action.
+ */
 export interface DoubleClickOptions extends TimeoutOption, ForceOption, TrialOption, ModifiersOption, PositionOption {
   /**
    * Defaults to `left`.
@@ -238,8 +268,14 @@ export interface DoubleClickOptions extends TimeoutOption, ForceOption, TrialOpt
   steps?: number
 }
 
+/**
+ * Options for the hover action.
+ */
 export interface HoverOptions extends TimeoutOption, ForceOption, TrialOption, ModifiersOption, PositionOption {}
 
+/**
+ * Options for the press action.
+ */
 export interface PressOptions extends TimeoutOption {
   /**
    * Time to wait between `keydown` and `keyup` in milliseconds. Defaults to 0.
@@ -247,8 +283,14 @@ export interface PressOptions extends TimeoutOption {
   delay?: number
 }
 
+/**
+ * Options for the tap action.
+ */
 export interface TapOptions extends TimeoutOption, ForceOption, TrialOption, ModifiersOption, PositionOption {}
 
+/**
+ * Options for the uncheck action.
+ */
 export interface UncheckOptions extends TimeoutOption, ForceOption, TrialOption, PositionOption {}
 
 /**
@@ -283,6 +325,13 @@ export function query(query: LocatorQuery): Locator {
   return new Locator(query)
 }
 
+/**
+ * A bridge to Playwright's Locator object, used to locate elements on the page
+ * and execute actions on them. It uses RPC calls to interact with the Playwright's Page object.
+ *
+ * Not all Playwright's Locator actions are supported. Only actions that are relevant to testing
+ * are implemented.
+ */
 export class Locator {
   /**
    * Creates a locator.

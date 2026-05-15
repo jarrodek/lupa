@@ -13,10 +13,14 @@
   "author": "Pawel Uchida-Psztyc",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "engines": {
     "node": ">=22.0.0"
+  },
+  "bin": {
+    "lupa": "./dist/bin/lupa.js"
   },
   "scripts": {
     "docs": "typedoc",
@@ -25,7 +29,7 @@
     "test:unit": "tsx --test \"tests/unit/**/*.spec.ts\"",
     "coverage": "npx --yes c8 npm test",
     "coverage:node": "npx tsx --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info \"tests/unit/**/*.spec.ts\"",
-    "test:browser": "tsx bin/test.ts",
+    "test:browser": "tsx tests/integration/run-fixtures.ts",
     "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run clean && npm run build",
@@ -49,6 +53,7 @@
     "./commands": "./dist/src/commands/index.js"
   },
   "dependencies": {
+    "@inquirer/prompts": "^8.4.3",
     "@japa/errors-printer": "^4.1.4",
     "@jarrodek/debug": "^1.0.0",
     "@poppinss/colors": "^4.1.6",
@@ -58,6 +63,7 @@
     "assertion-error": "^2.0.1",
     "axe-core": "^4.11.4",
     "chai": "^6.2.2",
+    "commander": "^14.0.3",
     "emittery": "^2.0.0",
     "error-stack-parser-es": "^1.0.5",
     "fast-glob": "^3.3.3",
