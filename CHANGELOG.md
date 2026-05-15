@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/jarrodek/lupa/compare/v1.5.0...v1.5.1) (2026-05-15)
+
+
+### Bug Fixes
+
+* adding missing guides ([19f184c](https://github.com/jarrodek/lupa/commit/19f184cbe0348e41c2921106c97b16d8f1c1b299))
+
 # [1.5.0](https://github.com/jarrodek/lupa/compare/v1.4.0...v1.5.0) (2026-05-15)
 
 
