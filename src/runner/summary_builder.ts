@@ -1,11 +1,5 @@
-import { justify } from '../lib/string_justify.js'
-
-function stringWidth(value: string): number {
-  if (typeof value !== 'string' || value.length === 0) {
-    return 0
-  }
-  return value.length
-}
+import string from '@poppinss/string'
+import stringWidth from 'string-width'
 
 /**
  * Summary builder is used to create the tests summary reported by
@@ -45,7 +39,7 @@ export class SummaryBuilder {
     })
 
     const largestKey = Math.max(...keysLengths)
-    const keysRows = justify(keys, {
+    const keysRows = string.justify(keys, {
       width: largestKey,
       align: 'right',
       indent: ' ',

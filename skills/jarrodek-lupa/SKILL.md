@@ -22,7 +22,7 @@ A lightning-fast, Vite-powered browser testing framework for Web Components with
 
 **Use this skill when:**
 - Setting up your test runner execution script. → use `configure`
-- Rendering Lit templates and Custom Elements into the DOM for interaction → use `fixture`
+- Rendering templates and Custom Elements into the DOM for interaction → use `fixture`
 
 **Do NOT use when:**
 - You are already inside a running test or suite. (`configure`)
@@ -45,7 +45,7 @@ API surface: 9 functions, 11 classes, 56 types, 6 constants
 
 ## Quick Reference
 
-**Key functions:** `configure` (Configure the Lupa test runner), `run` (Run the test suite), `fixture` (Renders a Lit template into a dedicated fixture container and mounts it to the DOM), `waitUntil` (Polls the condition function until it returns true or the timeout is reached)
+**Key functions:** `configure` (Configure the Lupa test runner), `run` (Run the test suite), `fixture` (Renders a HTML string or a Lit template into a dedicated fixture container and mounts it to the DOM), `waitUntil` (Polls the condition function until it returns true or the timeout is reached)
 
 *82 exports total — see references/ for full API.*
 

@@ -11,9 +11,9 @@ import Macroable from '@poppinss/macroable'
 
 import debug from './debug.js'
 import { type Emitter } from '../testing/emitter.js'
-import { Tracker } from '../testing/tracker.js'
+import { Tracker } from './tracker.js'
 import { type ReporterContract, type RunnerSummary } from '../types.js'
-import { SummaryBuilder } from '../testing/summary_builder.js'
+import { SummaryBuilder } from './summary_builder.js'
 
 /**
  * The Runner class exposes the API to manage the node process telemetry

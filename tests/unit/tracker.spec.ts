@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert'
-import { Tracker } from '../../src/testing/tracker.js'
+import { Tracker } from '../../src/runner/tracker.js'
 import type { SuiteStartNode, SuiteEndNode, GroupStartNode, GroupEndNode, TestEndNode } from '../../src/types.js'
 
 test('Tracker', async (t) => {

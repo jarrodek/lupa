@@ -1,6 +1,6 @@
-import { test } from 'node:test'
-import assert from 'node:assert'
-import { SummaryBuilder } from '../../src/testing/summary_builder.js'
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { SummaryBuilder } from '../../src/runner/summary_builder.js'
 
 test('SummaryBuilder', async (t) => {
   await t.test('builds summary with single values', () => {

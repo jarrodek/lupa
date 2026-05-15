@@ -5,6 +5,7 @@
     "src/runner/index.ts",
     "src/refiner/main.ts",
     "src/testing/index.ts",
+    "src/testing/plugins.ts",
     "src/reporters/index.ts"
   ],
   "out": "docs",

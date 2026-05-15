@@ -2,6 +2,27 @@
 
 ## testing
 
+### `TestContext`
+A fresh copy of test context is shared with all the tests.
+Note, this runs in the browser context.
+*extends `default`*
+```ts
+constructor(test: Test): TestContext
+```
+**Properties:**
+- `cleanup: (cleanupCallback: TestHooksCleanupHandler) => void`
+- `test: Test`
+- `assert: Assert`
+**Methods:**
+- `macro<T, K>(this: T, name: K, value: InstanceType<T>[K]): void` — Adds a macro (property or method) to the class prototype.
+Macros are standard properties that get added to the class prototype,
+making them available on all instances of the class.
+- `instanceProperty<T, K>(this: T, name: K, value: InstanceType<T>[K]): void` — Adds an instance property that will be assigned to each instance during construction.
+Unlike macros which are added to the prototype, instance properties are unique to each instance.
+- `getter<T, K>(this: T, name: K, accumulator: () => InstanceType<T>[K], singleton?: boolean): void` — Adds a getter property to the class prototype using Object.defineProperty.
+Getters are computed properties that are evaluated each time they are accessed,
+unless the singleton flag is enabled.
+
 ### `Emitter`
 Runner emitter
 *extends `default<RunnerEvents>`*
@@ -79,34 +100,3 @@ when the current test fails
 "runner:start" event
 - `exec(): Promise<void>` — Execute runner suites
 - `end(): Promise<void>` — End the runner process. Emits "runner:end" event
-
-### `SummaryBuilder`
-Summary builder is used to create the tests summary reported by
-multiple reporters. Each report contains a key-value pair
-```ts
-constructor(): SummaryBuilder
-```
-**Methods:**
-- `use(reporter: () => { key: string; value: string | string[] }[]): this` — Register a custom summary reporter
-- `build(): string[]` — Builds the summary table
-
-### `TestContext`
-A fresh copy of test context is shared with all the tests.
-Note, this runs in the browser context.
-*extends `default`*
-```ts
-constructor(test: Test): TestContext
-```
-**Properties:**
-- `cleanup: (cleanupCallback: TestHooksCleanupHandler) => void`
-- `test: Test`
-- `assert: Assert`
-**Methods:**
-- `macro<T, K>(this: T, name: K, value: InstanceType<T>[K]): void` — Adds a macro (property or method) to the class prototype.
-Macros are standard properties that get added to the class prototype,
-making them available on all instances of the class.
-- `instanceProperty<T, K>(this: T, name: K, value: InstanceType<T>[K]): void` — Adds an instance property that will be assigned to each instance during construction.
-Unlike macros which are added to the prototype, instance properties are unique to each instance.
-- `getter<T, K>(this: T, name: K, accumulator: () => InstanceType<T>[K], singleton?: boolean): void` — Adds a getter property to the class prototype using Object.defineProperty.
-Getters are computed properties that are evaluated each time they are accessed,
-unless the singleton flag is enabled.

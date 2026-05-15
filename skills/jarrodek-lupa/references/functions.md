@@ -163,19 +163,24 @@ await waitUntil(() => element.textContent === 'Hello')
 ## DOM
 
 ### `fixture`
-Renders a Lit template into a dedicated fixture container and mounts it to the DOM.
+Renders a HTML string or a Lit template into a dedicated fixture container and mounts it to the DOM.
 
 The fixture is automatically cleaned up and removed from the DOM
-when the current test finishes.
+when the current test or group finishes.
 ```ts
-fixture(template: TemplateResult<1>): Promise<Element>
+fixture<T>(template: TemplateTypes): Promise<T>
 ```
 **Parameters:**
-- `template: TemplateResult<1>` — The `lit-html` template created using the `html` tag.
-**Returns:** `Promise<Element>` — A promise that resolves to the rendered DOM Element.
+- `template: TemplateTypes` — A string of HTML or a `lit-html` template created using the `html` tag.
+**Returns:** `Promise<T>` — A promise that resolves to the rendered DOM Element.
 ```ts
-test('renders button', async ({ assert }) => {
-  const el = await fixture(html`<button>Click me</button>`)
+test('renders lit template', async ({ assert }) => {
+  const el = await fixture<HTMLButtonElement>(html`<button>Click me</button>`)
   assert.equal(el.textContent, 'Click me')
+})
+
+test('renders string template', async ({ assert }) => {
+  const el = await fixture<HTMLDivElement>('<div id="test"></div>')
+  assert.equal(el.id, 'test')
 })
 ```

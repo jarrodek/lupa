@@ -28,6 +28,8 @@ import { transformBrowserStack } from './stack_transformer.js'
 import { formatPinnedTest, printPinnedTests } from './helpers.js'
 import { RunnerEvents } from '../types.js'
 
+export { SummaryBuilder } from './summary_builder.js'
+
 export type { Config, NormalizedConfig, CLIArgs, JsonSerializable } from './types.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
