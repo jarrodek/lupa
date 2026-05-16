@@ -60,7 +60,7 @@ configure({
   files: ['tests/**/*.spec.ts'],
   testPlugins: ['@jarrodek/lupa/assert'],
   reporters: {
-    activated: ['spec'],
+    activated: ['progress'],
     list: [spec()],
   },
 })

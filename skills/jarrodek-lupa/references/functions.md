@@ -215,10 +215,11 @@ Renders a HTML string or a Lit template into a dedicated fixture container and m
 The fixture is automatically cleaned up and removed from the DOM
 when the current test or group finishes.
 ```ts
-fixture<T>(template: TemplateTypes): Promise<T>
+fixture<T>(template: TemplateTypes, options?: FixtureRenderOptions): Promise<T>
 ```
 **Parameters:**
 - `template: TemplateTypes` — A string of HTML or a `lit-html` template created using the `html` tag.
+- `options: FixtureRenderOptions` (optional)
 **Returns:** `Promise<T>` — A promise that resolves to the rendered DOM Element.
 ```ts
 test('renders lit template', async ({ assert }) => {

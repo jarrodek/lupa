@@ -25,9 +25,9 @@ unless the singleton flag is enabled.
 
 ### `Emitter`
 Runner emitter
-*extends `default<RunnerEvents>`*
+*extends `default<Events>`*
 ```ts
-constructor(options?: Options<RunnerEvents>): Emitter
+constructor<Events>(options?: Options<Events>): Emitter<Events>
 ```
 **Properties:**
 - `isDebugEnabled: boolean` — Toggle debug mode for all instances.
@@ -39,28 +39,28 @@ An object with `listener` and `eventName` (if `on` or `off` was used) is provide
 - `listenerRemoved: typeof listenerRemoved` — Fires when an event listener was removed.
 
 An object with `listener` and `eventName` (if `on` or `off` was used) is provided as event data.
-- `debug: DebugOptions<RunnerEvents>` — Debugging options for the current instance.
+- `debug: DebugOptions<Events>` — Debugging options for the current instance.
 **Methods:**
 - `mixin(emitteryPropertyName: string | symbol, methodNames?: readonly string[]): (klass: T, context?: ClassDecoratorContext<T>) => T` — In TypeScript, it returns a decorator which mixins `Emittery` as property `emitteryPropertyName` and `methodNames`, or all `Emittery` methods if `methodNames` is not defined, into the target class.
 - `onError(errorHandler: (error: any) => void | Promise<void>): void` — Define onError handler invoked when `emit` fails
-- `on<Name>(eventName: Name | readonly Name[], listener: (eventData: RunnerEvents[Name]) => void | Promise<void>): UnsubscribeFunction` — Override Emittery's `on` to unwrap the `{ name, data }` payload that Emittery v1 passes.
+- `on<Name>(eventName: Name | readonly Name[], listener: (eventData: Events[Name]) => void | Promise<void>): UnsubscribeFunction` — Override Emittery's `on` to unwrap the `{ name, data }` payload that Emittery v1 passes.
 Japa reporters expect the raw data object, not the wrapped one.
-- `emit<Name>(eventName: Name, eventData?: RunnerEvents[Name], allowMetaEvents?: boolean): Promise<void>` — Emit event
-- `events<Name>(eventName: Name | readonly Name[], options?: { signal?: AbortSignal }): AsyncIterableIterator<EventDataPair<RunnerEvents, Name>, any, any> & AsyncDisposable` — Get an async iterator which buffers data each time an event is emitted.
+- `emit<Name>(eventName: Name, eventData?: Events[Name], allowMetaEvents?: boolean): Promise<void>` — Emit event
+- `events<Name>(eventName: Name | readonly Name[], options?: { signal?: AbortSignal }): AsyncIterableIterator<EventDataPair<Events, Name>, any, any> & AsyncDisposable` — Get an async iterator which buffers data each time an event is emitted.
 
 Call `return()` on the iterator to remove the subscription. You can also pass an AbortSignal to cancel the subscription externally, or use `await using` for automatic cleanup.
-- `off<Name>(eventName: Name | readonly Name[], listener: (event: EventDataPair<RunnerEvents & OmnipresentEventData, Name>) => void | Promise<void>): void` — Remove one or more event subscriptions.
-- `once<Name>(eventName: Name | readonly Name[], predicate?: (event: EventDataPair<RunnerEvents & OmnipresentEventData, Name>) => boolean): EmitteryOncePromise<EventDataPair<RunnerEvents & OmnipresentEventData, Name>>` — Subscribe to one or more events only once. It will be unsubscribed after the first event that matches the predicate (if provided).
+- `off<Name>(eventName: Name | readonly Name[], listener: (event: EventDataPair<Events & OmnipresentEventData, Name>) => void | Promise<void>): void` — Remove one or more event subscriptions.
+- `once<Name>(eventName: Name | readonly Name[], predicate?: (event: EventDataPair<Events & OmnipresentEventData, Name>) => boolean): EmitteryOncePromise<EventDataPair<Events & OmnipresentEventData, Name>>` — Subscribe to one or more events only once. It will be unsubscribed after the first event that matches the predicate (if provided).
 
 The second argument can be a predicate function or an options object with `predicate` and/or `signal`.
 - `emitSerial<Name>(eventName: Name): Promise<void>` — Same as `emit()`, but it waits for each listener to resolve before triggering the next one. This can be useful if your events depend on each other. Although ideally they should not. Prefer `emit()` whenever possible.
 
 If any of the listeners throw/reject, the returned promise will be rejected with the error and the remaining listeners will *not* be called.
-- `onAny(listener: (event: { name: "test:start"; data: TestStartNode } | { name: "test:end"; data: TestEndNode } | { name: "group:start"; data: GroupOptions } | { name: "group:end"; data: GroupEndNode } | { name: "suite:start"; data: SuiteStartNode } | { name: "suite:end"; data: SuiteEndNode } | { name: "runner:start"; data: RunnerStartNode } | { name: "runner:end"; data: RunnerEndNode } | { name: "uncaught:exception"; data: UncaughtExceptionNode } | { name: "runner:pinned_tests"; data: RunnerPinnedTestsNode }) => void | Promise<void>, options?: { signal?: AbortSignal }): UnsubscribeFunction` — Subscribe to be notified about any event.
-- `anyEvent(options?: { signal?: AbortSignal }): AsyncIterableIterator<{ name: "test:start"; data: TestStartNode } | { name: "test:end"; data: TestEndNode } | { name: "group:start"; data: GroupOptions } | { name: "group:end"; data: GroupEndNode } | { name: "suite:start"; data: SuiteStartNode } | { name: "suite:end"; data: SuiteEndNode } | { name: "runner:start"; data: RunnerStartNode } | { name: "runner:end"; data: RunnerEndNode } | { name: "uncaught:exception"; data: UncaughtExceptionNode } | { name: "runner:pinned_tests"; data: RunnerPinnedTestsNode }, any, any> & AsyncDisposable` — Get an async iterator which buffers an event object each time an event is emitted.
+- `onAny(listener: (event: EventDataPair<Events, keyof Events>) => void | Promise<void>, options?: { signal?: AbortSignal }): UnsubscribeFunction` — Subscribe to be notified about any event.
+- `anyEvent(options?: { signal?: AbortSignal }): AsyncIterableIterator<EventDataPair<Events, keyof Events>, any, any> & AsyncDisposable` — Get an async iterator which buffers an event object each time an event is emitted.
 
 Call `return()` on the iterator to remove the subscription. You can also pass an AbortSignal to cancel the subscription externally, or use `await using` for automatic cleanup.
-- `offAny(listener: (event: { name: "test:start"; data: TestStartNode } | { name: "test:end"; data: TestEndNode } | { name: "group:start"; data: GroupOptions } | { name: "group:end"; data: GroupEndNode } | { name: "suite:start"; data: SuiteStartNode } | { name: "suite:end"; data: SuiteEndNode } | { name: "runner:start"; data: RunnerStartNode } | { name: "runner:end"; data: RunnerEndNode } | { name: "uncaught:exception"; data: UncaughtExceptionNode } | { name: "runner:pinned_tests"; data: RunnerPinnedTestsNode }) => void | Promise<void>): void` — Remove an `onAny` subscription.
+- `offAny(listener: (event: EventDataPair<Events, keyof Events>) => void | Promise<void>): void` — Remove an `onAny` subscription.
 - `clearListeners<Name>(eventName?: Name | readonly Name[]): void` — Clear all event listeners on the instance.
 
 If `eventNames` is given, only the listeners for those events are cleared. Accepts a single event name or an array.
@@ -70,7 +70,7 @@ If `.on()` listeners already exist when `init()` is called, `initFn` is called i
 
 Note: Lifecycle hooks only apply to `.on()` listeners. Subscriptions via `.events()` async iterators do not trigger the init or deinit functions.
 - `listenerCount<Name>(eventName?: Name | readonly Name[]): number` — The number of listeners for the `eventName` or all events if not specified.
-- `logIfDebugEnabled<Name>(type: string, eventName?: Name, eventData?: RunnerEvents[Name]): void` — Log debug information if debug mode is enabled (either globally via `Emittery.isDebugEnabled` or per-instance via `debug.enabled`).
+- `logIfDebugEnabled<Name>(type: string, eventName?: Name, eventData?: Events[Name]): void` — Log debug information if debug mode is enabled (either globally via `Emittery.isDebugEnabled` or per-instance via `debug.enabled`).
 - `bindMethods(target: Record<string, unknown>, methodNames?: readonly string[]): void` — Bind the given `methodNames`, or all `Emittery` methods if `methodNames` is not defined, into the `target` object.
 
 ### `WebRunner`

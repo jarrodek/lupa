@@ -9,6 +9,8 @@ import type {
   GroupEndNode,
   SuiteStartNode,
   SuiteEndNode,
+  RunnerEvents,
+  WithCorrelation,
 } from '../../../src/types.js'
 
 test('NdJSONReporter', async (t) => {
@@ -31,10 +33,10 @@ test('NdJSONReporter', async (t) => {
 
   await t.test('prints test:end event', async () => {
     const reporter = new NdJSONReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: TestEndNode = {
+    const payload: WithCorrelation<TestEndNode> = {
       title: { expanded: 'test 1', original: 'test 1' },
       isTodo: false,
       hasError: true,
@@ -60,10 +62,14 @@ test('NdJSONReporter', async (t) => {
 
   await t.test('prints group:start event', async () => {
     const reporter = new NdJSONReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: GroupStartNode = { title: 'Group 1' } as any
+    const payload: WithCorrelation<GroupStartNode> = {
+      browserId: '123',
+      file: 'abc',
+      title: 'Group 1',
+    } as any
     await emitter.emit('group:start', payload)
 
     assert.strictEqual(logs.length, 1)
@@ -74,10 +80,15 @@ test('NdJSONReporter', async (t) => {
 
   await t.test('prints group:end event', async () => {
     const reporter = new NdJSONReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: GroupEndNode = { title: 'Group 1', errors: [] } as any
+    const payload: WithCorrelation<GroupEndNode> = {
+      browserId: '123',
+      file: 'abc',
+      title: 'Group 1',
+      errors: [],
+    } as any
     await emitter.emit('group:end', payload)
 
     assert.strictEqual(logs.length, 1)
@@ -88,10 +99,14 @@ test('NdJSONReporter', async (t) => {
 
   await t.test('prints suite:start event', async () => {
     const reporter = new NdJSONReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: SuiteStartNode = { name: 'Suite 1' } as any
+    const payload: WithCorrelation<SuiteStartNode> = {
+      browserId: '123',
+      file: 'abc',
+      name: 'Suite 1',
+    } as any
     await emitter.emit('suite:start', payload)
 
     assert.strictEqual(logs.length, 1)
@@ -102,10 +117,16 @@ test('NdJSONReporter', async (t) => {
 
   await t.test('prints suite:end event', async () => {
     const reporter = new NdJSONReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: SuiteEndNode = { name: 'Suite 1', hasError: false, errors: [] } as any
+    const payload: WithCorrelation<SuiteEndNode> = {
+      browserId: '123',
+      file: 'abc',
+      name: 'Suite 1',
+      hasError: false,
+      errors: [],
+    } as any
     await emitter.emit('suite:end', payload)
 
     assert.strictEqual(logs.length, 1)

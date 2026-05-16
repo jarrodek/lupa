@@ -111,7 +111,7 @@ BaseConfig & ({ files: TestFiles } | { suites: TestSuite[] })
 ### `CLIArgs`
 Parsed command-line arguments
 ```ts
-{ _?: string[]; tags?: string | string[]; files?: string | string[]; tests?: string | string[]; groups?: string | string[]; timeout?: string; retries?: string; reporters?: string | string[]; forceExit?: boolean; failed?: boolean; help?: boolean; matchAll?: boolean; listPinned?: boolean; bail?: boolean; bailLayer?: string; verbose?: boolean; browser?: string; viteConfig?: string; coverage?: boolean } & Record<string, string | string[] | boolean>
+{ _?: string[]; tags?: string | string[]; files?: string | string[]; tests?: string | string[]; groups?: string | string[]; timeout?: string; retries?: string; reporters?: string | string[]; forceExit?: boolean; failed?: boolean; help?: boolean; matchAll?: boolean; listPinned?: boolean; bail?: boolean; bailLayer?: string; verbose?: boolean; browser?: string | string[]; viteConfig?: string; coverage?: boolean; parallel?: boolean; concurrency?: string | number } & Record<string, string | string[] | boolean | number>
 ```
 
 ### `JsonSerializable`
@@ -120,6 +120,17 @@ Functions, symbols, undefined, and class instances are rejected.
 ```ts
 string | number | boolean | null | JsonSerializable[] | { [key: string]: JsonSerializable }
 ```
+
+### `Runner`
+The Runner class exposes the API to manage the node process telemetry
+and reporters for Lupa tests running in the browser.
+**Properties:**
+- `summaryBuilder: SummaryBuilder` — Summary builder is used to create the tests summary reported by
+multiple reporters. Each report contains a key-value pair
+- `reporters: Set<ReporterContract>` — Registered tests reporter
+- `failed: unknown`
+- `reporterEmitter: Emitter<RunnerEvents>` (optional) — Optional emitter to use for reporters. If not set, the main emitter is used.
+Useful for watch mode filtering.
 
 ## types
 
@@ -198,6 +209,12 @@ HookHandler<SuiteHooksData[0], SuiteHooksData[1]>
 ### `SuiteHooks`
 Hooks available on a suite
 
+### `PlannedTestSuite`
+A test suite that has been planned, with the filesURLs.
+```ts
+TestSuite & { filesURLs: URL[] }
+```
+
 ### `TestExecutor`
 The function to execute the test
 ```ts
@@ -208,6 +225,21 @@ DataSet extends any[] ? (context: TestContext, value: DataSet[number], done: (er
 Data shared during "test:start" event
 ```ts
 Omit<TestOptions, "title"> & { title: { original: string; expanded: string }; isPinned: boolean; dataset?: { size: number; index: number; row: any }; meta: TestMetadata }
+```
+
+### `CorrelationIds`
+Common correlation IDs for parallel telemetry
+**Properties:**
+- `browserId: string` — Browser ID
+- `file: string` — File path
+- `suiteId: string` (optional) — Suite ID
+- `groupId: string` (optional) — Group ID
+
+### `WithCorrelation`
+A type that adds correlation IDs to a type.
+These are used with log reporting.
+```ts
+T & CorrelationIds
 ```
 
 ### `TestEndNode`
@@ -246,16 +278,21 @@ GroupOptions & { hasError: boolean; errors: { phase: "setup" | "setup:cleanup" |
 Data shared with "suite:start" event
 **Properties:**
 - `name: string` — Suite name
+- `filesCount: number` (optional) — Number of files in the suite
 
 ### `SuiteEndNode`
 Data shared with "suite:end" event
 **Properties:**
 - `name: string` — Suite name
+- `filesCount: number` (optional) — Number of files in the suite
 - `hasError: boolean` — Whether the suite has any errors
 - `errors: { phase: "setup" | "setup:cleanup" | "teardown" | "teardown:cleanup"; error: TestError }[]` — Errors that occurred during the suite execution
 
 ### `RunnerStartNode`
 Data shared with "runner:start" event
+**Properties:**
+- `estimatedTotalFiles: number` — The number of total files that should be tested.
+Used for progress reporting.
 
 ### `RunnerEndNode`
 Data shared with "runner:end" event
@@ -273,30 +310,62 @@ Runner pinned tests
 **Properties:**
 - `tests: { title: string; stack: string }[]` — Pinned tests metadata
 
-### `RunnerEvents`
-Events emitted by the runner emitter. These can be extended as well
+### `FrameworkEvents`
+Events emitted natively by the test framework without correlation IDs
 **Properties:**
-- `test:start: TestStartNode` — Test start event
-- `test:end: TestEndNode` — Test end event
-- `group:start: GroupOptions` — Group start event
-- `group:end: GroupEndNode` — Group end event
-- `suite:start: SuiteStartNode` — Suite start event
-- `suite:end: SuiteEndNode` — Suite end event
-- `runner:start: RunnerStartNode` — Runner start event
-- `runner:end: RunnerEndNode` — Runner end event
-- `uncaught:exception: UncaughtExceptionNode` — Uncaught exception event
-- `runner:pinned_tests: RunnerPinnedTestsNode` — Runner pinned tests event
+- `test:start: TestStartNode` — Emitted when a test starts.
+- `test:end: TestEndNode` — Emitted when a test ends.
+- `group:start: GroupOptions` — Emitted when a group starts.
+- `group:end: GroupEndNode` — Emitted when a group ends.
+- `suite:start: SuiteStartNode` — Emitted when a suite starts.
+- `suite:end: SuiteEndNode` — Emitted when a suite ends.
+- `uncaught:exception: UncaughtExceptionNode` — Emitted when an uncaught exception occurs.
+- `runner:pinned_tests: RunnerPinnedTestsNode` — Emitted when the runner finds pinned tests.
+- `runner:start: RunnerStartNode` — Emitted when the runner starts.
+- `runner:end: RunnerEndNode` — Emitted when the runner ends.
+
+### `BrowserTelemetryEvents`
+Events emitted by the browser telemetry over WebSocket
+**Properties:**
+- `test:start: WithCorrelation<TestStartNode>` — Emitted when a test starts.
+- `test:end: WithCorrelation<TestEndNode>` — Emitted when a test ends.
+- `group:start: WithCorrelation<GroupOptions>` — Emitted when a group starts.
+- `group:end: WithCorrelation<GroupEndNode>` — Emitted when a group ends.
+- `suite:start: WithCorrelation<SuiteStartNode>` — Emitted when a suite starts.
+- `suite:end: WithCorrelation<SuiteEndNode>` — Emitted when a suite ends.
+- `uncaught:exception: UncaughtExceptionNode & Partial<CorrelationIds>` — Emitted when an uncaught exception occurs.
+- `runner:pinned_tests: RunnerPinnedTestsNode & Partial<CorrelationIds>` — Emitted when the runner finds pinned tests.
+- `runner:start: RunnerStartNode & Partial<CorrelationIds>` — Emitted when the runner starts.
+- `runner:end: RunnerEndNode & Partial<CorrelationIds>` — Emitted when the runner ends.
+
+### `RunnerEvents`
+Events emitted by the Node runner orchestrator.
+Includes hydrated browser events and pool lifecycle events.
+**Properties:**
+- `browser:log: { file: string; type: string; messages: any[] }` — Browser console log
+- `test:start: WithCorrelation<TestStartNode>` — Emitted when a test starts.
+- `test:end: WithCorrelation<TestEndNode>` — Emitted when a test ends.
+- `group:start: WithCorrelation<GroupOptions>` — Emitted when a group starts.
+- `group:end: WithCorrelation<GroupEndNode>` — Emitted when a group ends.
+- `suite:start: WithCorrelation<SuiteStartNode>` — Emitted when a suite starts.
+- `suite:end: WithCorrelation<SuiteEndNode>` — Emitted when a suite ends.
+- `uncaught:exception: UncaughtExceptionNode & Partial<CorrelationIds>` — Emitted when an uncaught exception occurs.
+- `runner:pinned_tests: RunnerPinnedTestsNode & Partial<CorrelationIds>` — Emitted when the runner finds pinned tests.
+- `runner:start: RunnerStartNode & Partial<CorrelationIds>` — Emitted when the runner starts.
+- `runner:end: RunnerEndNode & Partial<CorrelationIds>` — Emitted when the runner ends.
 
 ### `ReporterHandlerContract`
 Type for the reporter handler function
 ```ts
-(runner: Runner, emitter: Emitter) => void | Promise<void>
+(runner: Runner, emitter: Emitter<RunnerEvents>, config: NormalizedConfig) => void | Promise<void>
 ```
 
 ### `NamedReporterContract`
 Type for a named reporter object.
 **Properties:**
 - `name: string` — Reporter name
+- `usesCLI: boolean` (optional) — Whether the reporter takes exclusive control of the CLI output.
+If true, only one such reporter can be active at a time to prevent interleaved output.
 - `handler: ReporterHandlerContract` — Reporter handler
 
 ### `ReporterContract`
@@ -355,107 +424,5 @@ Context provided to browser-side test plugins.
 ### `OmitFirstArg`
 Utility type that removes the first argument from a function's parameter list.
 ```ts
-F extends [_: any, args: infer R] ? R : never
-```
-
-### `TemplateTypes`
-Type alias for a template that can be rendered by the fixture function.
-```ts
-string | ReturnType<typeof litHtml> | TemplateResult
-```
-
-## hooks
-
-### `CleanupHandler`
-Shape of the cleanup handler
-```ts
-(args: Args) => void | Promise<void>
-```
-
-### `HookHandler`
-Shape of the hook handler
-```ts
-(args: Args) => void | CleanupHandler<CleanUpArgs> | Promise<void> | Promise<CleanupHandler<CleanUpArgs>>
-```
-
-## commands
-
-### `QueryByRole`
-The role locator reflects how users and assistive technology perceive the page,
-for example whether some element is a button or a checkbox.
-When locating by role, you should usually pass the accessible name as well,
-so that the locator pinpoints the exact element.
-**Properties:**
-- `role: string` — The role to use to locate the element. Only values from the [WAI-ARIA
-Roles list](https://www.w3.org/TR/wai-aria-1.2/#roles) are allowed.
-
-### `QueryByLabel`
-Most form controls usually have dedicated labels that could be conveniently used
-to interact with the form. In this case, you can locate the control by its associated label
-using the `label` locator strategy.
-**Properties:**
-- `label: string` — The accessible name to use to locate the element. This should be the text content of the label.
-
-### `QueryByPlaceholder`
-Inputs may have a placeholder attribute to hint to the user what value should be entered.
-You can locate such an input using the `placeholder` locator strategy.
-**Properties:**
-- `placeholder: string` — The placeholder text to use to locate the element. This should be the text content of the placeholder.
-
-### `QueryByText`
-Find an element by the text it contains. You can match by a substring,
-exact string, or a regular expression when using the `text` locator strategy.
-**Properties:**
-- `text: string` — The text to use to locate the element.
-
-### `QueryByAltText`
-All images should have an alt attribute that describes the image.
-You can locate an image based on the text alternative using the `altText` locator strategy.
-**Properties:**
-- `altText: string` — The alt text to use to locate the element. This should be the text content of the alt attribute.
-
-### `QueryByTitle`
-Locate an element with a matching title attribute using the `title` locator strategy.
-**Properties:**
-- `title: string` — The title text to use to locate the element. This should be the text content of the title attribute.
-
-### `QueryByTestId`
-Use this locator to find elements by their data-testid attribute.
-**Properties:**
-- `testId: string` — The test id to use to locate the element. This should be the text content of the test id attribute.
-
-### `QueryByCss`
-Use this locator to find elements by their CSS selector.
-**Properties:**
-- `css: string` — The CSS selector to use to locate the element.
-
-### `QueryByXPath`
-Use this locator to find elements by their XPath.
-**Properties:**
-- `xpath: string` — The XPath to use to locate the element.
-
-### `LocatorQuery`
-Set of supported locator queries.
-```ts
-QueryByRole | QueryByText | QueryByLabel | QueryByPlaceholder | QueryByText | QueryByAltText | QueryByTitle | QueryByTestId | QueryByCss | QueryByXPath
-```
-
-### `SupportedLocatorAction`
-Set of supported locator actions.
-```ts
-"blur" | "clear" | "check" | "click" | "dblclick" | "fill" | "hover" | "press" | "tap" | "uncheck"
-```
-
-### `LocatorActionPayload`
-Payload for locator actions.
-Used internally by the runner to execute locator actions.
-**Properties:**
-- `action: SupportedLocatorAction` — The action to perform on the element.
-- `query: LocatorQuery` — The query to use to locate the element.
-- `args: unknown` (optional) — Additional arguments for the action.
-
-### `TimeoutOption`
-Options that can be passed to locator actions.
-**Properties:**
 
 <!-- truncated -->

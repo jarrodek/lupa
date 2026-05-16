@@ -80,7 +80,7 @@ export class SuiteRunner {
    * Notify the reporter about the suite start
    */
   #notifyStart() {
-    const startOptions: SuiteStartNode = { name: this.#suite.name }
+    const startOptions: SuiteStartNode = { name: this.#suite.name, filesCount: this.#suite.filesCount }
     this.#emitter.emit('suite:start', startOptions)
   }
 
@@ -92,6 +92,7 @@ export class SuiteRunner {
       name: this.#suite.name,
       hasError: this.#hasError,
       errors: this.#errors,
+      filesCount: this.#suite.filesCount,
     }
 
     this.#emitter.emit('suite:end', endOptions)

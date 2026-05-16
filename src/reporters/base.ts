@@ -10,6 +10,7 @@
 import string from '@poppinss/string'
 import { ErrorsPrinter } from '@japa/errors-printer'
 
+import { inspect } from 'node:util'
 import { colors } from '../runner/helpers.js'
 import type { Emitter } from '../testing/emitter.js'
 import type { Runner } from '../runner/runner.js'
@@ -25,7 +26,9 @@ import type {
   SuiteStartNode,
   RunnerStartNode,
   BaseReporterOptions,
+  RunnerEvents,
 } from '../types.js'
+import type { NormalizedConfig } from '../runner/types.js'
 
 export type {
   TestEndNode,
@@ -41,10 +44,29 @@ export type {
 } from '../types.js'
 
 /**
- * Base reporter to build custom reporters on top of
+ * Abstract BaseReporter class serving as the foundation for creating custom test reporters in Lupa.
+ *
+ * It handles the boilerplate of connecting to the event emitter, tracking current execution state
+ * (suite, group, file), and provides a set of empty lifecycle methods designed to be overridden.
+ * It also includes utilities for formatting the summary, aggregating errors, and rendering
+ * beautifully styled error stacks and test results.
+ *
+ * @example
+ * ```ts
+ * export class MyCustomReporter extends BaseReporter {
+ *   protected onTestEnd(payload: TestEndNode) {
+ *     if (payload.hasError) {
+ *       console.log(`Failed: ${payload.title}`)
+ *     } else {
+ *       console.log(`Passed: ${payload.title}`)
+ *     }
+ *   }
+ * }
+ * ```
  */
 export abstract class BaseReporter {
   runner?: Runner
+  config?: NormalizedConfig
 
   /**
    * Path to the file for which the tests are getting executed
@@ -174,35 +196,112 @@ export abstract class BaseReporter {
   }
 
   /**
-   * Handlers to capture events
+   * Invoked when an individual test begins execution.
+   *
+   * @example
+   * ```ts
+   * protected onTestStart(node: TestStartNode) {
+   *   console.log(`Starting test: ${node.title}`)
+   * }
+   * ```
    */
-  protected onTestStart(_node: TestStartNode): void {
-    // no-op
-  }
-  protected onTestEnd(_node: TestEndNode) {
-    // no-op
-  }
+  protected onTestStart?(node: TestStartNode): void
 
-  protected onGroupStart(_node: GroupStartNode) {
-    // no-op
-  }
-  protected onGroupEnd(_node: GroupEndNode) {
-    // no-op
-  }
+  /**
+   * Invoked when an individual test completes, regardless of success or failure.
+   * You can inspect `node.hasError`, `node.isSkipped`, or `node.isTodo` to determine the outcome.
+   *
+   * @example
+   * ```ts
+   * protected onTestEnd(node: TestEndNode) {
+   *   const duration = String(node.duration).padStart(4, ' ')
+   *   if (node.hasError) {
+   *     console.log(`[FAILED] ${duration}ms - ${node.title}`)
+   *   } else {
+   *     console.log(`[PASSED] ${duration}ms - ${node.title}`)
+   *   }
+   * }
+   * ```
+   */
+  protected onTestEnd?(node: TestEndNode): void
 
-  protected onSuiteStart(_node: SuiteStartNode) {
-    // no-op
-  }
-  protected onSuiteEnd(_node: SuiteEndNode) {
-    // no-op
-  }
+  /**
+   * Invoked when a test group (created via `test.group()`) begins execution.
+   *
+   * @example
+   * ```ts
+   * protected onGroupStart(node: GroupStartNode) {
+   *   console.log(`\n▶ Group: ${node.title}`)
+   * }
+   * ```
+   */
+  protected onGroupStart?(node: GroupStartNode): void
 
-  protected async start(_node: RunnerStartNode) {
-    // no-op
-  }
-  protected async end(_node: RunnerEndNode) {
-    // no-op
-  }
+  /**
+   * Invoked when a test group completes execution.
+   *
+   * @example
+   * ```ts
+   * protected onGroupEnd(node: GroupEndNode) {
+   *   console.log(`End of group: ${node.title}`)
+   * }
+   * ```
+   */
+  protected onGroupEnd?(node: GroupEndNode): void
+
+  /**
+   * Invoked when a test suite begins execution.
+   *
+   * @example
+   * ```ts
+   * protected onSuiteStart(node: SuiteStartNode) {
+   *   console.log(`\n=== Suite: ${node.name} ===`)
+   * }
+   * ```
+   */
+  protected onSuiteStart?(node: SuiteStartNode): void
+
+  /**
+   * Invoked when a test suite completes execution.
+   *
+   * @example
+   * ```ts
+   * protected onSuiteEnd(node: SuiteEndNode) {
+   *   if (node.hasError) {
+   *     console.log(`Suite ${node.name} encountered errors.`)
+   *   }
+   * }
+   * ```
+   */
+  protected onSuiteEnd?(node: SuiteEndNode): void
+
+  /**
+   * Invoked once when the entire runner initiates execution.
+   * Useful for setting up initial console outputs, tracking start times, or initializing external services.
+   *
+   * @example
+   * ```ts
+   * protected async start(node: RunnerStartNode) {
+   *   console.clear()
+   *   console.log('Test run started...')
+   * }
+   * ```
+   */
+  protected start?(node: RunnerStartNode): Promise<void> | void
+
+  /**
+   * Invoked once when the runner completely finishes execution.
+   * This is the ideal place to invoke `this.printSummary()` or finalize external telemetry connections.
+   *
+   * @example
+   * ```ts
+   * protected async end(node: RunnerEndNode) {
+   *   const summary = this.getRunnerOrThrow().getSummary()
+   *   await this.printSummary(summary)
+   * }
+   * ```
+   */
+  protected end?(node: RunnerEndNode): Promise<void> | void
 
   /**
    * Print tests summary
@@ -228,45 +327,132 @@ export abstract class BaseReporter {
   /**
    * Invoked by the tests runner when tests are about to start
    */
-  boot(runner: Runner, emitter: Emitter) {
+  boot(runner: Runner, emitter: Emitter<RunnerEvents>, config: NormalizedConfig) {
     this.runner = runner
+    this.config = config
 
     emitter.on('test:start', (payload) => {
       this.currentFileName = payload.meta?.fileName
-      this.onTestStart(payload as unknown as TestStartNode)
+      if (this.onTestStart) {
+        this.onTestStart(payload as unknown as TestStartNode)
+      }
     })
 
     emitter.on('test:end', (payload) => {
-      this.onTestEnd(payload as unknown as TestEndNode)
+      if (this.onTestEnd) {
+        this.onTestEnd(payload as unknown as TestEndNode)
+      }
     })
 
     emitter.on('group:start', (payload) => {
       this.currentGroupName = payload.title
       this.currentFileName = payload.meta?.fileName
-      this.onGroupStart(payload as unknown as GroupStartNode)
+      if (this.onGroupStart) {
+        this.onGroupStart(payload as unknown as GroupStartNode)
+      }
     })
 
     emitter.on('group:end', (payload) => {
       this.currentGroupName = undefined
-      this.onGroupEnd(payload as unknown as GroupEndNode)
+      if (this.onGroupEnd) {
+        this.onGroupEnd(payload as unknown as GroupEndNode)
+      }
     })
 
     emitter.on('suite:start', (payload) => {
       this.currentSuiteName = payload.name
-      this.onSuiteStart(payload as unknown as SuiteStartNode)
+      if (this.onSuiteStart) {
+        this.onSuiteStart(payload as unknown as SuiteStartNode)
+      }
     })
 
     emitter.on('suite:end', (payload) => {
       this.currentSuiteName = undefined
-      this.onSuiteEnd(payload as unknown as SuiteEndNode)
+      if (this.onSuiteEnd) {
+        this.onSuiteEnd(payload as unknown as SuiteEndNode)
+      }
     })
 
     emitter.on('runner:start', async (payload) => {
-      await this.start(payload as unknown as RunnerStartNode)
+      if (this.start) {
+        await this.start(payload as unknown as RunnerStartNode)
+      }
     })
 
     emitter.on('runner:end', async (payload) => {
-      await this.end(payload as unknown as RunnerEndNode)
+      if (this.end) {
+        await this.end(payload as unknown as RunnerEndNode)
+      }
     })
+
+    emitter.on('browser:log', (payload) => {
+      this.onBrowserLog(payload as RunnerEvents['browser:log'])
+    })
+  }
+
+  /**
+   * Invoked when the browser runner emits a console log event during test execution.
+   * This allows the reporter to capture and render runtime browser logs.
+   *
+   * @example
+   * ```ts
+   * protected onBrowserLog(payload: RunnerEvents['browser:log']) {
+   *   if (payload.type === 'error') {
+   *     console.error(`[BROWSER ERROR in ${payload.file}]`, ...payload.messages)
+   *   }
+   * }
+   * ```
+   */
+  protected onBrowserLog(payload: RunnerEvents['browser:log']) {
+    const { file, type, messages } = payload
+
+    const isMultiline = messages.some((v) => {
+      if (typeof v !== 'string') return false
+      return v.includes('\n')
+    })
+
+    const messagePrefix = colors.yellow(`[Browser Console - ${file}]`)
+
+    if (type === 'table') {
+      console.log(messagePrefix)
+      console.table(...messages)
+      return
+    }
+
+    if (type === 'dir' || type === 'dirxml') {
+      console.log(messagePrefix)
+      console.dir(...messages)
+      return
+    }
+
+    type ValidType = Exclude<typeof type, 'table' | 'dir' | 'dirxml'>
+    const prefixes: Record<ValidType, (message: string, ...args: any[]) => void> = {
+      error: console.error,
+      warning: console.warn,
+      info: console.info,
+      log: console.log,
+      debug: console.debug,
+      startGroup: console.group,
+      startGroupCollapsed: console.groupCollapsed,
+      assert: console.log,
+      profile: console.profile,
+      profileEnd: console.profileEnd,
+      trace: console.log,
+      timeEnd: console.log,
+      count: console.log,
+    }
+
+    let formatted: any[]
+    if (['table'].includes(type)) {
+      formatted = messages
+    } else {
+      formatted = messages.map((a) => (typeof a === 'string' ? a : inspect(a, { colors: true, depth: null })))
+    }
+
+    if (isMultiline) {
+      prefixes[type as ValidType](messagePrefix, '\n', ...formatted)
+    } else {
+      prefixes[type as ValidType](messagePrefix, ...formatted)
+    }
   }
 }

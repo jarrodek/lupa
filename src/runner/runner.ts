@@ -11,8 +11,10 @@ import Macroable from '@poppinss/macroable'
 
 import debug from './debug.js'
 import { type Emitter } from '../testing/emitter.js'
+import type { RunnerEvents, RunnerStartNode } from '../types.js'
 import { Tracker } from './tracker.js'
-import { type ReporterContract, type RunnerSummary } from '../types.js'
+import type { ReporterContract, RunnerSummary } from '../types.js'
+import type { NormalizedConfig } from './types.js'
 import { SummaryBuilder } from './summary_builder.js'
 
 /**
@@ -20,7 +22,8 @@ import { SummaryBuilder } from './summary_builder.js'
  * and reporters for Lupa tests running in the browser.
  */
 export class Runner extends Macroable {
-  #emitter: Emitter
+  #emitter: Emitter<RunnerEvents>
+  #config: NormalizedConfig
   #failed = false
 
   /**
@@ -39,9 +42,10 @@ export class Runner extends Macroable {
    */
   reporters = new Set<ReporterContract>()
 
-  constructor(emitter: Emitter) {
+  constructor(emitter: Emitter<RunnerEvents>, config: NormalizedConfig) {
     super()
     this.#emitter = emitter
+    this.#config = config
   }
 
   #getTrackerOrThrow() {
@@ -98,6 +102,16 @@ export class Runner extends Macroable {
    * @returns This runner instance
    */
   registerReporter(reporter: ReporterContract): this {
+    if (typeof reporter === 'object' && reporter.usesCLI) {
+      for (const existingReporter of this.reporters) {
+        if (typeof existingReporter === 'object' && existingReporter.usesCLI) {
+          throw new Error(
+            `Cannot register reporter "${reporter.name}". The "${existingReporter.name}" reporter is already registered and taking exclusive control of the CLI.`
+          )
+        }
+      }
+    }
+
     this.reporters.add(reporter)
     return this
   }
@@ -115,14 +129,14 @@ export class Runner extends Macroable {
    * Optional emitter to use for reporters. If not set, the main emitter is used.
    * Useful for watch mode filtering.
    */
-  reporterEmitter?: Emitter
+  reporterEmitter?: Emitter<RunnerEvents>
 
   /**
    * Start the test runner process
    *
    * @returns Promise that resolves when the runner starts
    */
-  async start(): Promise<void> {
+  async start(node: RunnerStartNode = { estimatedTotalFiles: 0 }): Promise<void> {
     this.#boot()
     debug('starting node reporters')
 
@@ -130,11 +144,13 @@ export class Runner extends Macroable {
 
     for (const reporter of this.reporters) {
       if (typeof reporter === 'function') {
-        await reporter(this, emitterToUse)
+        await reporter(this, emitterToUse, this.#config)
       } else {
-        await reporter.handler(this, emitterToUse)
+        await reporter.handler(this, emitterToUse, this.#config)
       }
     }
+
+    await this.#emitter.emit('runner:start', node)
   }
 
   /**
@@ -144,5 +160,8 @@ export class Runner extends Macroable {
    */
   async end(): Promise<void> {
     debug('node runner ended')
+    await this.#emitter.emit('runner:end', {
+      hasError: this.#failed,
+    })
   }
 }

@@ -78,6 +78,21 @@ export class ExceptionsManager {
     }
   }
 
+  /**
+   * Manually notify an exception to be reported.
+   */
+  notifyException(error: any) {
+    debug('received notified exception %O', error)
+    this.hasErrors = true
+    if (this.#state === 'watching') {
+      this.#exceptionsBuffer.push(error)
+    } else {
+      this.#errorsPrinter.printSectionBorder('[Error]')
+      this.#errorsPrinter.printError(error)
+      process.exitCode = 1
+    }
+  }
+
   async report() {
     if (this.#state === 'reporting') {
       return

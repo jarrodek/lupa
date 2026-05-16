@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import lupaHarnessPlugin from '../../../src/runner/plugins/harness.js'
 import type { NormalizedConfig } from '../../../src/runner/types.js'
 import type { ViteDevServer } from 'vite'
+import type { TestPoolManager } from '../../../src/runner/test_pool_manager.js'
 
 test('Lupa Harness Middleware', async (t) => {
   await t.test('generates default HTML with stylesheets', async () => {
@@ -12,7 +13,8 @@ test('Lupa Harness Middleware', async (t) => {
       },
     } as unknown as NormalizedConfig
 
-    const plugin = lupaHarnessPlugin([], [], config, '/fake-harness.js')
+    const poolMock = { getChunk: () => ({ suites: [] }) } as unknown as TestPoolManager
+    const plugin = lupaHarnessPlugin(poolMock, [], config, '/fake-harness.js')
 
     let responseContent = ''
     const res = {
@@ -46,7 +48,8 @@ test('Lupa Harness Middleware', async (t) => {
       },
     } as unknown as NormalizedConfig
 
-    const plugin = lupaHarnessPlugin([], [], config, '/fake-harness.js')
+    const poolMock = { getChunk: () => ({ suites: [] }) } as unknown as TestPoolManager
+    const plugin = lupaHarnessPlugin(poolMock, [], config, '/fake-harness.js')
 
     let responseContent = ''
     const res = {
@@ -82,7 +85,8 @@ test('Lupa Harness Middleware', async (t) => {
       },
     } as unknown as NormalizedConfig
 
-    const plugin = lupaHarnessPlugin([], [], config, '/fake-harness.js')
+    const poolMock = { getChunk: () => ({ suites: [] }) } as unknown as TestPoolManager
+    const plugin = lupaHarnessPlugin(poolMock, [], config, '/fake-harness.js')
 
     let responseContent = ''
     const res = {

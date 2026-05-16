@@ -1,14 +1,16 @@
-import type { JsonSerializable, NormalizedConfig } from '../types.js'
-import type { ViteDevServer } from 'vite'
+import { type IncomingMessage, type ServerResponse } from 'node:http'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { ViteDevServer } from 'vite'
+import type { JsonSerializable, NormalizedConfig } from '../types.js'
+import type { TestPoolManager } from '../test_pool_manager.js'
 
 /**
  * Creates the Vite plugin responsible for generating the Lupa test harness HTML.
  * Exported for testing purposes.
  */
 export default function harnessPlugin(
-  suites: { name: string; timeout?: number; retries?: number; filesURLs: URL[] }[],
+  testPoolManager: TestPoolManager,
   resolvedPlugins: (JsonSerializable | undefined)[][],
   runnerConfig: NormalizedConfig,
   harnessPath: string
@@ -16,9 +18,17 @@ export default function harnessPlugin(
   return {
     name: 'lupa-harness',
     configureServer(server: ViteDevServer) {
-      server.middlewares.use('/__lupa__/runner.html', async (_req, res) => {
+      server.middlewares.use('/__lupa__/runner.html', async (req: IncomingMessage, res: ServerResponse) => {
+        const host = req.headers?.host || 'localhost'
+        const url = new URL(req.url || '/', `http://${host}`)
+        const chunkId = url.searchParams.get('chunkId')
+
+        const chunk = chunkId ? testPoolManager.getChunk(chunkId) : undefined
+        const suitesToRun = chunk ? chunk.suites : []
+
         const configPayload = JSON.stringify({
-          suites: suites.map((s) => {
+          chunkId,
+          suites: suitesToRun.map((s) => {
             const allowedFiles = runnerConfig?.filters?.files
             let filteredUrls = s.filesURLs
 

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { BaseReporter } from '../../../src/reporters/base.js'
 import { SummaryBuilder } from '../../../src/runner/summary_builder.js'
 import { Emitter } from '../../../src/testing/emitter.js'
-import type { RunnerSummary } from '../../../src/types.js'
+import type { RunnerEvents, RunnerSummary } from '../../../src/types.js'
 import type { Runner } from '../../../src/runner/runner.js'
 
 class DummyReporter extends BaseReporter {
@@ -49,8 +49,8 @@ test('BaseReporter', async (t) => {
     const reporter = new DummyReporter()
     const summaryBuilder = new SummaryBuilder()
     const runner = { summaryBuilder } as unknown as Runner
-    const emitter = new Emitter()
-    reporter.boot(runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot(runner, emitter, {} as any)
 
     const summary: RunnerSummary = {
       aggregates: {
@@ -128,8 +128,8 @@ test('BaseReporter', async (t) => {
     const reporter = new DummyReporter()
     const summaryBuilder = new SummaryBuilder()
     const runner = { summaryBuilder } as unknown as Runner
-    const emitter = new Emitter()
-    reporter.boot(runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot(runner, emitter, {} as any)
 
     const summary: RunnerSummary = {
       aggregates: { total: 0, passed: 0, failed: 0, todo: 0, skipped: 0, regression: 0 },

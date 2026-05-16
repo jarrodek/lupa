@@ -38,7 +38,7 @@ export class WebRunner extends Macroable {
    * Notify the reporter about the runner start
    */
   #notifyStart() {
-    return this.#emitter.emit('runner:start', {})
+    return this.#emitter.emit('runner:start', { estimatedTotalFiles: 0 })
   }
 
   /**

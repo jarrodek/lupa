@@ -1,0 +1,154 @@
+import logUpdate from 'log-update'
+import { BaseReporter } from './base.js'
+import type { RunnerEvents, TestEndNode, RunnerStartNode, SuiteEndNode } from '../types.js'
+import { colors } from '../runner/helpers.js'
+
+const PROGRESS_BLOCKS = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█']
+const PROGRESS_WIDTH = 30
+
+function createProgressBlocks(value: number, total: number) {
+  if (value >= total) {
+    return PROGRESS_BLOCKS[8].repeat(PROGRESS_WIDTH)
+  }
+
+  const count = total === 0 ? 0 : (PROGRESS_WIDTH * value) / total
+  const floored = Math.floor(count)
+  const partialBlock = PROGRESS_BLOCKS[Math.floor((count - floored) * (PROGRESS_BLOCKS.length - 1))]
+  return `${PROGRESS_BLOCKS[8].repeat(floored)}${partialBlock}${' '.repeat(Math.max(0, PROGRESS_WIDTH - floored - 1))}`
+}
+
+export class ProgressReporter extends BaseReporter {
+  #totalFiles = 0
+  #completedFiles = 0
+  #passedTests = 0
+  #failedTests = 0
+  #skippedTests = 0
+
+  #logs: { file: string; type: string; messages: any[] }[] = []
+
+  protected onTestEnd(payload: TestEndNode) {
+    if (payload.isSkipped || payload.isTodo) {
+      this.#skippedTests++
+    } else if (payload.hasError) {
+      this.#failedTests++
+    } else {
+      this.#passedTests++
+    }
+
+    this.render()
+  }
+
+  protected start(node: RunnerStartNode) {
+    this.#totalFiles = node.estimatedTotalFiles
+    this.#completedFiles = 0
+
+    this.#passedTests = 0
+    this.#failedTests = 0
+    this.#skippedTests = 0
+    this.#logs = []
+
+    this.render()
+  }
+
+  protected onSuiteEnd(payload: SuiteEndNode) {
+    this.#completedFiles += payload.filesCount || 1
+    this.render()
+  }
+
+  protected onBrowserLog(payload: RunnerEvents['browser:log']) {
+    this.#logs.push(payload)
+    this.render()
+  }
+
+  protected async end() {
+    logUpdate.clear()
+
+    // We flush all buffered logs just in case some came very late
+    this.#printLogs()
+
+    console.log('')
+
+    const summary = this.getRunnerOrThrow().getSummary()
+
+    if (this.config?.watch) {
+      // In focus mode, no summary aggregates, but we print the final progress bar
+      logUpdate(this.#getProgressBar())
+      logUpdate.done()
+
+      if (summary.hasError) {
+        console.log('')
+        await this.printErrors(summary)
+      }
+    } else {
+      // Regular end, print progress bar permanently, then summary
+      logUpdate(this.#getProgressBar())
+      logUpdate.done()
+
+      console.log('')
+      if (summary.hasError) {
+        console.log(`Finished running tests in ${Math.round(summary.duration / 1000)}s with failures.`)
+      } else {
+        console.log(`Finished running tests in ${Math.round(summary.duration / 1000)}s, all tests passed! 🎉`)
+      }
+
+      await this.printSummary(summary)
+    }
+  }
+
+  #printLogs() {
+    if (this.#logs.length === 0) return
+
+    const groupedByFile = new Map<string, RunnerEvents['browser:log'][]>()
+    for (const log of this.#logs) {
+      const file = log.file || 'unknown'
+      let logsForFile = groupedByFile.get(file)
+      if (!logsForFile) {
+        logsForFile = []
+        groupedByFile.set(file, logsForFile)
+      }
+      logsForFile.push(log)
+    }
+
+    for (const [file, fileLogs] of groupedByFile.entries()) {
+      console.log('')
+      console.log(`${colors.cyan(file)}:`)
+      console.log('')
+
+      for (const log of fileLogs) {
+        const prefix = log.type === 'error' ? '✖ Browser errors:' : '🚧 Browser logs:'
+        const prefixColored = log.type === 'error' ? colors.red(prefix) : colors.yellow(prefix)
+        console.log(` ${prefixColored}`)
+
+        for (const msg of log.messages) {
+          const formatted = typeof msg === 'string' ? msg : JSON.stringify(msg, null, 2)
+          formatted.split('\n').forEach((line) => {
+            console.log(`      ${line}`)
+          })
+        }
+      }
+    }
+
+    this.#logs = []
+  }
+
+  #getProgressBar(): string {
+    const totalExpected = Math.max(this.#completedFiles, this.#totalFiles)
+
+    const progressBlocks = createProgressBlocks(this.#completedFiles, totalExpected)
+    const finishedBlockCount =
+      totalExpected === 0 ? 0 : Math.floor((PROGRESS_WIDTH * this.#completedFiles) / totalExpected)
+
+    const finishedBlocks = colors.white(progressBlocks.slice(0, finishedBlockCount))
+    const scheduledBlocks = colors.gray(progressBlocks.slice(finishedBlockCount))
+    const bar = `|${finishedBlocks}${scheduledBlocks}|`
+
+    const text = `${bar} ${this.#completedFiles}/${totalExpected} test files | ${this.#passedTests} passed, ${this.#failedTests} failed, ${this.#skippedTests} skipped`
+
+    return text
+  }
+
+  protected render() {
+    this.#printLogs()
+    logUpdate(this.#getProgressBar())
+  }
+}

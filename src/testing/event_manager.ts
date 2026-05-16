@@ -35,8 +35,6 @@ export class EventManager {
       return
     }
 
-    this.#emitter.on('runner:start', (data) => this.#passThrough('runner:start', data))
-    this.#emitter.on('runner:end', (data) => this.#passThrough('runner:end', data))
     this.#emitter.on('suite:start', (data) => this.#passThrough('suite:start', data))
     this.#emitter.on('suite:end', this.#handleSuiteEnd.bind(this))
     this.#emitter.on('group:start', (data) => this.#passThrough('group:start', data))
@@ -76,7 +74,8 @@ export class EventManager {
     if (!this.#ctx || !data) {
       return
     }
-    this.#ctx.send('lupa:telemetry', { event: name, data })
+    const chunkId = (globalThis as any).__lupa__?.chunkId || 'default'
+    this.#ctx.send('lupa:telemetry', { event: name, data: { ...data, browserId: chunkId } })
   }
 
   #handleSuiteEnd(data: SuiteEndNode): void {
