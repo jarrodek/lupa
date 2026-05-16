@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/jarrodek/lupa/compare/v1.7.0...v1.7.1) (2026-05-16)
+
+
+### Bug Fixes
+
+* progress tracking has throttle on non-TTY ([0a18be8](https://github.com/jarrodek/lupa/commit/0a18be875c86f308641543037305d5be8238557e))
+
 # [1.7.0](https://github.com/jarrodek/lupa/compare/v1.6.0...v1.7.0) (2026-05-16)
 
 
