@@ -6,16 +6,17 @@ import type { NormalizedConfig } from './types.js'
 import debug from './debug.js'
 import { CommandsHandler } from '../commands/rpc_handler.js'
 import type { Key } from 'node:readline'
+import { colors } from './helpers.js'
 
 export class WatchManager {
   #vite: ViteDevServer
   #config: NormalizedConfig
   #executeTests: () => Promise<void>
-  #replayTests: (events: { eventName: string; data: any }[]) => Promise<void>
   #shutdown: (exitCode: number) => Promise<void>
   #browserType: string
 
   #focusedFile: string | null = null
+  #originalFilesFilter: string[] | undefined
   #eventBuffer: { eventName: string; data: any }[] = []
 
   debugBrowser: Browser | undefined
@@ -24,14 +25,12 @@ export class WatchManager {
     vite: ViteDevServer,
     config: NormalizedConfig,
     executeTests: () => Promise<void>,
-    replayTests: (events: { eventName: string; data: any }[]) => Promise<void>,
     shutdown: (exitCode: number) => Promise<void>,
     browserType: string
   ) {
     this.#vite = vite
     this.#config = config
     this.#executeTests = executeTests
-    this.#replayTests = replayTests
     this.#shutdown = shutdown
     this.#browserType = browserType
   }
@@ -43,11 +42,11 @@ export class WatchManager {
   printWaitingMessage() {
     if (this.#focusedFile) {
       console.log(
-        `\n\x1b[36m[Focus Mode: ${this.#focusedFile}]\x1b[0m Waiting for file changes... (Press Enter to re-run, q to quit, f to pick another, Esc to clear focus, d to debug)`
+        `\n${colors.cyan(`[Focus Mode: ${this.#focusedFile}]`)} Waiting for file changes... (Press Enter to re-run, q to quit, f to pick another, Esc to clear focus, d to debug)`
       )
     } else {
       console.log(
-        '\n\x1b[32m[Watch Mode]\x1b[0m Waiting for file changes... (Press Enter to re-run, q to quit, f to focus)'
+        `\n${colors.green('[Watch Mode]')} Waiting for file changes... (Press Enter to re-run, q to quit, f to focus)`
       )
     }
   }
@@ -90,16 +89,6 @@ export class WatchManager {
     })
 
     return filteredEmitter
-  }
-
-  /**
-   * Replays the entire buffered execution to the console instantly.
-   * This is used when exiting focus mode.
-   */
-  async #replayBufferedEvents() {
-    console.log('\n--- Replaying full logs from background execution ---')
-    this.#focusedFile = null
-    await this.#replayTests(this.#eventBuffer)
   }
 
   async #getAllTestFiles(): Promise<URL[]> {
@@ -180,8 +169,9 @@ export class WatchManager {
       }
     } else if (key.name === 'escape') {
       if (this.#focusedFile) {
-        // Revert focus mode and replay logs
-        await this.#replayBufferedEvents()
+        this.#focusedFile = null
+        this.#config.filters.files = this.#originalFilesFilter
+        this.#executeTests()
       }
     } else if (key.name === 'd') {
       if (!this.#focusedFile) {
@@ -233,7 +223,7 @@ export class WatchManager {
   async start() {
     // Keep a reference to the original configured files filters
     this.#config.filters = this.#config.filters || {}
-    const originalFilesFilter = this.#config.filters.files
+    this.#originalFilesFilter = this.#config.filters.files
 
     this.#vite.watcher.on('change', async (file) => {
       // ... existing watcher logic ...
@@ -255,7 +245,7 @@ export class WatchManager {
           debug('Ignoring change in %s as no test files depend on it', file)
         }
       }
-      this.#config.filters.files = originalFilesFilter
+      this.#config.filters.files = this.#originalFilesFilter
     })
 
     if (!process.stdout.isTTY) return
@@ -297,21 +287,21 @@ export class WatchManager {
     const passed = allFiles.filter((f) => !failedFiles.has(f.pathname))
     const displayList: URL[] = []
 
-    if (failed.length > 0) {
-      console.log('\n\x1b[31mFailing tests:\x1b[0m')
-      failed.forEach((file) => {
-        const relPath = file.pathname.replace(this.#config.cwd + '/', '')
-        displayList.push(file)
-        console.log(`\x1b[31m${displayList.length}) ${relPath}\x1b[0m`)
-      })
-    }
-
     if (passed.length > 0) {
       console.log(failed.length > 0 ? '\nAll other tests:' : '\nAll tests:')
       passed.forEach((file) => {
         const relPath = file.pathname.replace(this.#config.cwd + '/', '')
         displayList.push(file)
         console.log(`${displayList.length}) ${relPath}`)
+      })
+    }
+
+    if (failed.length > 0) {
+      console.log(`\n${colors.bold(colors.red('Failing tests:'))}`)
+      failed.forEach((file) => {
+        const relPath = file.pathname.replace(this.#config.cwd + '/', '')
+        displayList.push(file)
+        console.log(colors.red(`${displayList.length}) ${relPath}`))
       })
     }
 
@@ -336,6 +326,7 @@ export class WatchManager {
         if (!isNaN(num) && num > 0 && num <= displayList.length) {
           const selected = displayList[num - 1]
           this.#focusedFile = selected.pathname.split('/').pop() || null
+          this.#config.filters.files = [selected.pathname]
           console.log(`\nFocusing on: ${this.#focusedFile}`)
           this.#executeTests()
           resolve()

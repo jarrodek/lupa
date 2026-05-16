@@ -1,4 +1,4 @@
-import { render, html as litHtml, type TemplateResult } from 'lit-html'
+import { render, html as litHtml, type TemplateResult, type RenderOptions } from 'lit-html'
 import { getActiveTest, getActiveExecutingGroup } from './api.js'
 
 /**
@@ -18,6 +18,17 @@ import { getActiveTest, getActiveExecutingGroup } from './api.js'
  * ```
  */
 export type TemplateTypes = string | ReturnType<typeof litHtml> | TemplateResult
+
+/**
+ * Options for the `fixture` function.
+ */
+export interface FixtureRenderOptions extends RenderOptions {
+  /**
+   * By default `fixture` waits for the next animation frame to ensure
+   * elements are upgraded and connected. Set this to `true` to skip this wait.
+   */
+  noWait?: boolean
+}
 
 /**
  * Renders a HTML string or a Lit template into a dedicated fixture container and mounts it to the DOM.
@@ -45,7 +56,10 @@ export type TemplateTypes = string | ReturnType<typeof litHtml> | TemplateResult
  * })
  * ```
  */
-export async function fixture<T extends Element = Element>(template: TemplateTypes): Promise<T> {
+export async function fixture<T extends Element = Element>(
+  template: TemplateTypes,
+  options?: FixtureRenderOptions
+): Promise<T> {
   const activeTest = getActiveTest()
   const activeExecutingGroup = getActiveExecutingGroup()
 
@@ -75,11 +89,13 @@ export async function fixture<T extends Element = Element>(template: TemplateTyp
   if (typeof template === 'string') {
     container.innerHTML = template
   } else {
-    render(template, container)
+    render(template, container, options)
   }
 
   // Wait for next frame to ensure elements are upgraded and connected
-  await new Promise((resolve) => requestAnimationFrame(resolve))
+  if (!options?.noWait) {
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+  }
 
   return container.firstElementChild as T
 }

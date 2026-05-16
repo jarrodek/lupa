@@ -325,27 +325,27 @@ export async function run() {
   let activeNodeRunner: Runner
   let activeNodeEmitter: Emitter | null = null
 
-  async function replayTests(events: { eventName: string; data: any }[]) {
-    if (!reporters || reporters.length === 0) return
+  // async function replayTests(events: { eventName: string; data: any }[]) {
+  //   if (!reporters || reporters.length === 0) return
 
-    const replayEmitter = new Emitter()
-    const replayRunner = new Runner(replayEmitter)
+  //   const replayEmitter = new Emitter()
+  //   const replayRunner = new Runner(replayEmitter)
 
-    replayRunner.reporterEmitter = replayEmitter
+  //   replayRunner.reporterEmitter = replayEmitter
 
-    reporters.forEach((reporter) => {
-      replayRunner.registerReporter(reporter)
-    })
+  //   reporters.forEach((reporter) => {
+  //     replayRunner.registerReporter(reporter)
+  //   })
 
-    await replayRunner.start()
+  //   await replayRunner.start()
 
-    for (const { eventName, data } of events) {
-      if (eventName === 'runner:start') continue
-      await replayEmitter.emit(eventName as any, data)
-    }
-  }
+  //   for (const { eventName, data } of events) {
+  //     if (eventName === 'runner:start') continue
+  //     await replayEmitter.emit(eventName as any, data)
+  //   }
+  // }
 
-  const watchManager = new WatchManager(vite, runnerConfig, executeTests, replayTests, shutdown, browserType)
+  const watchManager = new WatchManager(vite, runnerConfig, executeTests, shutdown, browserType)
 
   // A queue to ensure telemetry events from the browser are processed sequentially
   let telemetryQueue = Promise.resolve()

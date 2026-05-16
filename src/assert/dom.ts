@@ -165,13 +165,14 @@ export class AssertDom {
    * See {@link SemanticDomOptions} for options on how to control the comparison.
    *
    * @param element - The element whose DOM should be compared
-   * @param expectedHtml - The expected HTML string
+   * @param expectedHtml - The expected HTML string or Element
    * @param options - Optional options to control the comparison
    * @param message - Optional message to display when the assertion fails
    */
-  equal(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+  equal(element: Element, expectedHtml: string | Element, options?: SemanticDomOptions, message?: string) {
     const actual = normalizeDom(element.outerHTML, options)
-    const expected = normalizeDom(expectedHtml, options)
+    const expectedStr = typeof expectedHtml === 'string' ? expectedHtml : expectedHtml.outerHTML
+    const expected = normalizeDom(expectedStr, options)
     this.#assert.evaluate(actual === expected, message || 'expected DOM to semantically equal the provided HTML', {
       actual,
       expected,
@@ -184,13 +185,14 @@ export class AssertDom {
    * Asserts that an element's outer DOM does NOT match the expected HTML string semantically.
    *
    * @param element - The element whose DOM should be compared
-   * @param expectedHtml - The expected HTML string
+   * @param expectedHtml - The expected HTML string or Element
    * @param options - Optional options to control the comparison
    * @param message - Optional message to display when the assertion fails
    */
-  notEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+  notEqual(element: Element, expectedHtml: string | Element, options?: SemanticDomOptions, message?: string) {
     const actual = normalizeDom(element.outerHTML, options)
-    const expected = normalizeDom(expectedHtml, options)
+    const expectedStr = typeof expectedHtml === 'string' ? expectedHtml : expectedHtml.outerHTML
+    const expected = normalizeDom(expectedStr, options)
     this.#assert.evaluate(
       actual !== expected,
       message || 'expected DOM to differ from the provided HTML, but they were semantically identical',
@@ -208,13 +210,14 @@ export class AssertDom {
    * Asserts that an element's Light DOM (innerHTML) matches the expected HTML string semantically.
    *
    * @param element - The element whose DOM should be compared
-   * @param expectedHtml - The expected HTML string
+   * @param expectedHtml - The expected HTML string or Element
    * @param options - Optional options to control the comparison
    * @param message - Optional message to display when the assertion fails
    */
-  lightEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+  lightEqual(element: Element, expectedHtml: string | Element, options?: SemanticDomOptions, message?: string) {
     const actual = normalizeDom(element.innerHTML, options)
-    const expected = normalizeDom(expectedHtml, options)
+    const expectedStr = typeof expectedHtml === 'string' ? expectedHtml : expectedHtml.innerHTML
+    const expected = normalizeDom(expectedStr, options)
     this.#assert.evaluate(
       actual === expected,
       message || 'expected Light DOM to semantically equal the provided HTML',
@@ -231,13 +234,14 @@ export class AssertDom {
    * Asserts that an element's Light DOM (innerHTML) does NOT match the expected HTML string semantically.
    *
    * @param element - The element whose DOM should be compared
-   * @param expectedHtml - The expected HTML string
+   * @param expectedHtml - The expected HTML string or Element
    * @param options - Optional options to control the comparison
    * @param message - Optional message to display when the assertion fails
    */
-  notLightEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+  notLightEqual(element: Element, expectedHtml: string | Element, options?: SemanticDomOptions, message?: string) {
     const actual = normalizeDom(element.innerHTML, options)
-    const expected = normalizeDom(expectedHtml, options)
+    const expectedStr = typeof expectedHtml === 'string' ? expectedHtml : expectedHtml.innerHTML
+    const expected = normalizeDom(expectedStr, options)
     this.#assert.evaluate(
       actual !== expected,
       message || 'expected Light DOM to differ from the provided HTML, but they were semantically identical',
@@ -255,13 +259,14 @@ export class AssertDom {
    * Asserts that an element's Shadow DOM matches the expected HTML string semantically.
    *
    * @param element - The element whose DOM should be compared
-   * @param expectedHtml - The expected HTML string
+   * @param expectedHtml - The expected HTML string or Element
    * @param options - Optional options to control the comparison
    * @param message - Optional message to display when the assertion fails
    */
-  shadowEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+  shadowEqual(element: Element, expectedHtml: string | Element, options?: SemanticDomOptions, message?: string) {
     const actual = normalizeDom(element.shadowRoot?.innerHTML || '', options)
-    const expected = normalizeDom(expectedHtml, options)
+    const expectedStr = typeof expectedHtml === 'string' ? expectedHtml : expectedHtml.shadowRoot?.innerHTML || ''
+    const expected = normalizeDom(expectedStr, options)
     this.#assert.evaluate(
       actual === expected,
       message || 'expected Shadow DOM to semantically equal the provided HTML',
@@ -278,13 +283,14 @@ export class AssertDom {
    * Asserts that an element's Shadow DOM does NOT match the expected HTML string semantically.
    *
    * @param element - The element whose DOM should be compared
-   * @param expectedHtml - The expected HTML string
+   * @param expectedHtml - The expected HTML string or Element
    * @param options - Optional options to control the comparison
    * @param message - Optional message to display when the assertion fails
    */
-  notShadowEqual(element: Element, expectedHtml: string, options?: SemanticDomOptions, message?: string) {
+  notShadowEqual(element: Element, expectedHtml: string | Element, options?: SemanticDomOptions, message?: string) {
     const actual = normalizeDom(element.shadowRoot?.innerHTML || '', options)
-    const expected = normalizeDom(expectedHtml, options)
+    const expectedStr = typeof expectedHtml === 'string' ? expectedHtml : expectedHtml.shadowRoot?.innerHTML || ''
+    const expected = normalizeDom(expectedStr, options)
     this.#assert.evaluate(
       actual !== expected,
       message || 'expected Shadow DOM to differ from the provided HTML, but they were semantically identical',

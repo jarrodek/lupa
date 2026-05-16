@@ -68,7 +68,7 @@ test('Lupa Harness Middleware', async (t) => {
 
     plugin.configureServer(mockServer)
 
-    assert.ok(responseContent.includes('<html><head><link rel="stylesheet" href="'))
+    assert.ok(responseContent.includes('<html><head>\n    <base href="/"><link rel="stylesheet" href="'))
     assert.ok(responseContent.includes('styles.css'))
     assert.ok(responseContent.includes('<script>window.__lupa__ ='))
     assert.ok(responseContent.includes('</body></html>'))

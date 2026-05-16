@@ -1,6 +1,7 @@
 import type { JsonSerializable, NormalizedConfig } from '../types.js'
 import type { ViteDevServer } from 'vite'
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /**
  * Creates the Vite plugin responsible for generating the Lupa test harness HTML.
@@ -17,12 +18,26 @@ export default function harnessPlugin(
     configureServer(server: ViteDevServer) {
       server.middlewares.use('/__lupa__/runner.html', async (_req, res) => {
         const configPayload = JSON.stringify({
-          suites: suites.map((s) => ({
-            name: s.name,
-            timeout: s.timeout,
-            retries: s.retries,
-            files: s.filesURLs.map((u) => u.pathname),
-          })),
+          suites: suites.map((s) => {
+            const allowedFiles = runnerConfig?.filters?.files
+            let filteredUrls = s.filesURLs
+
+            if (allowedFiles && allowedFiles.length > 0) {
+              filteredUrls = s.filesURLs.filter((u) => {
+                const path = import.meta.url ? fileURLToPath(u) : u.pathname
+                // Watch manager passes absolute paths in allowedFiles
+                // The CLI might pass partial paths.
+                return allowedFiles.some((allowed) => path.endsWith(allowed))
+              })
+            }
+
+            return {
+              name: s.name,
+              timeout: s.timeout,
+              retries: s.retries,
+              files: filteredUrls.map((u) => fileURLToPath(u)),
+            }
+          }),
           testPlugins: resolvedPlugins,
           config: {
             filters: runnerConfig?.filters,
@@ -60,6 +75,7 @@ export default function harnessPlugin(
               <head>
                 <meta charset="utf-8">
                 <title>Lupa Test Runner</title>
+                <base href="/">
                 ${stylesheets}
               </head>
               <body>
@@ -67,6 +83,12 @@ export default function harnessPlugin(
               </body>
             </html>
           `
+        }
+
+        // Auto-inject base href for custom templates if missing, to ensure
+        // relative fetches resolve against the workspace root instead of /__lupa__/
+        if (!html.includes('<base ') && html.includes('<head>')) {
+          html = html.replace('<head>', '<head>\n    <base href="/">')
         }
 
         res.setHeader('Content-Type', 'text/html')
