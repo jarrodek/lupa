@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert'
 import { DotReporter } from '../../../src/reporters/dot.js'
 import { Emitter } from '../../../src/testing/emitter.js'
-import type { Runner, TestEndNode } from '../../../src/types.js'
+import type { Runner, RunnerEvents, TestEndNode, WithCorrelation } from '../../../src/types.js'
 import { icons } from '../../../src/runner/helpers.js'
 
 test('DotReporter', async (t) => {
@@ -24,10 +24,12 @@ test('DotReporter', async (t) => {
 
   await t.test('prints tick for passed test', async () => {
     const reporter = new DotReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: TestEndNode = {
+    const payload: WithCorrelation<TestEndNode> = {
+      browserId: '123',
+      file: 'abc',
       isTodo: false,
       hasError: false,
       isSkipped: false,
@@ -42,10 +44,12 @@ test('DotReporter', async (t) => {
 
   await t.test('prints cross for failed test', async () => {
     const reporter = new DotReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: TestEndNode = {
+    const payload: WithCorrelation<TestEndNode> = {
+      browserId: '123',
+      file: 'abc',
       hasError: true,
     } as any
 
@@ -57,10 +61,12 @@ test('DotReporter', async (t) => {
 
   await t.test('prints bullet for skipped test', async () => {
     const reporter = new DotReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: TestEndNode = {
+    const payload: WithCorrelation<TestEndNode> = {
+      browserId: '123',
+      file: 'abc',
       isSkipped: true,
     } as any
 
@@ -72,10 +78,12 @@ test('DotReporter', async (t) => {
 
   await t.test('prints info for todo test', async () => {
     const reporter = new DotReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: TestEndNode = {
+    const payload: WithCorrelation<TestEndNode> = {
+      browserId: '123',
+      file: 'abc',
       isTodo: true,
     } as any
 
@@ -87,11 +95,13 @@ test('DotReporter', async (t) => {
 
   await t.test('prints square for failing test', async () => {
     const reporter = new DotReporter()
-    const emitter = new Emitter()
-    reporter.boot({} as Runner, emitter)
+    const emitter = new Emitter<RunnerEvents>()
+    reporter.boot({} as Runner, emitter, {} as any)
 
-    const payload: TestEndNode = {
+    const payload: WithCorrelation<TestEndNode> = {
       isFailing: true,
+      browserId: '123',
+      file: 'abc',
     } as any
 
     await emitter.emit('test:end', payload)

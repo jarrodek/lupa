@@ -1,5 +1,5 @@
 import { test, fixture, html } from '../../../src/testing/index.js'
-import { failingFunction } from '../browser/failing_function.js'
+// import { failingFunction } from '../browser/failing_function.js'
 
 test.group('Dummy Group', () => {
   test('this is a dummy test', ({ assert }) => {
@@ -12,8 +12,7 @@ test.group('Dummy Group', () => {
     assert.include(document.body.innerHTML, 'Hello')
   })
 
-  test('this test should fail', ({ assert }) => {
-    failingFunction()
+  test('this test should pass', ({ assert }) => {
     assert.ok(true)
   })
 

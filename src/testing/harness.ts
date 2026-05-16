@@ -79,6 +79,7 @@ export async function boot() {
   const suites = window.__lupa__.suites || []
   for (const suiteDef of suites) {
     const suite = new Suite(suiteDef.name, emitter, refiner)
+    suite.filesCount = suiteDef.files.length
     runner.add(suite)
 
     const { timeout, retries } = suiteDef

@@ -25,8 +25,8 @@ configure({
   ],
   testPlugins: ['@jarrodek/lupa/assert'], // Register the assert plugin
   reporters: {
-    activated: ['spec'],
-    list: [spec()],
+    activated: ['progress'],
+    list: [progress()],
   },
 })
 

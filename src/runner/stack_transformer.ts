@@ -21,12 +21,6 @@ export async function transformBrowserStack(vite: ViteDevServer, cwd: string, st
   const transformed: string[] = []
 
   for (const line of lines) {
-    // Keep the first line (error name + message)
-    if (!line.trimStart().startsWith('at ')) {
-      transformed.push(line)
-      continue
-    }
-
     // Filter out framework internals
     if (line.includes('/src/testing/') || line.includes('/src/assert/') || line.includes('/src/hooks/')) {
       continue

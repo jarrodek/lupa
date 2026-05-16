@@ -8,12 +8,12 @@
  */
 
 import Emittery, { UnsubscribeFunction } from 'emittery'
-import { type RunnerEvents } from '../types.js'
+import { type FrameworkEvents } from '../types.js'
 
 /**
  * Runner emitter
  */
-export class Emitter extends Emittery<RunnerEvents> {
+export class Emitter<Events = FrameworkEvents> extends Emittery<Events> {
   /**
    * The handler to call when an error is emitted.
    */
@@ -32,9 +32,9 @@ export class Emitter extends Emittery<RunnerEvents> {
    * Japa reporters expect the raw data object, not the wrapped one.
    */
   // @ts-expect-error - Narrower signature than base Emittery class to provide strict Japa runner event types
-  on<Name extends keyof RunnerEvents>(
+  on<Name extends keyof Events>(
     eventName: Name | readonly Name[],
-    listener: (eventData: RunnerEvents[Name]) => void | Promise<void>
+    listener: (eventData: Events[Name]) => void | Promise<void>
   ): UnsubscribeFunction {
     return super.on(eventName, (data: any) => {
       // Emittery v1 passes an object `{ name, data }` to listeners.
@@ -46,9 +46,9 @@ export class Emitter extends Emittery<RunnerEvents> {
   /**
    * Emit event
    */
-  async emit<Name extends keyof RunnerEvents>(
+  async emit<Name extends keyof Events>(
     eventName: Name,
-    eventData?: RunnerEvents[Name],
+    eventData?: Events[Name],
     allowMetaEvents?: boolean
   ): Promise<void> {
     try {

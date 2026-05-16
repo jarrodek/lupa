@@ -1,7 +1,7 @@
 import { validateActivatedReporters, validateSuitesFilter, validateSuitesForUniqueness } from './validator.js'
 import { FilesManager } from './files_manager.js'
-import type { NormalizedConfig, TestFiles, TestSuite } from './types.js'
-import type { NamedReporterContract } from '../types.js'
+import type { NormalizedConfig, TestFiles } from './types.js'
+import type { NamedReporterContract, PlannedTestSuite } from '../types.js'
 
 /**
  * The tests planner is used to plan the tests by doing all
@@ -61,8 +61,8 @@ export class Planner {
    * Returns a collection of suites and their associated
    * test files by applying all the filters
    */
-  async #getSuites(): Promise<(TestSuite & { filesURLs: URL[] })[]> {
-    const suites: (TestSuite & { filesURLs: URL[] })[] = []
+  async #getSuites(): Promise<PlannedTestSuite[]> {
+    const suites: PlannedTestSuite[] = []
     const suitesFilters = this.#config.filters.suites || []
 
     if ('files' in this.#config) {

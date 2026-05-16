@@ -8,17 +8,7 @@
  */
 
 import { timeSpan, type TimeEndFunction } from '../lib/main.js'
-import type {
-  TestEndNode,
-  GroupEndNode,
-  SuiteEndNode,
-  RunnerEvents,
-  RunnerSummary,
-  GroupStartNode,
-  SuiteStartNode,
-  FailureTreeGroupNode,
-  FailureTreeSuiteNode,
-} from '../types.js'
+import type { RunnerEvents, RunnerSummary, FailureTreeGroupNode, FailureTreeSuiteNode } from '../types.js'
 
 /**
  * Tracks the tests events to generate a summary report. Failing tests are further tracked
@@ -31,14 +21,14 @@ export class Tracker {
   #timeTracker?: TimeEndFunction
 
   /**
-   * Currently active suite
+   * Active suites tracked by execution correlation ID
    */
-  #currentSuite?: FailureTreeSuiteNode
+  #activeSuites = new Map<string, FailureTreeSuiteNode>()
 
   /**
-   * Currently active group
+   * Active groups tracked by execution correlation ID
    */
-  #currentGroup?: FailureTreeGroupNode
+  #activeGroups = new Map<string, FailureTreeGroupNode>()
 
   #aggregates: RunnerSummary['aggregates'] = {
     total: 0,
@@ -59,24 +49,33 @@ export class Tracker {
   #failureTree: FailureTreeSuiteNode[] = []
   #failedTestsTitles: string[] = []
 
+  #getSuiteKey(payload: { browserId: string; file: string; name: string }) {
+    return `${payload.browserId}:${payload.file}:${payload.name}`
+  }
+
+  #getGroupKey(payload: { browserId: string; file: string; title: string }) {
+    return `${payload.browserId}:${payload.file}:${payload.title}`
+  }
+
   /**
    * Set reference for the current suite
    */
-  #onSuiteStart(payload: SuiteStartNode) {
-    this.#currentSuite = {
+  #onSuiteStart(payload: RunnerEvents['suite:start']) {
+    this.#activeSuites.set(this.#getSuiteKey(payload), {
       name: payload.name,
       type: 'suite',
       errors: [],
       children: [],
-    }
+    })
   }
 
   /**
    * Move suite to the failure tree when the suite
    * has errors
    */
-  #onSuiteEnd(payload: SuiteEndNode) {
-    const suite = this.#currentSuite
+  #onSuiteEnd(payload: RunnerEvents['suite:end']) {
+    const key = this.#getSuiteKey(payload)
+    const suite = this.#activeSuites.get(key)
     if (!suite) {
       throw new Error('Suite not found')
     }
@@ -87,27 +86,28 @@ export class Tracker {
     if (suite.errors.length > 0 || suite.children.length > 0) {
       this.#failureTree.push(suite)
     }
-    this.#currentSuite = undefined
+    this.#activeSuites.delete(key)
   }
 
   /**
    * Set reference for the current group
    */
-  #onGroupStart(payload: GroupStartNode) {
-    this.#currentGroup = {
+  #onGroupStart(payload: RunnerEvents['group:start']) {
+    this.#activeGroups.set(this.#getGroupKey(payload), {
       name: payload.title,
       type: 'group',
       errors: [],
       children: [],
-    }
+    })
   }
 
   /**
-   * Move suite to the failure tree when the suite
-   * has errors
+   * Move group to the suite children when the group
+   * has errors or children
    */
-  #onGroupEnd(payload: GroupEndNode) {
-    const group = this.#currentGroup
+  #onGroupEnd(payload: RunnerEvents['group:end']) {
+    const key = this.#getGroupKey(payload)
+    const group = this.#activeGroups.get(key)
     if (!group) {
       throw new Error('Group not found')
     }
@@ -116,16 +116,22 @@ export class Tracker {
     }
 
     if (group.errors.length > 0 || group.children.length > 0) {
-      this.#currentSuite?.children.push(group)
+      const suiteKey = payload.meta.suite
+        ? this.#getSuiteKey({ browserId: payload.browserId, file: payload.file, name: payload.meta.suite })
+        : null
+      const suite = suiteKey ? this.#activeSuites.get(suiteKey) : null
+      if (suite) {
+        suite.children.push(group)
+      }
     }
-    this.#currentGroup = undefined
+    this.#activeGroups.delete(key)
   }
 
   /**
    * In case of failure, track the test inside the current group
    * or the current suite.
    */
-  #onTestEnd(payload: TestEndNode) {
+  #onTestEnd(payload: RunnerEvents['test:end']) {
     /**
      * Bumping aggregates
      */
@@ -165,7 +171,7 @@ export class Tracker {
   /**
    * Mark test as failed
    */
-  #markTestAsFailed(payload: TestEndNode) {
+  #markTestAsFailed(payload: RunnerEvents['test:end']) {
     /**
      * Bump failed count
      */
@@ -183,10 +189,22 @@ export class Tracker {
     /**
      * Track test inside the current group or suite
      */
-    if (this.#currentGroup) {
-      this.#currentGroup.children.push(testPayload)
-    } else if (this.#currentSuite) {
-      this.#currentSuite.children.push(testPayload)
+    const groupKey = payload.meta.group
+      ? this.#getGroupKey({ browserId: payload.browserId, file: payload.file, title: payload.meta.group })
+      : null
+    const group = groupKey ? this.#activeGroups.get(groupKey) : null
+
+    if (group) {
+      group.children.push(testPayload)
+    } else {
+      const suiteKey = payload.meta.suite
+        ? this.#getSuiteKey({ browserId: payload.browserId, file: payload.file, name: payload.meta.suite })
+        : null
+      const suite = suiteKey ? this.#activeSuites.get(suiteKey) : null
+
+      if (suite) {
+        suite.children.push(testPayload)
+      }
     }
 
     /**
@@ -201,19 +219,19 @@ export class Tracker {
   processEvent<Event extends keyof RunnerEvents>(event: keyof RunnerEvents, payload: RunnerEvents[Event]) {
     switch (event) {
       case 'suite:start':
-        this.#onSuiteStart(payload as SuiteStartNode)
+        this.#onSuiteStart(payload as RunnerEvents['suite:start'])
         break
       case 'suite:end':
-        this.#onSuiteEnd(payload as SuiteEndNode)
+        this.#onSuiteEnd(payload as RunnerEvents['suite:end'])
         break
       case 'group:start':
-        this.#onGroupStart(payload as GroupStartNode)
+        this.#onGroupStart(payload as RunnerEvents['group:start'])
         break
       case 'group:end':
-        this.#onGroupEnd(payload as GroupEndNode)
+        this.#onGroupEnd(payload as RunnerEvents['group:end'])
         break
       case 'test:end':
-        this.#onTestEnd(payload as TestEndNode)
+        this.#onTestEnd(payload as RunnerEvents['test:end'])
         break
       case 'runner:start':
         this.#timeTracker = timeSpan()

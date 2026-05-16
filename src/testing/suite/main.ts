@@ -61,6 +61,11 @@ export class Suite extends Macroable {
   stack: (Test<any> | Group)[] = []
 
   /**
+   * Number of files in the suite
+   */
+  filesCount = 0
+
+  /**
    * Know if one or more groups or tests within this suite
    * has failed.
    */

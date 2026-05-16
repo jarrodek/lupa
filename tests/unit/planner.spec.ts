@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert'
 import { Planner } from '../../src/runner/planner.js'
 import type { NormalizedConfig } from '../../src/runner/types.js'
-import { dot, spec } from '../../src/reporters/index.js'
+import { progress, dot } from '../../src/reporters/index.js'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
@@ -17,7 +17,7 @@ test('Planner', async (t) => {
       timeout: 2000,
       retries: 0,
       forceExit: false,
-      reporters: { activated: ['spec'], list: [spec(), dot()] },
+      reporters: { activated: ['progress'], list: [progress(), dot()] },
       testPlugins: [],
       runnerPlugins: [],
       setup: [],
@@ -35,7 +35,7 @@ test('Planner', async (t) => {
     assert.ok(resolvedFile.endsWith(path.normalize('tests/unit/planner.spec.ts')))
 
     assert.strictEqual(plan.reporters.length, 1)
-    assert.strictEqual(plan.reporters[0].name, 'spec')
+    assert.strictEqual(plan.reporters[0].name, 'progress')
   })
 
   await t.test('filters suites', async () => {
@@ -51,7 +51,7 @@ test('Planner', async (t) => {
       timeout: 2000,
       retries: 0,
       forceExit: false,
-      reporters: { activated: ['spec'], list: [spec()] },
+      reporters: { activated: ['progress'], list: [progress()] },
       testPlugins: [],
       runnerPlugins: [],
       setup: [],
@@ -75,7 +75,7 @@ test('Planner', async (t) => {
       timeout: 2000,
       retries: 0,
       forceExit: false,
-      reporters: { activated: ['spec'], list: [spec()] },
+      reporters: { activated: ['progress'], list: [progress()] },
       testPlugins: [],
       runnerPlugins: [],
       setup: [],

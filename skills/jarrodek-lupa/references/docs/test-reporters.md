@@ -14,9 +14,9 @@ import * as reporters from '@jarrodek/lupa/reporters'
 
 configure({
   reporters: {
-    activated: ['spec'],
+    activated: ['progress'],
     list: [
-      reporters.spec(),
+      reporters.progress(),
       reporters.ndjson(),
       reporters.dot(),
       reporters.github(),
@@ -25,10 +25,10 @@ configure({
 })
 ```
 
-By default, all built-in reporters are registered inside the `list` array, and only the `spec` reporter is activated.
+By default, all built-in reporters are registered inside the `list` array, and only the `progress` reporter is activated.
 
 The default reporters include:
-- `spec`
+- `progress`
 - `dot`
 - `ndjson`
 - `github`
@@ -51,9 +51,9 @@ node bin/test.js --reporters=list
 # Error: Invalid reporter "list". Make sure to register it first inside the "reporters.list" array.
 ```
 
-## The spec reporter
+## The progress reporter
 
-The `spec` reporter displays the test output in a structured format as a colorful output in the terminal. This is the default reporter.
+The `progress` reporter displays the test output in a structured format as a colorful output in the terminal. This is the default reporter.
 
 ## The dot reporter
 
@@ -73,7 +73,9 @@ The reporter is activated automatically in the GitHub Actions environment. Howev
 import { configure } from '@jarrodek/lupa/runner'
 import * as reporters from '@jarrodek/lupa/reporters'
 
-const activated = ['spec']
+const activated = ['progress']
+// Or using multiple reporters:
+// const activated = ['progress', 'github']
 if (process.env.GITHUB_ACTIONS === 'true') {
   activated.push('github')
 }

@@ -5,10 +5,11 @@ import type { Test } from './testing/test/main.js'
 import type { Group } from './testing/group/main.js'
 import type { Suite } from './testing/suite/main.js'
 import type { Emitter } from './testing/emitter.js'
+import type { NormalizedConfig, TestSuite } from './runner/types.js'
 import type { Runner } from './runner/runner.js'
 import type { TestContext } from './testing/test_context.js'
 
-export { Runner }
+export type { Runner }
 
 /**
  * One of the predefined types of errors that can happen during test execution
@@ -114,6 +115,11 @@ export type SuiteHooks = {
    */
   teardown: SuiteHooksData
 }
+
+/**
+ * A test suite that has been planned, with the filesURLs.
+ */
+export type PlannedTestSuite = TestSuite & { filesURLs: URL[] }
 
 /**
  * The function to execute the test
@@ -229,6 +235,34 @@ export type TestStartNode = Omit<TestOptions, 'title'> & {
    */
   meta: TestMetadata
 }
+
+/**
+ * Common correlation IDs for parallel telemetry
+ */
+export interface CorrelationIds {
+  /**
+   * Browser ID
+   */
+  browserId: string
+  /**
+   * File path
+   */
+  file: string
+  /**
+   * Suite ID
+   */
+  suiteId?: string
+  /**
+   * Group ID
+   */
+  groupId?: string
+}
+
+/**
+ * A type that adds correlation IDs to a type.
+ * These are used with log reporting.
+ */
+export type WithCorrelation<T> = T & CorrelationIds
 
 /**
  * Data shared during "test:end" event
@@ -375,6 +409,10 @@ export interface SuiteStartNode {
    * Suite name
    */
   name: string
+  /**
+   * Number of files in the suite
+   */
+  filesCount?: number
 }
 
 /**
@@ -385,6 +423,10 @@ export interface SuiteEndNode {
    * Suite name
    */
   name: string
+  /**
+   * Number of files in the suite
+   */
+  filesCount?: number
   /**
    * Whether the suite has any errors
    */
@@ -401,8 +443,13 @@ export interface SuiteEndNode {
 /**
  * Data shared with "runner:start" event
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface RunnerStartNode {}
+export interface RunnerStartNode {
+  /**
+   * The number of total files that should be tested.
+   * Used for progress reporting.
+   */
+  estimatedTotalFiles: number
+}
 
 /**
  * Data shared with "runner:end" event
@@ -466,55 +513,121 @@ export interface RunnerPinnedTestsNode {
 }
 
 /**
- * Events emitted by the runner emitter. These can be extended as well
+ * Events emitted natively by the test framework without correlation IDs
  */
-export interface RunnerEvents {
+export interface FrameworkEvents {
   /**
-   * Test start event
+   * Emitted when a test starts.
    */
   'test:start': TestStartNode
   /**
-   * Test end event
+   * Emitted when a test ends.
    */
   'test:end': TestEndNode
   /**
-   * Group start event
+   * Emitted when a group starts.
    */
   'group:start': GroupStartNode
   /**
-   * Group end event
+   * Emitted when a group ends.
    */
   'group:end': GroupEndNode
   /**
-   * Suite start event
+   * Emitted when a suite starts.
    */
   'suite:start': SuiteStartNode
   /**
-   * Suite end event
+   * Emitted when a suite ends.
    */
   'suite:end': SuiteEndNode
   /**
-   * Runner start event
-   */
-  'runner:start': RunnerStartNode
-  /**
-   * Runner end event
-   */
-  'runner:end': RunnerEndNode
-  /**
-   * Uncaught exception event
+   * Emitted when an uncaught exception occurs.
    */
   'uncaught:exception': UncaughtExceptionNode
   /**
-   * Runner pinned tests event
+   * Emitted when the runner finds pinned tests.
    */
   'runner:pinned_tests': RunnerPinnedTestsNode
+  /**
+   * Emitted when the runner starts.
+   */
+  'runner:start': RunnerStartNode
+  /**
+   * Emitted when the runner ends.
+   */
+  'runner:end': RunnerEndNode
+}
+
+/**
+ * Events emitted by the browser telemetry over WebSocket
+ */
+export interface BrowserTelemetryEvents {
+  /**
+   * Emitted when a test starts.
+   */
+  'test:start': WithCorrelation<TestStartNode>
+  /**
+   * Emitted when a test ends.
+   */
+  'test:end': WithCorrelation<TestEndNode>
+  /**
+   * Emitted when a group starts.
+   */
+  'group:start': WithCorrelation<GroupStartNode>
+  /**
+   * Emitted when a group ends.
+   */
+  'group:end': WithCorrelation<GroupEndNode>
+  /**
+   * Emitted when a suite starts.
+   */
+  'suite:start': WithCorrelation<SuiteStartNode>
+  /**
+   * Emitted when a suite ends.
+   */
+  'suite:end': WithCorrelation<SuiteEndNode>
+  /**
+   * Emitted when an uncaught exception occurs.
+   */
+  'uncaught:exception': UncaughtExceptionNode & Partial<CorrelationIds>
+  /**
+   * Emitted when the runner finds pinned tests.
+   */
+  'runner:pinned_tests': RunnerPinnedTestsNode & Partial<CorrelationIds>
+  /**
+   * Emitted when the runner starts.
+   */
+  'runner:start': RunnerStartNode & Partial<CorrelationIds>
+  /**
+   * Emitted when the runner ends.
+   */
+  'runner:end': RunnerEndNode & Partial<CorrelationIds>
+}
+
+/**
+ * Events emitted by the Node runner orchestrator.
+ * Includes hydrated browser events and pool lifecycle events.
+ */
+
+export interface RunnerEvents extends BrowserTelemetryEvents {
+  /**
+   * Browser console log
+   */
+  'browser:log': {
+    file: string
+    type: string
+    messages: any[]
+  }
 }
 
 /**
  * Type for the reporter handler function
  */
-export type ReporterHandlerContract = (runner: Runner, emitter: Emitter) => void | Promise<void>
+export type ReporterHandlerContract = (
+  runner: Runner,
+  emitter: Emitter<RunnerEvents>,
+  config: NormalizedConfig
+) => void | Promise<void>
 
 /**
  * Type for a named reporter object.
@@ -524,6 +637,11 @@ export interface NamedReporterContract {
    * Reporter name
    */
   readonly name: string
+  /**
+   * Whether the reporter takes exclusive control of the CLI output.
+   * If true, only one such reporter can be active at a time to prevent interleaved output.
+   */
+  readonly usesCLI?: boolean
   /**
    * Reporter handler
    */

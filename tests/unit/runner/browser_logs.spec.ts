@@ -20,7 +20,6 @@ test('BrowserLogs', async (t) => {
 
   await t.test('filters messages if verbose is false', async () => {
     const logs: any[][] = []
-    console.log = (...args) => logs.push(args)
 
     let consoleHandler: any
     const dummyPage = {
@@ -29,7 +28,10 @@ test('BrowserLogs', async (t) => {
       },
     }
 
-    const browserLogs = new BrowserLogs(dummyPage as any, false)
+    const dummyEmitter = {
+      emit: (_event: string, payload: any) => logs.push([payload.file, payload.type, payload.messages]),
+    }
+    const browserLogs = new BrowserLogs(dummyPage as any, false, dummyEmitter as any)
     browserLogs.boot()
 
     const dummyMessage = {
@@ -43,9 +45,8 @@ test('BrowserLogs', async (t) => {
     assert.strictEqual(logs.length, 0)
   })
 
-  await t.test('prints simple text message when there are no args', async () => {
+  await t.test('emits simple text message when there are no args', async () => {
     const logs: any[][] = []
-    console.log = (...args) => logs.push(args)
 
     let consoleHandler: any
     const dummyPage = {
@@ -54,7 +55,10 @@ test('BrowserLogs', async (t) => {
       },
     }
 
-    const browserLogs = new BrowserLogs(dummyPage as any, true)
+    const dummyEmitter = {
+      emit: (_event: string, payload: any) => logs.push([payload.file, payload.type, payload.messages]),
+    }
+    const browserLogs = new BrowserLogs(dummyPage as any, true, dummyEmitter as any)
     browserLogs.boot()
 
     const dummyMessage = {
@@ -66,12 +70,11 @@ test('BrowserLogs', async (t) => {
     await consoleHandler(dummyMessage)
 
     assert.strictEqual(logs.length, 1)
-    assert.deepStrictEqual(logs[0], ['[Browser Console]', 'Hello world'])
+    assert.deepStrictEqual(logs[0], ['unknown', 'log', ['Hello world']])
   })
 
-  await t.test('prints multiline messages with prefix on a separate line', async () => {
+  await t.test('emits multiline messages', async () => {
     const logs: any[][] = []
-    console.log = (...args) => logs.push(args)
 
     let consoleHandler: any
     const dummyPage = {
@@ -80,7 +83,10 @@ test('BrowserLogs', async (t) => {
       },
     }
 
-    const browserLogs = new BrowserLogs(dummyPage as any, true)
+    const dummyEmitter = {
+      emit: (_event: string, payload: any) => logs.push([payload.file, payload.type, payload.messages]),
+    }
+    const browserLogs = new BrowserLogs(dummyPage as any, true, dummyEmitter as any)
     browserLogs.boot()
 
     const dummyMessage = {
@@ -96,15 +102,11 @@ test('BrowserLogs', async (t) => {
     await consoleHandler(dummyMessage)
 
     assert.strictEqual(logs.length, 1)
-    // The first argument to console.log is the prefix, second is newline, third is formatted text
-    assert.strictEqual(logs[0][0], '[Browser Console]')
-    assert.strictEqual(logs[0][1], '\n')
-    assert.strictEqual(logs[0][2], 'line1\nline2')
+    assert.deepStrictEqual(logs[0], ['unknown', 'log', ['line1\nline2']])
   })
 
   await t.test('evaluates node and element correctly', async () => {
     const logs: any[][] = []
-    console.log = (...args) => logs.push(args)
 
     let consoleHandler: any
     const dummyPage = {
@@ -113,7 +115,10 @@ test('BrowserLogs', async (t) => {
       },
     }
 
-    const browserLogs = new BrowserLogs(dummyPage as any, true)
+    const dummyEmitter = {
+      emit: (_event: string, payload: any) => logs.push([payload.file, payload.type, payload.messages]),
+    }
+    const browserLogs = new BrowserLogs(dummyPage as any, true, dummyEmitter as any)
     browserLogs.boot()
 
     const dummyMessage = {
@@ -132,12 +137,11 @@ test('BrowserLogs', async (t) => {
     await consoleHandler(dummyMessage)
 
     assert.strictEqual(logs.length, 1)
-    assert.deepStrictEqual(logs[0], ['[Browser Console]', '<div id="test"></div>', '#text'])
+    assert.deepStrictEqual(logs[0], ['unknown', 'log', ['<div id="test"></div>', '#text']])
   })
 
-  await t.test('routes different types of logs to the correct console method', async () => {
-    const errors: any[][] = []
-    console.error = (...args) => errors.push(args)
+  await t.test('emits different types of logs correctly', async () => {
+    const logs: any[][] = []
 
     let consoleHandler: any
     const dummyPage = {
@@ -146,7 +150,10 @@ test('BrowserLogs', async (t) => {
       },
     }
 
-    const browserLogs = new BrowserLogs(dummyPage as any, true)
+    const dummyEmitter = {
+      emit: (_event: string, payload: any) => logs.push([payload.file, payload.type, payload.messages]),
+    }
+    const browserLogs = new BrowserLogs(dummyPage as any, true, dummyEmitter as any)
     browserLogs.boot()
 
     const dummyMessage = {
@@ -161,7 +168,7 @@ test('BrowserLogs', async (t) => {
 
     await consoleHandler(dummyMessage)
 
-    assert.strictEqual(errors.length, 1)
-    assert.deepStrictEqual(errors[0], ['[Browser Console]', 'Oh no!'])
+    assert.strictEqual(logs.length, 1)
+    assert.deepStrictEqual(logs[0], ['unknown', 'error', ['Oh no!']])
   })
 })

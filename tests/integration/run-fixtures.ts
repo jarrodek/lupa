@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { configure, processCLIArgs, run } from '../../src/runner/index.js'
-import { spec } from '../../src/reporters/index.js'
+import { progress } from '../../src/reporters/index.js'
 
 processCLIArgs(process.argv.slice(2))
 
@@ -8,8 +8,8 @@ configure({
   files: ['tests/fixtures/integration/**/*.spec.ts'],
   testPlugins: [path.join(process.cwd(), 'src/assert/index.ts')],
   reporters: {
-    activated: ['spec'],
-    list: [spec()],
+    activated: ['progress'],
+    list: [progress()],
   },
   harness: {
     stylesheets: [path.join(process.cwd(), 'tests/fixtures/test.styles.css')],

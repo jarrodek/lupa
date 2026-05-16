@@ -16,6 +16,7 @@ constructor(name: string, emitter: Emitter, refiner: Refiner): Suite
 ```
 **Properties:**
 - `stack: (Test<any> | Group)[]` — A collection of tests and groups both
+- `filesCount: number` — Number of files in the suite
 - `name: string`
 **Methods:**
 - `macro<T, K>(this: T, name: K, value: InstanceType<T>[K]): void` — Adds a macro (property or method) to the class prototype.

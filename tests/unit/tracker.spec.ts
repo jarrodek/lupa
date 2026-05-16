@@ -1,16 +1,33 @@
 import { test } from 'node:test'
 import assert from 'node:assert'
 import { Tracker } from '../../src/runner/tracker.js'
-import type { SuiteStartNode, SuiteEndNode, GroupStartNode, GroupEndNode, TestEndNode } from '../../src/types.js'
+import type {
+  SuiteStartNode,
+  SuiteEndNode,
+  GroupStartNode,
+  GroupEndNode,
+  TestEndNode,
+  WithCorrelation,
+} from '../../src/types.js'
 
 test('Tracker', async (t) => {
   await t.test('tracks test events and aggregates correctly', () => {
     const tracker = new Tracker()
     tracker.processEvent('runner:start', undefined as any)
 
-    tracker.processEvent('suite:start', { name: 'unit' } as SuiteStartNode)
+    tracker.processEvent('suite:start', {
+      name: 'unit',
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: {},
+    } as unknown as WithCorrelation<SuiteStartNode>)
 
-    tracker.processEvent('group:start', { title: 'Math' } as GroupStartNode)
+    tracker.processEvent('group:start', {
+      title: 'Math',
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit' },
+    } as unknown as WithCorrelation<GroupStartNode>)
 
     tracker.processEvent('test:end', {
       title: { original: '2+2', expanded: '2+2' },
@@ -19,7 +36,10 @@ test('Tracker', async (t) => {
       hasError: false,
       isFailing: false,
       errors: [],
-    } as unknown as TestEndNode)
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit', group: 'Math' },
+    } as unknown as WithCorrelation<TestEndNode>)
 
     tracker.processEvent('test:end', {
       title: { original: '2+3', expanded: '2+3' },
@@ -28,7 +48,10 @@ test('Tracker', async (t) => {
       hasError: true,
       isFailing: false,
       errors: [{ phase: 'test', error: new Error('Wrong') }],
-    } as unknown as TestEndNode)
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit', group: 'Math' },
+    } as unknown as WithCorrelation<TestEndNode>)
 
     tracker.processEvent('test:end', {
       title: { original: 'skipped', expanded: 'skipped' },
@@ -37,7 +60,10 @@ test('Tracker', async (t) => {
       hasError: false,
       isFailing: false,
       errors: [],
-    } as unknown as TestEndNode)
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit', group: 'Math' },
+    } as unknown as WithCorrelation<TestEndNode>)
 
     tracker.processEvent('test:end', {
       title: { original: 'todo', expanded: 'todo' },
@@ -46,7 +72,10 @@ test('Tracker', async (t) => {
       hasError: false,
       isFailing: false,
       errors: [],
-    } as unknown as TestEndNode)
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit', group: 'Math' },
+    } as unknown as WithCorrelation<TestEndNode>)
 
     tracker.processEvent('test:end', {
       title: { original: 'regression', expanded: 'regression' },
@@ -55,10 +84,27 @@ test('Tracker', async (t) => {
       hasError: false,
       isFailing: true,
       errors: [],
-    } as unknown as TestEndNode)
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit', group: 'Math' },
+    } as unknown as WithCorrelation<TestEndNode>)
 
-    tracker.processEvent('group:end', { hasError: false, errors: [] } as unknown as GroupEndNode)
-    tracker.processEvent('suite:end', { hasError: false, errors: [] } as unknown as SuiteEndNode)
+    tracker.processEvent('group:end', {
+      hasError: false,
+      errors: [],
+      browserId: 'chromium',
+      file: 'test.ts',
+      title: 'Math',
+      meta: { suite: 'unit' },
+    } as unknown as WithCorrelation<GroupEndNode>)
+    tracker.processEvent('suite:end', {
+      hasError: false,
+      errors: [],
+      browserId: 'chromium',
+      file: 'test.ts',
+      name: 'unit',
+      meta: {},
+    } as unknown as WithCorrelation<SuiteEndNode>)
     tracker.processEvent('runner:end', undefined as any)
 
     const summary = tracker.getSummary()
@@ -85,16 +131,34 @@ test('Tracker', async (t) => {
     const tracker = new Tracker()
     tracker.processEvent('runner:start', undefined as any)
 
-    tracker.processEvent('suite:start', { name: 'unit' } as SuiteStartNode)
-    tracker.processEvent('group:start', { title: 'Math' } as GroupStartNode)
+    tracker.processEvent('suite:start', {
+      name: 'unit',
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: {},
+    } as unknown as WithCorrelation<SuiteStartNode>)
+    tracker.processEvent('group:start', {
+      title: 'Math',
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit' },
+    } as unknown as WithCorrelation<GroupStartNode>)
 
     tracker.processEvent('group:end', {
       hasError: true,
       errors: [{ phase: 'setup', error: new Error('Group Setup Failed') }],
+      browserId: 'chromium',
+      file: 'test.ts',
+      title: 'Math',
+      meta: { suite: 'unit' },
     } as unknown as GroupEndNode)
     tracker.processEvent('suite:end', {
       hasError: true,
       errors: [{ phase: 'setup', error: new Error('Suite Setup Failed') }],
+      browserId: 'chromium',
+      file: 'test.ts',
+      name: 'unit',
+      meta: {},
     } as unknown as SuiteEndNode)
 
     const summary = tracker.getSummary()
@@ -110,13 +174,27 @@ test('Tracker', async (t) => {
     tracker.processEvent('runner:start', undefined as any)
 
     // Start a suite and a group
-    tracker.processEvent('suite:start', { name: 'unit' } as SuiteStartNode)
-    tracker.processEvent('group:start', { title: 'Math' } as GroupStartNode)
+    tracker.processEvent('suite:start', {
+      name: 'unit',
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: {},
+    } as unknown as WithCorrelation<SuiteStartNode>)
+    tracker.processEvent('group:start', {
+      title: 'Math',
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit' },
+    } as unknown as WithCorrelation<GroupStartNode>)
 
     // End the group WITHOUT errors
     tracker.processEvent('group:end', {
       hasError: false,
       errors: [],
+      browserId: 'chromium',
+      file: 'test.ts',
+      title: 'Math',
+      meta: { suite: 'unit' },
     } as unknown as GroupEndNode)
 
     // Now fire a failing test. It should be attached to the SUITE, not the GROUP,
@@ -128,11 +206,18 @@ test('Tracker', async (t) => {
       hasError: true,
       isFailing: false,
       errors: [{ phase: 'test', error: new Error('Wrong') }],
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit', group: 'Math' },
     } as unknown as TestEndNode)
 
     tracker.processEvent('suite:end', {
       hasError: false,
       errors: [],
+      browserId: 'chromium',
+      file: 'test.ts',
+      name: 'unit',
+      meta: {},
     } as unknown as SuiteEndNode)
 
     // Now fire a failing test AFTER the suite ends. It should not be attached to the suite.
@@ -144,6 +229,9 @@ test('Tracker', async (t) => {
       hasError: true,
       isFailing: false,
       errors: [{ phase: 'test', error: new Error('Leak') }],
+      browserId: 'chromium',
+      file: 'test.ts',
+      meta: { suite: 'unit' }, // no group, suite unit
     } as unknown as TestEndNode)
 
     const summary = tracker.getSummary()

@@ -1,7 +1,7 @@
 import { isRunningInAIAgent } from '@poppinss/utils'
 import debug from './debug.js'
 import type { CLIArgs, Config, Filters, NormalizedBaseConfig, NormalizedConfig } from './types.js'
-import { dot, github, ndjson, spec } from '../reporters/index.js'
+import { dot, github, ndjson, progress } from '../reporters/index.js'
 import { Refiner } from '../refiner/main.js'
 
 export const NOOP = () => {
@@ -22,8 +22,8 @@ const DEFAULTS = {
     activated:
       isRunningInAIAgent() || process.env.CI === 'true'
         ? ['dot'].concat(process.env.GITHUB_ACTIONS === 'true' ? ['github'] : [])
-        : ['spec'],
-    list: [spec(), ndjson(), dot(), github()],
+        : ['progress'],
+    list: [ndjson(), dot(), github(), progress()],
   },
   importer: (filePath) => import(filePath.href),
 } satisfies Config
@@ -141,6 +141,23 @@ export class ConfigManager {
 
     debug('filters applied using CLI flags %O', cliFilters)
 
+    let parallel = this.#config.parallel ?? true
+    if (this.#cliArgs.parallel === false) {
+      parallel = false
+    }
+
+    let concurrency = this.#config.concurrency ?? 'auto'
+    if (this.#cliArgs.concurrency !== undefined) {
+      const parsed = parseInt(this.#cliArgs.concurrency as string, 10)
+      if (!isNaN(parsed)) {
+        concurrency = parsed
+      }
+    }
+
+    if (!parallel) {
+      concurrency = 1
+    }
+
     let resolvedCoverage = this.#config.coverage ?? false
     if (this.#cliArgs.coverage === true) {
       resolvedCoverage = typeof this.#config.coverage === 'object' ? this.#config.coverage : true
@@ -171,6 +188,9 @@ export class ConfigManager {
       vite: this.#config.vite,
       coverage: resolvedCoverage,
       harness: this.#config.harness,
+      parallel,
+      concurrency,
+      watch: this.#config.watch ?? this.#cliArgs.watch === true,
     }
 
     /**

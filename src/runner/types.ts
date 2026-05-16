@@ -106,9 +106,9 @@ export type CLIArgs = {
    */
   verbose?: boolean
   /**
-   * Browser to run tests in
+   * Browser(s) to run tests in
    */
-  browser?: string
+  browser?: string | string[]
   /**
    * Path to Vite configuration file
    */
@@ -117,7 +117,15 @@ export type CLIArgs = {
    * Whether to enable code coverage
    */
   coverage?: boolean
-} & Record<string, string | string[] | boolean>
+  /**
+   * Whether to disable parallel execution
+   */
+  parallel?: boolean
+  /**
+   * Concurrency level
+   */
+  concurrency?: string | number
+} & Record<string, string | string[] | boolean | number>
 
 /**
  * Set of filters you can apply to run only specific tests
@@ -202,6 +210,11 @@ export interface BaseConfig {
    * the test files
    */
   cwd?: string
+
+  /**
+   * Whether to run tests in watch mode
+   */
+  watch?: boolean
 
   /**
    * The timeout to apply on all the tests, unless overwritten explicitly
@@ -306,6 +319,17 @@ export interface BaseConfig {
    * Customize the HTML harness environment
    */
   harness?: HarnessConfig
+
+  /**
+   * Whether to run tests in parallel across browsers and pages
+   */
+  parallel?: boolean
+
+  /**
+   * Number of concurrent pages to run per browser.
+   * Can be 'auto' or a specific number.
+   */
+  concurrency?: number | 'auto'
 }
 
 /**
@@ -393,6 +417,21 @@ export type NormalizedBaseConfig = Required<
    * Customize the HTML harness environment
    */
   harness?: HarnessConfig
+
+  /**
+   * Whether to run tests in parallel
+   */
+  parallel: boolean
+
+  /**
+   * Whether to run tests in watch mode
+   */
+  watch: boolean
+
+  /**
+   * Number of concurrent pages per browser
+   */
+  concurrency: number | 'auto'
 }
 
 /**

@@ -267,7 +267,7 @@ class InitCommand {
   private async initializeReporters(): Promise<void> {
     this.reporters = await checkbox({
       message: 'Select reporters to use:',
-      choices: reporterNames.map((name) => ({ name, value: name, checked: name === 'spec' })),
+      choices: reporterNames.map((name) => ({ name, value: name, checked: name === 'progress' })),
     })
   }
 

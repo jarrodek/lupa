@@ -27,13 +27,13 @@ const html: (strings: TemplateStringsArray, values: unknown[]) => TemplateResult
 ### `reporterNames`
 Built-in reporter names.
 ```ts
-const reporterNames: readonly ["spec", "dot", "ndjson", "github"]
+const reporterNames: readonly ["dot", "ndjson", "github", "progress"]
 ```
 
-### `spec`
-Create an instance of the spec reporter
+### `progress`
+Create an instance of the progress reporter
 ```ts
-const spec: (options?: BaseReporterOptions) => NamedReporterContract
+const progress: (options?: BaseReporterOptions) => NamedReporterContract
 ```
 
 ### `dot`

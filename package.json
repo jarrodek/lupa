@@ -69,6 +69,7 @@
     "fast-glob": "^3.3.3",
     "getopts": "^2.3.0",
     "lit-html": "^3.3.2",
+    "log-update": "^8.0.0",
     "nyc": "^18.0.0",
     "serialize-error": "^13.0.1",
     "string-width": "^8.2.1",

@@ -79,6 +79,12 @@ the test files
 
 **Type:** `string`
 
+#### watch
+
+Whether to run tests in watch mode
+
+**Type:** `boolean`
+
 #### timeout
 
 The timeout to apply on all the tests, unless overwritten explicitly
@@ -192,6 +198,19 @@ Customize the HTML harness environment
 
 **Type:** `HarnessConfig`
 
+#### parallel
+
+Whether to run tests in parallel across browsers and pages
+
+**Type:** `boolean`
+
+#### concurrency
+
+Number of concurrent pages to run per browser.
+Can be 'auto' or a specific number.
+
+**Type:** `number | "auto"`
+
 ## CoverageOptions
 
 Options for configuring code coverage instrumentation
@@ -264,7 +283,7 @@ Whether the test waits for done
 
 Test executor
 
-**Type:** `((context: TestContext, value: any, done: (error?: any) => void) => void | Promise<void>) | ((context: TestContext, value: unknown, done?: (error?: any) => void) => void | Promise<void>) | ((context: TestContext, done: (error?: any) => void) => void | Promise<void>)`
+**Type:** `((context: TestContext, done: (error?: any) => void) => void | Promise<void>) | ((context: TestContext, value: any, done: (error?: any) => void) => void | Promise<void>) | ((context: TestContext, value: unknown, done?: (error?: any) => void) => void | Promise<void>)`
 
 #### isTodo
 
@@ -373,6 +392,51 @@ Base reporter options
 Maximum number of frames to capture
 
 **Type:** `number`
+
+## FixtureRenderOptions
+
+Options for the `fixture` function.
+
+### Properties
+
+#### noWait
+
+By default `fixture` waits for the next animation frame to ensure
+elements are upgraded and connected. Set this to `true` to skip this wait.
+
+**Type:** `boolean`
+
+#### host
+
+An object to use as the `this` value for event listeners. It's often
+useful to set this to the host component rendering a template.
+
+**Type:** `object`
+
+#### renderBefore
+
+A DOM node before which to render content in the container.
+
+**Type:** `ChildNode | null`
+
+#### creationScope
+
+Node used for cloning the template (`importNode` will be called on this
+node). This controls the `ownerDocument` of the rendered DOM, along with
+any inherited context. Defaults to the global `document`.
+
+**Type:** `{ importNode: any }`
+
+#### isConnected
+
+The initial connected state for the top-level part being rendered. If no
+`isConnected` option is set, `AsyncDirective`s will be connected by
+default. Set to `false` if the initial render occurs in a disconnected tree
+and `AsyncDirective`s should see `isConnected === false` for their initial
+render. The `part.setConnected()` method must be used subsequent to initial
+render to change the connected state of the part.
+
+**Type:** `boolean`
 
 ## BlurOptions
 
@@ -642,58 +706,5 @@ current modifiers back. If not specified, currently pressed modifiers are used. 
 
 A point to use relative to the top-left corner of element padding box. If not specified, uses some visible point of
 the element.
-
-**Type:** `{ x: number; y: number }`
-
-## HoverOptions
-
-Options for the hover action.
-
-### Properties
-
-#### timeout
-
-Maximum time in milliseconds. Defaults to `0` - no timeout. The default value can be changed via `actionTimeout`
-option in the config, or by using the
-[browserContext.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-default-timeout)
-or [page.setDefaultTimeout(timeout)](https://playwright.dev/docs/api/class-page#page-set-default-timeout) methods.
-
-**Type:** `number`
-
-#### force
-
-Whether to bypass the [actionability](https://playwright.dev/docs/actionability) checks. Defaults to `false`.
-
-**Type:** `boolean`
-
-#### trial
-
-When set, this method only performs the [actionability](https://playwright.dev/docs/actionability) checks and skips the action. Defaults
-to `false`. Useful to wait until the element is ready for the action without performing it.
-
-**Type:** `boolean`
-
-#### modifiers
-
-Modifier keys to press. Ensures that only these modifiers are pressed during the operation, and then restores
-current modifiers back. If not specified, currently pressed modifiers are used. "ControlOrMeta" resolves to
-"Control" on Windows and Linux and to "Meta" on macOS.
-
-**Type:** `("Alt" | "Control" | "ControlOrMeta" | "Meta" | "Shift")[]`
-
-#### position
-
-A point to use relative to the top-left corner of element padding box. If not specified, uses some visible point of
-the element.
-
-**Type:** `{ x: number; y: number }`
-
-## PressOptions
-
-Options for the press action.
-
-### Properties
-
-#### delay
 
 <!-- truncated -->

@@ -6,25 +6,27 @@
  */
 
 import { DotReporter } from './dot.js'
-import { SpecReporter } from './spec.js'
 import { NdJSONReporter } from './ndjson.js'
 import { GithubReporter } from './github.js'
 import type { BaseReporterOptions, NamedReporterContract } from '../types.js'
+
+import { ProgressReporter } from './progress.js'
 
 export { BaseReporterOptions, NamedReporterContract }
 
 /**
  * Built-in reporter names.
  */
-export const reporterNames = ['spec', 'dot', 'ndjson', 'github'] as const
+export const reporterNames = ['dot', 'ndjson', 'github', 'progress'] as const
 
 /**
- * Create an instance of the spec reporter
+ * Create an instance of the progress reporter
  */
-export const spec: (options?: BaseReporterOptions) => NamedReporterContract = (options) => {
+export const progress: (options?: BaseReporterOptions) => NamedReporterContract = (options) => {
   return {
-    name: 'spec',
-    handler: (...args) => new SpecReporter(options).boot(...args),
+    name: 'progress',
+    usesCLI: true,
+    handler: (...args) => new ProgressReporter(options).boot(...args),
   }
 }
 
@@ -34,6 +36,7 @@ export const spec: (options?: BaseReporterOptions) => NamedReporterContract = (o
 export const dot: (options?: BaseReporterOptions) => NamedReporterContract = (options) => {
   return {
     name: 'dot',
+    usesCLI: true,
     handler: (...args) => new DotReporter(options).boot(...args),
   }
 }
