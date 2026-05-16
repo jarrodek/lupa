@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/jarrodek/lupa/compare/v1.6.0...v1.7.0) (2026-05-16)
+
+
+### Features
+
+* refactoring the runner for parallel running tests ([37b66ce](https://github.com/jarrodek/lupa/commit/37b66ce2780e04bbe44d5d5bb2823ed445c57e9b))
+
 # [1.6.0](https://github.com/jarrodek/lupa/compare/v1.5.3...v1.6.0) (2026-05-16)
 
 
