@@ -19,10 +19,11 @@ function createProgressBlocks(value: number, total: number) {
 
 export class ProgressReporter extends BaseReporter {
   #totalFiles = 0
-  #completedFiles = 0
   #passedTests = 0
   #failedTests = 0
   #skippedTests = 0
+  #seenFiles = new Set<string>()
+  #lastRenderTime = 0
 
   #logs: { file: string; type: string; messages: any[] }[] = []
 
@@ -35,23 +36,28 @@ export class ProgressReporter extends BaseReporter {
       this.#passedTests++
     }
 
+    const file = (payload as any).file || payload.meta?.fileName
+    if (file) {
+      this.#seenFiles.add(file)
+    }
+
     this.render()
   }
 
   protected start(node: RunnerStartNode) {
     this.#totalFiles = node.estimatedTotalFiles
-    this.#completedFiles = 0
 
     this.#passedTests = 0
     this.#failedTests = 0
     this.#skippedTests = 0
     this.#logs = []
+    this.#seenFiles.clear()
+    this.#lastRenderTime = Date.now()
 
     this.render()
   }
 
-  protected onSuiteEnd(payload: SuiteEndNode) {
-    this.#completedFiles += payload.filesCount || 1
+  protected onSuiteEnd(_payload: SuiteEndNode) {
     this.render()
   }
 
@@ -132,23 +138,32 @@ export class ProgressReporter extends BaseReporter {
   }
 
   #getProgressBar(): string {
-    const totalExpected = Math.max(this.#completedFiles, this.#totalFiles)
+    const completedFiles = this.#seenFiles.size
+    const totalExpected = Math.max(completedFiles, this.#totalFiles)
 
-    const progressBlocks = createProgressBlocks(this.#completedFiles, totalExpected)
-    const finishedBlockCount =
-      totalExpected === 0 ? 0 : Math.floor((PROGRESS_WIDTH * this.#completedFiles) / totalExpected)
+    const progressBlocks = createProgressBlocks(completedFiles, totalExpected)
+    const finishedBlockCount = totalExpected === 0 ? 0 : Math.floor((PROGRESS_WIDTH * completedFiles) / totalExpected)
 
     const finishedBlocks = colors.white(progressBlocks.slice(0, finishedBlockCount))
     const scheduledBlocks = colors.gray(progressBlocks.slice(finishedBlockCount))
     const bar = `|${finishedBlocks}${scheduledBlocks}|`
 
-    const text = `${bar} ${this.#completedFiles}/${totalExpected} test files | ${this.#passedTests} passed, ${this.#failedTests} failed, ${this.#skippedTests} skipped`
+    const text = `${bar} ${completedFiles}/${totalExpected} test files | ${this.#passedTests} passed, ${this.#failedTests} failed, ${this.#skippedTests} skipped`
 
     return text
   }
 
   protected render() {
     this.#printLogs()
-    logUpdate(this.#getProgressBar())
+
+    if (!process.stdout.isTTY) {
+      const now = Date.now()
+      if (now - this.#lastRenderTime > 2000) {
+        console.log(this.#getProgressBar())
+        this.#lastRenderTime = now
+      }
+    } else {
+      logUpdate(this.#getProgressBar())
+    }
   }
 }
