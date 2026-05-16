@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/jarrodek/lupa/compare/v1.5.3...v1.6.0) (2026-05-16)
+
+
+### Features
+
+* fixture have render options ([0d05978](https://github.com/jarrodek/lupa/commit/0d05978232338dec119d09269e086e4492beeea6))
+
 ## [1.5.3](https://github.com/jarrodek/lupa/compare/v1.5.2...v1.5.3) (2026-05-15)
 
 
