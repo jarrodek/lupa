@@ -78,7 +78,7 @@ export class ProgressReporter extends BaseReporter {
 
     if (this.config?.watch) {
       // In focus mode, no summary aggregates, but we print the final progress bar
-      logUpdate(this.#getProgressBar())
+      this.#print(this.#getProgressBar(), true)
       logUpdate.done()
 
       if (summary.hasError) {
@@ -87,7 +87,7 @@ export class ProgressReporter extends BaseReporter {
       }
     } else {
       // Regular end, print progress bar permanently, then summary
-      logUpdate(this.#getProgressBar())
+      this.#print(this.#getProgressBar(), true)
       logUpdate.done()
 
       console.log('')
@@ -155,15 +155,18 @@ export class ProgressReporter extends BaseReporter {
 
   protected render() {
     this.#printLogs()
+    this.#print(this.#getProgressBar())
+  }
 
+  #print(value: string, ignoreTimer = false): void {
     if (!process.stdout.isTTY) {
       const now = Date.now()
-      if (now - this.#lastRenderTime > 2000) {
-        console.log(this.#getProgressBar())
+      if (now - this.#lastRenderTime > 2000 || ignoreTimer) {
+        console.log(value)
         this.#lastRenderTime = now
       }
     } else {
-      logUpdate(this.#getProgressBar())
+      logUpdate(value)
     }
   }
 }
